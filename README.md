@@ -4,11 +4,13 @@
 
 项目根：`D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast`。
 
-本项目于 2026-09-23 按用户要求独立建立。首轮 Spec 已确认并基线为 1.0。当前已确认并修复 DLL 加载阶段的小栈线程溢出，0.1.2 通过离线回归；用户已要求暂停实机，另一例访问异常未归因。六组功能 Probe 尚未执行，不具备实机通过结论。
+本项目于 2026-09-23 按用户要求独立建立，Spec 1.0 已确认。当前候选 0.2.0 修复加载栈溢出、加固模块指针/帧末调度，并复用固定版 Summon 的实体注册与安全释放框架。离线检查通过；用户负责后续实机测试，另一例访问异常仍未归因，六组功能 Probe 尚无通过结论。
 
 ## 开始阅读
 
 - [主题入口](docs/feat-er-demon-beast/feat-readme.md)：目标和分阶段范围。
+- [手动测试步骤](MANUAL_TEST.md)：按加载/观察/控制顺序双击启动，日志回传方法。
+- [Summon 整合自检](docs/feat-er-demon-beast/research/summon-integration-audit.md)：复用来源、风险修复与验证边界。
 - [DLL 自检报告](docs/feat-er-demon-beast/research/dll-self-audit.md)：已确认崩溃、修复证据及剩余不确定性。
 - [首轮规格与 Probe](docs/feat-er-demon-beast/spec.md)：已确认的六组可观察行为。
 - [技术设计](docs/feat-er-demon-beast/design.md)：实现接口、获批的 ER 原生取证和回滚。

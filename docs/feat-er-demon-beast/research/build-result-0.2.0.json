@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "source_revision": "32b177e17ffa21bdbf2f199b095d556477c064ee",
+  "spec": "spec.md@1.0",
+  "design": "design.md@1.2",
+  "summon_revision": "01491edfa709545786d0fe795ab2fb2458dca4e1",
+  "source_sha256": {
+    "Cargo.toml": "913ac7cff8bd97e4520133feb33569767d3af6c57d7c26a534079bf41baf820a",
+    "Cargo.lock": "88f9fee8399394b73de22a7e6b6f6134013933fdd663380d5db2910c1ee017c6",
+    "src/lib.rs": "e4d956916b8cc7cf8bdc367a00e06129dd177b300ecff24cc3ed178d329dc9d2",
+    "src/native.rs": "f90c8f7c094d5b93a9af4637129f36fe246108f89cbec527d05e83164ed480c3",
+    "src/session.rs": "05c7aadbd33b12ce9abceba70928243debc20dc120d2d8c26548c60ac317f45d",
+    "src/native/capture.rs": "75a43fb76d904129104713ba6a41cb771b2c6b1fea94b3a14763cc11dbb2f6b6",
+    "src/vendor/summon/provenance.json": "cb99ba0e85392e3a428e8df6530298dcbc23fb78b30991ca71dc6d489cd5a73e"
+  },
+  "dll_sha256": "f3fc865f9fe0f29cd1114400f6e32b0a02b04c11d9567e591464a74eadc20f3f",
+  "dll_size": 828928,
+  "rust_tests": 17,
+  "python_tests": 8,
+  "small_stack_regression": "PASS",
+  "summon_fixture_checks": "3 PASS",
+  "runtime_tested": false,
+  "final_acceptance": "PENDING_HUMAN",
+  "default_enabled": false,
+  "default_control_enabled": false
+}

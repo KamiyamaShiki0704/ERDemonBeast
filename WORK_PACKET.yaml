@@ -3,21 +3,21 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 4f877655983854e84f2f49a339889ee25ab63821
+    revision: 32b177e17ffa21bdbf2f199b095d556477c064ee
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
   authoritative_inputs:
     spec: docs/feat-er-demon-beast/spec.md@1.0
-    design: docs/feat-er-demon-beast/design.md@1.1
+    design: docs/feat-er-demon-beast/design.md@1.2
   current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备]
     out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或现用游戏配置]
-  current_task: DLL 加载崩溃离线自检完成；确认并修复小栈线程溢出。用户要求暂停实机，第二例访问异常未归因，不重开游戏。
-  code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, tests/lifecycle.rs]
+  current_task: 0.2.0 已复用 Summon 注册/安全释放源码并加固指针和调度；离线检查通过，手动测试包就绪，等待用户分阶段测试及反馈。
+  code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: []
-  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py]
+  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py]
   probe_cases: [PROBE-ERDB-001, PROBE-ERDB-002, PROBE-ERDB-003, PROBE-ERDB-004, PROBE-ERDB-005, PROBE-ERDB-006]
   human_decisions:
     - 2026-09-23 用户要求建立独立项目。
@@ -25,26 +25,28 @@ work_packet:
     - 2026-09-23 用户回复“允许”，批准本项目用 ER 原生状态采集、日志分析和人工验收替代 FrameRecorderProbe，六组 Probe 语义不变。
     - 2026-09-23 用户指定 F:/GoldenAge/_GoldenAge 为实机环境，并选择直接使用 ER0000.Shiki；已备份存档。
     - 2026-09-23 用户要求“先别测了……先自检一下是不是 dll 有问题”；实机暂停，仅离线自检，不自动恢复游戏测试。
+    - 2026-09-23 用户允许复用 Summon 新版召唤/内存清理框架，要求继续自检修复，并明确后续游戏测试由用户执行。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
-    - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；禁止继续启动游戏，直到用户恢复实机测试。
+    - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
     - 已建立获批的原生采集；之前仅加载采样，六组正式 Case 均 NOT_RUN。
-    - 0.1.2 默认 enabled=false，仅存项目 dist；0.1.1 也已改回 disabled。原 GoldenAge profile 未修改；临时测试入口已被外部移除，不重建。
-    - 下轮先读 research/dll-self-audit.md。第二例 EXE+1F109C4 访问异常未归因，不能宣称 DLL 已稳定。
+    - 0.2.0 仅存项目 dist，根配置 enabled/control_enabled 均 false；手动脚本在包内生成每轮配置/日志，原 GoldenAge profile 未修改。
+    - Summon 源码固定 01491edfa709545786d0fe795ab2fb2458dca4e1；共享三份 fixture 已与 EXE 验证。原项目只读。
+    - 下轮先读 MANUAL_TEST.md 和 research/summon-integration-audit.md。第二例 EXE+1F109C4 未归因，禁止把离线测试当作实机通过。
   write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast]
   human_gate:
     confirmed: true
     evidence: 当前任务用户消息“可以，继续任务”，对应 spec.md@0.1 全部首轮范围与六组 Probe。
     pending: []
   latest_result:
-    stage: dll-self-audit-complete-runtime-paused
+    stage: manual-test-package-ready
     automatic_result: PARTIAL
-    offline_tests: 9 Rust + 6 analysis + 1 small-stack regression passed; old DLL reproduces C00000FD
+    offline_tests: 17 Rust + 8 Python + small-stack regression PASS; 3 Summon binary fixtures PASS
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
     runtime_tested: false
     final_acceptance: pending
-    artifact: dist/er-demon-beast-0.1.2/er_demon_beast.dll
-    artifact_sha256: 1EC7F9EF2305F5CBA81F5BEAF93E89478EC19A46115CA307C55631B7FD489FD8
+    artifact: dist/er-demon-beast-0.2.0/er_demon_beast.dll
+    artifact_sha256: F3FC865F9FE0F29CD1114400F6E32B0A02B04C11D9567E591464A74EADC20F3F
