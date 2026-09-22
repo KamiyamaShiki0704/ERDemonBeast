@@ -27,8 +27,9 @@ def restored(state, baseline):
     body, original = state.get("body"), baseline.get("body")
     if not body or not original:
         return False
-    keys = ("handle", "address", "render", "alpha", "tint_alpha", "debug_flags", "disable_hit", "override")
+    keys = ("handle", "address", "render", "alpha", "tint_alpha", "disable_hit", "override")
     return (all(body.get(k) == original.get(k) for k in keys)
+            and body.get("debug_flags", 0) & 0x38 == original.get("debug_flags", 0) & 0x38
             and state.get("camera") == baseline.get("camera")
             and state.get("manip_owner") == baseline.get("manip_owner")
             and state.get("patches") == 0 and state.get("linked") is False

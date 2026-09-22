@@ -93,7 +93,13 @@ impl Capture {
         }
     }
 
-    pub(super) fn commands(&mut self, now: Duration, focused: bool, input: &mut Input) {
+    pub(super) fn commands(
+        &mut self,
+        now: Duration,
+        focused: bool,
+        control_allowed: bool,
+        input: &mut Input,
+    ) {
         if now < self.next_poll {
             return;
         }
@@ -119,11 +125,11 @@ impl Capture {
                 true
             }
             "end" | "mark" if self.case.is_some() => true,
-            "enter" if focused && self.case.is_some() => {
+            "enter" if focused && control_allowed && self.case.is_some() => {
                 input.enter = true;
                 true
             }
-            "revert" if focused && self.case.is_some() => {
+            "revert" if focused && control_allowed && self.case.is_some() => {
                 input.revert = true;
                 true
             }
@@ -173,18 +179,32 @@ fn phase(phase: Phase) -> &'static str {
     }
 }
 
-fn actor(chr: &ChrIns) -> Value {
+fn actor(chr: &ChrIns) -> Result<Value, String> {
+    let identity = Identity::of(chr)?;
+    let action_address = checked_object(
+        pointer(
+            identity.modules + offset_of!(eldenring::cs::ChrInsModuleContainer, action_request),
+        )?,
+        size_of::<eldenring::cs::CSChrActionRequestModule>(),
+    )?;
+    if pointer(action_address + offset_of!(eldenring::cs::CSChrActionRequestModule, owner))?
+        != identity.address
+    {
+        return Err("action module owner mismatch".into());
+    }
     let modules = chr.modules.as_ref();
     let pos = modules.physics.as_ref().position;
     let action = modules.action_request.as_ref();
-    json!({"handle":chr.field_ins_handle.to_string(),"address":chr as *const _ as usize,
+    Ok(
+        json!({"handle":chr.field_ins_handle.to_string(),"address":chr as *const _ as usize,
         "hp":modules.data.as_ref().hp,"position":[pos.0,pos.1,pos.2],
         "render":chr.chr_flags1c5.enable_render(),"alpha":chr.base_transparency,
         "tint_alpha":chr.tint_alpha_multiplier,"debug_flags":chr.debug_flags.0,
         "disable_hit":chr.chr_ctrl.as_ref().flags.disable_hit(),
         "actions":action.action_requests.0,"new_actions":action.new_action_presses.0,
         "npc_action":action.npc_action_id,"tae":action.action_request_queue.current_tae_id,
-        "override":pointer(chr.chr_ctrl.as_ref() as *const _ as usize + CTRL_OVERRIDE).ok()})
+        "override":pointer(chr.chr_ctrl.as_ref() as *const _ as usize + CTRL_OVERRIDE).ok()}),
+    )
 }
 
 pub(super) fn snapshot(backend: &NativeBackend) -> Value {
@@ -198,11 +218,11 @@ fn collect(backend: &NativeBackend) -> Result<Value, String> {
     let world = backend.world()?;
     let player = world.main_player.as_ref().ok_or("no local player")?;
     let target = player.locked_on_enemy;
-    let body = actor(&player.chr_ins);
-    let target = world.chr_ins_by_handle(&target).map(actor);
+    let body = actor(&player.chr_ins)?;
+    let target = world.chr_ins_by_handle(&target).map(actor).transpose()?;
     let beast = backend
         .beast
-        .map(|id| id.resolve(world).map(|chr| actor(chr)))
+        .map(|id| id.resolve(world).and_then(|chr| actor(chr)))
         .transpose()?;
     let owned_count = world
         .debug_chr_set
@@ -222,6 +242,6 @@ fn collect(backend: &NativeBackend) -> Result<Value, String> {
         json!({"body":body,"beast":beast,"target":target,"owned_count":owned_count,
         "camera":camera,"manipulator":dbg.debug_manipulator,"manip_owner":owner,
         "linked":backend.linked,"pending_spawn":backend.pending,
-        "patches":backend.patches.len()}),
+        "patches":backend.patches.len(), "retirement_pending":crate::retirement::pending()}),
     )
 }

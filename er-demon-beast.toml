@@ -1,9 +1,11 @@
 # Experimental prototype; restart the game after changing this file.
 # False loads only version/ABI diagnostics and installs no game task.
 enabled = false
+# enabled=true + control_enabled=false installs only the observation callback.
+control_enabled = false
 chr_id = 4070
 npc_param_id = 40700000
 npc_think_param_id = 40700000
-# Private ownership tag, not registered as an EMEVD entity id.
+# Reserved entity ID registered through the pinned Summon framework.
 ownership_tag = 1987040701
 # F6 enter, F7 restore. Duration/deadlines are fixed by Spec 1.0.

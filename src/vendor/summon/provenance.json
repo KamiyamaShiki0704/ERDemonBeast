@@ -1,0 +1,11 @@
+{
+  "upstream_revision": "01491edfa709545786d0fe795ab2fb2458dca4e1",
+  "files": {
+    "src/chr_lifecycle.rs": "815b2c91f6ed8e99268615e4a9d695e2c3e85bd52e5befffb11fe2456ccd6bd4",
+    "src/retirement.rs": "c42ba68febcc50bedbccd72a650d4cd5420de3a3e5e6e7e444990c455b02fecd",
+    "tests/fixtures/ww271-register-event-groups.bin": "d0d1cb51807e065102c21d18619fbafd36ce2b654d09e8a2ca3aaec8fd1e5e06",
+    "tests/fixtures/ww271-chrset-free-prefix.bin": "c1d434c3ea44890aad8fbbea314a5550b8a0218082697fff9b73c2366f894924",
+    "tests/fixtures/ww271-task-free.bin": "3bc51a2c20d4c54c2ecb239994107ee9a161303abbaa304acb6efe614a2d13c5",
+    "LICENSE-MIT": "1d67a6a4aa0d5a0b69c03a0f57449838ed637bbb59ed5229b12205b559c8651e"
+  }
+}

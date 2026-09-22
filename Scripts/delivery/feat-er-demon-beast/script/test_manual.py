@@ -1,0 +1,44 @@
+import hashlib
+import json
+from pathlib import Path
+import tempfile
+import tomllib
+import unittest
+from manual_test import make_profile, prepare
+
+
+class ManualPreparation(unittest.TestCase):
+    def test_profiles_are_offline_and_never_reuse_summon_or_duplicate_beast(self):
+        base = {"start_online":True, "natives":[{"path":"dll/Summon/Summon.dll"},
+                {"path":"dll/er_demon_beast.dll"}, {"path":"dll/hud.dll"}],
+                "packages":[{"id":"GA","path":"GA"}]}
+        root = Path.cwd()
+        full = make_profile(base, root, root/'new.dll', True)
+        self.assertFalse(full['start_online'])
+        self.assertEqual(full['savefile'], 'ER0000.Shiki')
+        self.assertEqual([Path(e['path']).name for e in full['natives']], ['hud.dll','new.dll'])
+        self.assertEqual(len(make_profile(base,root,root/'new.dll',False)['natives']),1)
+        self.assertTrue(base['start_online'])
+
+    def test_preparation_preserves_original_profile_and_save_and_sets_modes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp); ga=root/'ga'; ga.mkdir(); (ga/'GA').mkdir()
+            profile=b'profileVersion="v1"\nstart_online=true\npackages=[{id="GA",path="GA"}]\n'
+            (ga/'Start_GoldenAge.me3').write_bytes(profile)
+            (root/'er_demon_beast.dll').write_bytes(b'fixture')
+            (root/'build-result.json').write_text(json.dumps({'dll_sha256':hashlib.sha256(b'fixture').hexdigest()}))
+            (root/'er-demon-beast.toml').write_text('enabled=false\ncontrol_enabled=false\n')
+            save=root/'saves/account'; save.mkdir(parents=True); (save/'ER0000.Shiki').write_bytes(b'original-save')
+            for mode in ['load','observe','control','missing']:
+                info=prepare(root,ga,mode,False,root/'saves')
+                config=tomllib.loads((Path(info['run'])/'er-demon-beast.toml').read_text())
+                self.assertEqual(config['enabled'],mode!='load')
+                self.assertEqual(config['control_enabled'],mode in ('control','missing'))
+                if mode=='missing': self.assertEqual(config['npc_param_id'],2147483647)
+                self.assertEqual((Path(info['save_backup'])/'ER0000.Shiki').read_bytes(),b'original-save')
+                self.assertFalse(tomllib.loads(Path(info['profile']).read_text())['start_online'])
+            self.assertEqual((ga/'Start_GoldenAge.me3').read_bytes(),profile)
+            self.assertEqual((save/'ER0000.Shiki').read_bytes(),b'original-save')
+
+
+if __name__=='__main__': unittest.main()

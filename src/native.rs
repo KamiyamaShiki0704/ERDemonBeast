@@ -46,6 +46,8 @@ static RUNTIME: OnceLock<Mutex<Runtime>> = OnceLock::new();
 #[serde(deny_unknown_fields)]
 struct Config {
     enabled: bool,
+    #[serde(default)]
+    control_enabled: bool,
     chr_id: i32,
     npc_param_id: i32,
     npc_think_param_id: i32,
@@ -61,7 +63,7 @@ struct Runtime {
     capture: capture::Capture,
 }
 
-fn log(message: impl std::fmt::Display) {
+pub(crate) fn log(message: impl std::fmt::Display) {
     if let Some(dir) = DIRECTORY.get()
         && let Ok(mut file) = OpenOptions::new()
             .create(true)
@@ -115,13 +117,17 @@ fn initialize() -> Result<(), String> {
         return Err("invalid beast configuration".into());
     }
     log(format!(
-        "prototype {}; exe={hash}; ABI verified; enabled={}",
+        "prototype {}; exe={hash}; ABI verified; enabled={} control_enabled={}",
         env!("CARGO_PKG_VERSION"),
-        config.enabled
+        config.enabled,
+        config.control_enabled
     ));
     if !config.enabled {
         return Ok(());
     }
+    // Same startup separation used by Summon; never initialize engine state
+    // inside the loader callback. This delay is not a proof of scene readiness.
+    std::thread::sleep(Duration::from_secs(5));
     wait_for_system_init(&Program::current(), Duration::from_secs(180))
         .map_err(|e| e.to_string())?;
     let task_imp =
@@ -137,13 +143,12 @@ fn initialize() -> Result<(), String> {
             capture,
         }))
         .map_err(|_| "already initialized")?;
-    let task = task_imp.run_recurring(
-        update as fn(&FD4TaskData),
-        CSTaskGroupIndex::ChrIns_PostPhysics,
-    );
+    let task = task_imp.run_recurring(update as fn(&FD4TaskData), CSTaskGroupIndex::FrameEnd);
     // Game task owns this callback until process exit. Hot unloading unsupported.
     std::mem::forget(task);
-    log("game task installed; F6 enter / F7 restore; runtime acceptance NOT performed");
+    log(
+        "game task installed at FrameEnd; F6 enter / F7 restore; control requires control_enabled=true",
+    );
     Ok(())
 }
 
@@ -190,13 +195,25 @@ fn validate_abi() -> Result<(), String> {
     Ok(())
 }
 
-fn update(_: &FD4TaskData) {
+fn update(data: &FD4TaskData) {
+    static CALLBACK: std::sync::Once = std::sync::Once::new();
+    CALLBACK.call_once(|| {
+        log(format!(
+            "first callback group={:#x}; frame_end_accepted={}",
+            data.task_group_id,
+            is_frame_end(data.task_group_id)
+        ))
+    });
+    if !is_frame_end(data.task_group_id) {
+        return;
+    }
     let Some(runtime) = RUNTIME.get() else {
         return;
     };
     let Ok(mut runtime) = runtime.try_lock() else {
         return;
     };
+    runtime.backend.poll_retirement();
     let mut foreground_pid = 0;
     unsafe {
         GetWindowThreadProcessId(GetForegroundWindow(), Some(&mut foreground_pid));
@@ -215,7 +232,16 @@ fn update(_: &FD4TaskData) {
     runtime.keys = pressed;
     let before = runtime.session.phase();
     let now = runtime.epoch.elapsed();
-    runtime.capture.commands(now, focused, &mut input);
+    let control_allowed = runtime.backend.config.control_enabled;
+    runtime
+        .capture
+        .commands(now, focused, control_allowed, &mut input);
+    if !runtime.backend.config.control_enabled {
+        if input.enter || input.revert {
+            log("control input rejected: observe-only mode");
+        }
+        input = Input::default();
+    }
     // Loading/title screens may expose a temporary player with partially
     // initialized modules. Idle callbacks have no reason to traverse actors.
     if !needs_engine_access(before, input, runtime.capture.is_recording()) {
@@ -245,6 +271,11 @@ fn update(_: &FD4TaskData) {
         }
         runtime.last_error = error;
     }
+}
+
+fn is_frame_end(group: u32) -> bool {
+    // Exact dispatch encoding observed by pinned Summon on this EXE.
+    group == CSTaskGroupIndex::FrameEnd as u32 || group == 0x9000_00a8
 }
 
 fn needs_engine_access(phase: crate::session::Phase, input: Input, recording: bool) -> bool {
@@ -337,22 +368,66 @@ struct Identity {
     modifier: usize,
 }
 impl Identity {
-    fn of(chr: &ChrIns) -> Self {
-        Self {
-            handle: chr.field_ins_handle,
-            address: chr as *const _ as usize,
-            ctrl: chr.chr_ctrl.as_ref() as *const _ as usize,
-            modules: chr.modules.as_ref() as *const _ as usize,
-            data: chr.modules.as_ref().data.as_ref() as *const _ as usize,
-            physics: chr.modules.as_ref().physics.as_ref() as *const _ as usize,
-            modifier: chr.chr_ctrl.as_ref().modifier.as_ref() as *const _ as usize,
+    fn of(chr: &ChrIns) -> Result<Self, String> {
+        Self::at(chr as *const _ as usize)
+    }
+    fn at(address: usize) -> Result<Self, String> {
+        use eldenring::cs::{
+            CSChrDataModule, CSChrPhysicsModule, ChrCtrl, ChrCtrlModifier, ChrInsModuleContainer,
+        };
+        // Read pointers as integers before constructing references. OwnedPtr's
+        // Rust type does not prove that an engine module is initialized/live.
+        read(address, size_of::<ChrIns>())?;
+        let ctrl = checked_object(
+            pointer(address + offset_of!(ChrIns, chr_ctrl))?,
+            size_of::<ChrCtrl>(),
+        )?;
+        let modules = checked_object(
+            pointer(address + offset_of!(ChrIns, modules))?,
+            size_of::<ChrInsModuleContainer>(),
+        )?;
+        let data = checked_object(
+            pointer(modules + offset_of!(ChrInsModuleContainer, data))?,
+            size_of::<CSChrDataModule>(),
+        )?;
+        let physics = checked_object(
+            pointer(modules + offset_of!(ChrInsModuleContainer, physics))?,
+            size_of::<CSChrPhysicsModule>(),
+        )?;
+        let modifier = checked_object(
+            pointer(ctrl + offset_of!(ChrCtrl, modifier))?,
+            size_of::<ChrCtrlModifier>(),
+        )?;
+        for owner in [
+            ctrl + offset_of!(ChrCtrl, owner),
+            data + offset_of!(CSChrDataModule, owner),
+            physics + offset_of!(CSChrPhysicsModule, owner),
+        ] {
+            if pointer(owner)? != address {
+                return Err("module owner mismatch".into());
+            }
         }
+        let bytes = read(
+            address + offset_of!(ChrIns, field_ins_handle),
+            size_of::<FieldInsHandle>(),
+        )?;
+        // FieldInsHandle is two integer bitfields; every bit pattern is valid.
+        let handle = unsafe { bytes.as_ptr().cast::<FieldInsHandle>().read_unaligned() };
+        Ok(Self {
+            handle,
+            address,
+            ctrl,
+            modules,
+            data,
+            physics,
+            modifier,
+        })
     }
     fn resolve<'a>(&self, world: &'a mut WorldChrMan) -> Result<&'a mut ChrIns, String> {
         let chr = world
             .chr_ins_by_handle_mut(&self.handle)
             .ok_or("character handle no longer resolves")?;
-        let current = Self::of(chr);
+        let current = Self::of(chr)?;
         if current.address != self.address
             || current.ctrl != self.ctrl
             || current.modules != self.modules
@@ -369,6 +444,14 @@ impl Identity {
     }
 }
 
+fn checked_object(address: usize, size: usize) -> Result<usize, String> {
+    if address == 0 || !address.is_multiple_of(8) {
+        return Err(format!("invalid module address {address:#x}"));
+    }
+    read(address, size)?;
+    Ok(address)
+}
+
 struct NativeBackend {
     config: Config,
     body: Option<Identity>,
@@ -380,6 +463,17 @@ struct NativeBackend {
     debug_address: usize,
     debug_manipulator: usize,
     body_patch_count: usize,
+    retirement: Retirement,
+    spawn_existing: std::collections::HashSet<FieldInsHandle>,
+}
+#[derive(Default)]
+enum Retirement {
+    #[default]
+    None,
+    Requested,
+    Draining,
+    Complete,
+    Quarantined(String),
 }
 impl NativeBackend {
     fn new(config: Config) -> Self {
@@ -394,6 +488,8 @@ impl NativeBackend {
             debug_address: 0,
             debug_manipulator: 0,
             body_patch_count: 0,
+            retirement: Retirement::None,
+            spawn_existing: Default::default(),
         }
     }
     fn world(&self) -> Result<&'static mut WorldChrMan, String> {
@@ -403,28 +499,105 @@ impl NativeBackend {
         }
         Ok(world)
     }
+    fn poll_retirement(&mut self) {
+        if !matches!(
+            self.retirement,
+            Retirement::Requested | Retirement::Draining
+        ) {
+            return;
+        }
+        if let Err(error) = self.retire_at_frame_end() {
+            crate::retirement::quarantine_all(&error);
+            log(format!("retirement quarantined: {error}; restart required"));
+            self.retirement = Retirement::Quarantined(error);
+        }
+    }
+    fn retire_at_frame_end(&mut self) -> Result<(), String> {
+        let world = self.world()?;
+        self.validate_session(world, false)?;
+        if matches!(self.retirement, Retirement::Draining) {
+            crate::retirement::poll(world);
+            if !crate::retirement::pending() {
+                self.retirement = Retirement::Complete;
+            }
+            return Ok(());
+        }
+        let id = self.beast.ok_or("retirement missing owned beast")?;
+        id.resolve(world)?;
+        let dbg = unsafe { WorldChrManDbg::instance() }.map_err(|e| e.to_string())?;
+        if dbg
+            .cam_override_chr_ins
+            .is_some_and(|p| p.as_ptr() as usize == id.address)
+            || (dbg.debug_manipulator != 0
+                && pointer(dbg.debug_manipulator + MANIP_OWNER)? == id.address)
+            || pointer(id.ctrl + CTRL_OVERRIDE)? != 0
+            || !self.patches.is_empty()
+            || self.linked
+        {
+            return Err("beast still referenced by control/camera; refusing destruction".into());
+        }
+        match crate::chr_lifecycle::destroy_summon(world, id.handle) {
+            crate::chr_lifecycle::DestroyOutcome::RetirementStarted => {
+                // Ownership moved to Summon's queue; never resolve this old handle again.
+                self.beast = None;
+                self.retirement = Retirement::Draining;
+                Ok(())
+            }
+            outcome => Err(format!("Summon detach refused: {outcome}")),
+        }
+    }
     fn capture_pending(&mut self, world: &mut WorldChrMan) -> Result<bool, String> {
         if !self.pending {
             return Ok(self.beast.is_some());
         }
-        // Enumerate the owning set instead of trusting a shared last-created
-        // pointer which another mod can consume or replace.
+        // The creator does not guarantee event-id registration (Summon fixes
+        // this explicitly). Bind by our unchanged request, pre-spawn set and
+        // last-created pointer together, then register through Summon's code.
+        let init = &world.debug_chr_creator.init_data;
+        if init.event_entity_id != self.config.ownership_tag
+            || init.npc_param_id != self.config.npc_param_id
+            || init.npc_think_param_id != self.config.npc_think_param_id
+        {
+            return Err(
+                "debug creator request overwritten; ownership uncertain; restart required".into(),
+            );
+        }
+        let Some(last_created) = world.debug_chr_creator.last_created_chr else {
+            return Ok(false);
+        };
         let matches: Vec<_> = world
             .debug_chr_set
             .characters()
             .filter(|chr| {
-                chr.event_entity_id == self.config.ownership_tag as u32
+                !self.spawn_existing.contains(&chr.field_ins_handle)
                     && chr.npc_id == self.config.chr_id
                     && chr.npc_param_id == self.config.npc_param_id
             })
             .map(|chr| Identity::of(chr))
-            .collect();
+            .collect::<Result<Vec<_>, _>>()?;
         if matches.len() > 1 {
             return Err("ambiguous owned beast; manual cleanup required".into());
         }
         if let Some(identity) = matches.first() {
+            if identity.address != last_created.as_ptr() as usize {
+                return Err("last-created pointer disagrees with newly spawned beast".into());
+            }
             self.beast = Some(*identity);
             self.pending = false;
+            self.spawn_existing.clear();
+            world.debug_chr_creator.last_created_chr = None;
+            let registered = crate::chr_lifecycle::register_event_entity_id(
+                world,
+                identity.handle,
+                self.config.ownership_tag,
+            );
+            if !matches!(
+                registered,
+                crate::chr_lifecycle::EntityIdOutcome::RegisteredByDll
+                    | crate::chr_lifecycle::EntityIdOutcome::AlreadyRegisteredByEngine
+            ) {
+                return Err(format!("owned beast registration refused: {registered}"));
+            }
             log(format!(
                 "owned beast ready handle={} addr={:#x}",
                 identity.handle, identity.address
@@ -548,11 +721,20 @@ impl NativeBackend {
 
 impl Backend for NativeBackend {
     fn begin(&mut self) -> Result<(), String> {
-        if self.pending || !self.patches.is_empty() {
+        if self.pending
+            || !self.patches.is_empty()
+            || !matches!(self.retirement, Retirement::None)
+            || crate::retirement::pending()
+        {
             return Err("previous cleanup still pending".into());
         }
         let world = self.world()?;
         let player = world.main_player.as_ref().ok_or("no local player")?;
+        let body_id = Identity::of(&player.chr_ins)?;
+        checked_object(
+            pointer(body_id.modules + offset_of!(eldenring::cs::ChrInsModuleContainer, ride))?,
+            size_of::<eldenring::cs::CSChrRideModule>(),
+        )?;
         if player.chr_ins.modules.as_ref().data.as_ref().hp <= 0
             || player.chr_ins.modules.as_ref().ride.as_ref().is_mounted
             || player.chr_ins.modules.as_ref().ride.as_ref().is_mounting
@@ -578,14 +760,10 @@ impl Backend for NativeBackend {
         {
             return Err("missing configured NpcParam/NpcThinkParam".into());
         }
-        self.body = Some(Identity::of(&player.chr_ins));
+        self.body = Some(body_id);
         self.world_address = world as *mut _ as usize;
-        if let Some(identity) = self.beast {
-            let beast = identity.resolve(world)?;
-            move_to(beast, position, yaw);
-            return Ok(());
-        }
         if world.debug_chr_creator.spawn
+            || world.debug_chr_creator.last_created_chr.is_some()
             || world
                 .debug_chr_set
                 .characters()
@@ -593,6 +771,11 @@ impl Backend for NativeBackend {
         {
             return Err("debug creator busy or ownership tag occupied".into());
         }
+        self.spawn_existing = world
+            .debug_chr_set
+            .characters()
+            .map(|chr| chr.field_ins_handle)
+            .collect();
         let init = &mut world.debug_chr_creator.init_data;
         if size_of_val(init) != 0x100 {
             return Err("creator layout mismatch".into());
@@ -655,6 +838,16 @@ impl Backend for NativeBackend {
         Ok(())
     }
     fn restore(&mut self) -> Result<bool, String> {
+        match &self.retirement {
+            Retirement::Requested | Retirement::Draining => return Ok(false),
+            Retirement::Quarantined(error) => return Err(error.clone()),
+            Retirement::Complete => {
+                self.body = None;
+                self.retirement = Retirement::None;
+                return Ok(true);
+            }
+            Retirement::None => {}
+        }
         if self.body.is_none() && self.patches.is_empty() && !self.pending {
             return Ok(true);
         }
@@ -695,7 +888,16 @@ impl Backend for NativeBackend {
         self.body_patch_count = 0;
         if beast_valid {
             park(self.beast.unwrap().resolve(world)?);
+            // At least one further FrameEnd before detach; the shared Summon
+            // queue then requires two quiet frame ends before freeing memory.
+            self.retirement = Retirement::Requested;
+            return Ok(false);
         } else {
+            if self.beast.is_some() {
+                self.retirement =
+                    Retirement::Quarantined("owned beast identity lost; no free attempted".into());
+                return Err("owned beast identity lost; no free attempted".into());
+            }
             self.beast = None;
         }
         self.body = None;
@@ -740,6 +942,24 @@ fn park(chr: &mut ChrIns) {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn missing_modules_are_rejected_before_owned_pointer_dereference() {
+        let storage = vec![0_usize; std::mem::size_of::<eldenring::cs::ChrIns>() / 8];
+        assert!(super::Identity::at(storage.as_ptr() as usize).is_err());
+        assert!(super::Identity::at(1).is_err());
+        assert!(super::checked_object(0, 8).is_err());
+        assert!(super::checked_object(8, 8).is_err());
+    }
+
+    #[test]
+    fn observed_frame_end_encoding_is_accepted_without_accepting_other_stages() {
+        assert!(super::is_frame_end(0x9000_00a8));
+        assert!(super::is_frame_end(168));
+        for stage in [167, 169, 0x8000_00a8, 0x9000_00a7, u32::MAX] {
+            assert!(!super::is_frame_end(stage));
+        }
+    }
+
     #[test]
     fn pinned_native_layout_matches_target_contract() {
         super::validate_abi().unwrap();
