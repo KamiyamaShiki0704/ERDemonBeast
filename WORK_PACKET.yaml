@@ -1,0 +1,47 @@
+work_packet:
+  goal: 在 ER 中还原执行者魔兽化，先证明独立兽体的控制与恢复闭环。
+  topic: FEAT-ER-demon-beast
+  project:
+    root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
+    revision: initial implementation pending local commit
+  knowledge_base:
+    root: D:/_Ugit/FSTool/_Mod
+    revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
+  authoritative_inputs:
+    spec: docs/feat-er-demon-beast/spec.md@1.0
+    design: docs/feat-er-demon-beast/design.md@1.0
+  current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
+  scope:
+    in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备]
+    out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或现用游戏配置]
+  current_task: 原生候选与离线验证完成；待解决 ER 运行取证方式，随后执行六组游戏内 Probe。
+  code_paths: [src/lib.rs, src/session.rs, src/native.rs, tests/lifecycle.rs]
+  asset_paths: []
+  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py]
+  probe_cases: [PROBE-ERDB-001, PROBE-ERDB-002, PROBE-ERDB-003, PROBE-ERDB-004, PROBE-ERDB-005, PROBE-ERDB-006]
+  human_decisions:
+    - 2026-09-23 用户要求建立独立项目。
+    - 2026-09-23 用户回复“可以，继续任务”，确认前轮 Spec/Probe 草案；已基线为 1.0。
+  constraints:
+    - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
+    - 当前游戏路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；未运行游戏。
+    - 公共 FrameRecorderProbe 尚无已定位的 ER 适配；未建立替代框架或执行自动多帧 Probe。
+    - 实验 DLL 默认 enabled=false；现用 GoldenAge profile 未修改。
+    - 下轮优先读 build.md 与 TESTING.md；接口依据按需读 research/control-audit.md。
+  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast]
+  human_gate:
+    confirmed: true
+    evidence: 当前任务用户消息“可以，继续任务”，对应 spec.md@0.1 全部首轮范围与六组 Probe。
+    pending: []
+  latest_result:
+    stage: native-candidate-built
+    automatic_result: PARTIAL
+    offline_tests: 9 passed; 0 failed
+    format: PASS
+    clippy: PASS
+    release_build: PASS
+    target_static_check: PASS
+    runtime_tested: false
+    final_acceptance: pending
+    artifact: dist/er-demon-beast-0.1.0/er_demon_beast.dll
+    artifact_sha256: B9BAF5AEE5354FC40CEA3376B748D257D9CB747CE42452D3F7DB1E07FF1AC688

@@ -1,0 +1,20 @@
+# Local build and runtime products
+/target/
+/build/
+/dist/
+/output/
+/logs/
+/tmp/
+/Saved/
+
+# Local game assets and captures
+/input/
+/work/
+/captures/
+*.dmp
+
+# Machine-specific settings
+.env
+.env.*
+!.env.example
+*.local.toml

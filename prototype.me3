@@ -1,0 +1,13 @@
+profileVersion = "v1"
+savefile = "ERDBPrototype"
+start_online = false
+
+natives = [
+  { path = "er_demon_beast.dll" },
+]
+
+supports = [
+  { game = "elden-ring" },
+]
+
+packages = []
