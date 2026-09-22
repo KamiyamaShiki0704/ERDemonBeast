@@ -1,0 +1,91 @@
+{
+  "recorder_reports": [],
+  "artifacts": [
+    {
+      "bytes": 607744,
+      "path": "er_demon_beast.dll",
+      "sha256": "B9BAF5AEE5354FC40CEA3376B748D257D9CB747CE42452D3F7DB1E07FF1AC688"
+    },
+    {
+      "bytes": 13979648,
+      "path": "er_demon_beast.pdb",
+      "sha256": "7D1A76130BBF3BE2C678D628B5AAD5E2E385DDDDBE55477974F111B261B4619F"
+    },
+    {
+      "bytes": 379,
+      "path": "er-demon-beast.toml",
+      "sha256": "F22FDE8499A8CCC5B8E16B089C7131BBECD33FD636680A7B4BED499959BBE3B3"
+    },
+    {
+      "bytes": 178,
+      "path": "prototype.me3",
+      "sha256": "2BF3D15D63BD0AB41C8E16D4BCA6CD98466EAA8827615A64CE38AD6A49BD08AA"
+    },
+    {
+      "bytes": 3955,
+      "path": "TESTING.md",
+      "sha256": "36BF0051A1838835C13DD280B8BE9A5340E3B8998B58046902C72993283CA241"
+    },
+    {
+      "bytes": 945,
+      "path": "THIRD_PARTY.md",
+      "sha256": "24A15501D6337A021EC4785CC6F63615125FB6EC659F3A7AABFE46DA6AA226AE"
+    }
+  ],
+  "offline": {
+    "tests_passed": 9,
+    "clippy": "PASS",
+    "format": "PASS",
+    "tests_failed": 0,
+    "static_target": "PASS",
+    "release_build": "PASS",
+    "pe": "AMD64 DLL; DllMain exported; no VCRUNTIME/MSVCP imports"
+  },
+  "code_revision": "c14ada822592ace1ec6c50a8b6522375aac925e0",
+  "automatic_result": "PARTIAL",
+  "passed": false,
+  "executed_at": "2026-09-22T17:20:47.1032263Z",
+  "kb_revision": "9511e3e8137fd2cda9fca74bb07a4b688fe89087",
+  "topic": "FEAT-ER-demon-beast",
+  "runtime_tested": false,
+  "cases": [
+    {
+      "passed": false,
+      "detail": "Runtime Recorder adaptation unavailable; no gameplay result claimed",
+      "spec": "SPEC-ERDB-001",
+      "result": "NOT_RUN"
+    },
+    {
+      "passed": false,
+      "detail": "Runtime Recorder adaptation unavailable; no gameplay result claimed",
+      "spec": "SPEC-ERDB-002",
+      "result": "NOT_RUN"
+    },
+    {
+      "passed": false,
+      "detail": "Runtime Recorder adaptation unavailable; no gameplay result claimed",
+      "spec": "SPEC-ERDB-003",
+      "result": "NOT_RUN"
+    },
+    {
+      "passed": false,
+      "detail": "Runtime Recorder adaptation unavailable; no gameplay result claimed",
+      "spec": "SPEC-ERDB-004",
+      "result": "NOT_RUN"
+    },
+    {
+      "passed": false,
+      "detail": "Runtime Recorder adaptation unavailable; no gameplay result claimed",
+      "spec": "SPEC-ERDB-005",
+      "result": "NOT_RUN"
+    },
+    {
+      "passed": false,
+      "detail": "Runtime Recorder adaptation unavailable; no gameplay result claimed",
+      "spec": "SPEC-ERDB-006",
+      "result": "NOT_RUN"
+    }
+  ],
+  "design_version": "1.0",
+  "spec_version": "1.0"
+}

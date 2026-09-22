@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: initial implementation pending local commit
+    revision: c14ada822592ace1ec6c50a8b6522375aac925e0
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087

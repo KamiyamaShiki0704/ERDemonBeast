@@ -18,7 +18,7 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, prototype.me3]
 ## 输入与版本
 
 - Spec：`spec.md@1.0`；设计：`design.md@1.0`。
-- 源码 revision：首次实现提交后记录于当前工作包。
+- 源码 revision：c14ada822592ace1ec6c50a8b6522375aac925e0（后续证据归档仅修改文档）。
 - 工程 KB revision：`9511e3e8137fd2cda9fca74bb07a4b688fe89087`。
 - NR 机制 KB revision：`8119ee174b685a39806a243a9c5acfbc5dbd912b`，作为研究来源，不是本项目实现。
 - Runtime dependency：fsrs `02fa5681e27fd2ecd9da79d34aef9fae96805539`；其它依赖固定在 Cargo.lock。
