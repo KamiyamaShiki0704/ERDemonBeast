@@ -2,11 +2,11 @@
 id: FEAT-ER-demon-beast
 title: 首轮控制闭环技术设计
 type: design
-version: 1.0
+version: 1.1
 updated: 2026-09-23
 based_on:
   - spec.md@1.0
-code_paths: [src/session.rs, src/native.rs, src/lib.rs]
+code_paths: [src/session.rs, src/native.rs, src/native/capture.rs, src/lib.rs]
 project_paths: [Cargo.toml, er-demon-beast.toml]
 ---
 
@@ -46,13 +46,24 @@ Rust cdylib，运行时绑定固定采用 Summon 的 fsrs `02fa5681e27fd2ecd9da7
 | 005 | 状态门禁、隐藏兽体复用 | 重入及连续十轮 | 实体数量、镜头/控制稳定 |
 | 006 | 创建拒绝/超时后清理 | 故障注入、迟到结果不激活 | 不可用兽体场景下本体恢复 |
 
-## 原生运行环境与取证缺口
+## 原生运行环境与取证
 
 目标拓扑为 ER 单机，不存在 PIE/world 索引。绑定条件：精确 EXE 哈希/版本、当前进程、WorldChrMan 本体身份、兽体 handle 与创建归属一致。拒绝陌生版本、现有控制覆盖、无本体、非有效场景或身份变化。
 
-根流程要求的 FrameRecorderProbe 在当前 KB 只发现依赖 GPUECli/Unreal 的示例；新项目没有 FTS.uproject、uecli.ps1 或原生 ER 适配。**当前不执行自动多帧 Probe，也不新建 Recorder 替代框架。** 此缺口不阻塞离线代码/构建/二进制核验，但阻塞对六组运行 Probe 宣布自动通过。
+公共 FrameRecorderProbe 只定位到 GPUECli/Unreal 用法，无原生 ER 适配。用户 2026-09-23 回复“允许”，明确批准本项目使用 **ER 原生状态采集 + 日志分析 + 人工游戏验收** 替代。此为项目局部例外；不修改 Spec 1.0 的前置、输入、输出或阈值，不声称执行 UE Recorder。
 
-适配可用后各 Case 的采集要求：进入前/请求/活动/解除请求/恢复后阶段；本体与兽体身份、状态、输入时间、位置、生命、控制关系、相机目标、可见性。攻击还需目标生命变化。人工确认镜头、可见性和输入表现。公共 Recorder 的具体 STAGES/runtime 映射和地图选择在 ER 适配可用后补充；目前不虚构映射。
+`src/native/capture.rs` 在 ChrIns_PostPhysics 回调中采集。未开启 Case、未请求能力且为普通状态时不遍历角色；Case 开启后目标间隔 50ms，状态变化及进入/解除请求总是记录，含同次 tick 写入前/后的快照。采集单调时钟，输出通过有界队列交给独立写线程；丢帧计数、身份解析错误保留到证据，分析不能据此宣布通过。
+
+- 绑定：每进程唯一 run ID、EXE/DLL SHA256、配置、构建清单和 Spec 版本。
+- 阶段：start → ordinary → entering → active → restoring/normal → end；同 tick 恢复直接记录 before=active、phase=normal。
+- 字段：本体/兽体 handle 与地址、位置、HP、render/alpha、保护标志、动作请求与 TAE、NPC 动作、相机覆盖、debug 输入 owner、兽体 override、归属实体数量、残留事务数、锁定目标身份/HP。
+- 请求：F6/F7 或 `probe.py command`。文件命令须匹配当前 run，单调递增 id，进入/解除仅在 Case 已开始且游戏前台时接收；每条接受/拒绝都有回执。start/end/mark 仅标注，不宣称语义前置成立。
+- 路径：DLL 目录 `Saved/er-demon-beast/<run>/frames.jsonl` 与 `meta.json`；最新运行由 `capture-latest.json` 定位；`probe.py report` 产生 report.json/md，meta.report_path 指向 Markdown。
+- 地图：保持 Spec 的同一平坦无环境伤害场景，运行前在 start 的 note 记录具体场景与条件；不能以菜单中的无本体错误替代不可用兽体 Probe。
+
+六组均输出独立结论。001 检查进入时限、关联、保护字段与 HP，敌人实际尝试命中及隐形/不响应输入仍人工验证。002 保留位移、动作及锁定目标 HP 供对应输入与命中取证；不能由位移或掉血自动推断因果。003 检查恢复时限、字段、位置和 5 秒后观测。004 检查无手动输入、15±0.25 秒触发和 18.25 秒总时限。005 检查十轮、每轮三次额外请求、实体上限和末尾 10 秒观察。006 检查失败原因、3 秒恢复和字段；随后移动/攻击仍人工验证。
+
+分析器只给 NOT_RUN、INCONCLUSIVE、FAIL 或 AUTOMATIC_PARTIAL；后者仅表示已实现的自动数据检查通过。缺 start/end、截断、缺帧或解析错误都不能通过。最终 PASS/FAIL 由人给出。运行结束先恢复普通状态，再退出测试进程；不在活动中热卸载。
 
 ## 构建与交付
 

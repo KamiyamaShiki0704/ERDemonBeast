@@ -1,0 +1,37 @@
+[
+  {
+    "dump": "eldenring.exe.53536.dmp",
+    "exception": "ExceptionCode.EXCEPTION_UNKNOWN",
+    "site": "ntdll.dll+0x117eb5",
+    "demon_beast_loaded": false,
+    "summon_loaded": true
+  },
+  {
+    "dump": "eldenring.exe.54652.dmp",
+    "exception": "ExceptionCode.EXCEPTION_ACCESS_VIOLATION",
+    "site": "eldenring.exe+0x3f3334",
+    "demon_beast_loaded": false,
+    "summon_loaded": true
+  },
+  {
+    "dump": "eldenring.exe.55124.dmp",
+    "exception": "ExceptionCode.EXCEPTION_BREAKPOINT",
+    "site": "eldenring.exe+0xc58db6",
+    "demon_beast_loaded": false,
+    "summon_loaded": true
+  },
+  {
+    "dump": "eldenring.exe.55524.dmp",
+    "exception": "ExceptionCode.EXCEPTION_STACK_OVERFLOW",
+    "site": "er_demon_beast.dll+0x74047",
+    "demon_beast_loaded": true,
+    "summon_loaded": false
+  },
+  {
+    "dump": "eldenring.exe.18256.dmp",
+    "exception": "ExceptionCode.EXCEPTION_ACCESS_VIOLATION",
+    "site": "eldenring.exe+0x1f109c4",
+    "demon_beast_loaded": true,
+    "summon_loaded": false
+  }
+]

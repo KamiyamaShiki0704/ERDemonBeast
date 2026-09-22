@@ -1,0 +1,255 @@
+{
+  "dump": "eldenring.exe.18256.dmp",
+  "thread_id": 18036,
+  "exception": "ExceptionCode.EXCEPTION_ACCESS_VIOLATION",
+  "exception_information": [
+    1,
+    35
+  ],
+  "exception_site": "eldenring.exe+0x1f109c4",
+  "registers": {
+    "Rip": "0x7ff6764a09c4",
+    "Rsp": "0xab8b0ff670",
+    "Rbp": "0x7ff49f988ee0",
+    "Rax": "0x6a626f20636e7953",
+    "Rbx": "0x7ff6776479f0",
+    "Rcx": "0xb",
+    "Rdx": "0x7ff6776479e0",
+    "Rsi": "0x7ff678dd6c90",
+    "Rdi": "0x40",
+    "R8": "0x48",
+    "R9": "0x7ff678dd6850",
+    "R10": "0x5deece66b",
+    "R11": "0xc",
+    "R12": "0x0",
+    "R13": "0x1",
+    "R14": "0x1",
+    "R15": "0x7ff676f5be48"
+  },
+  "instructions": [
+    "eldenring.exe+0x1f109c4: mov qword ptr [rcx + 0x18], rax",
+    "eldenring.exe+0x1f109c8: mov qword ptr [rax + 0x10], rcx",
+    "eldenring.exe+0x1f109cc: cmp rax, rcx",
+    "eldenring.exe+0x1f109cf: jne 0x7ff6764a09db",
+    "eldenring.exe+0x1f109d1: mov rax, qword ptr [r9]",
+    "eldenring.exe+0x1f109d4: btr rax, r11",
+    "eldenring.exe+0x1f109d8: mov qword ptr [r9], rax",
+    "eldenring.exe+0x1f109db: inc qword ptr [r9 + 0x20]",
+    "eldenring.exe+0x1f109df: lea r11, [r8 + 8]",
+    "eldenring.exe+0x1f109e3: mov rcx, 0xfffffffffffffff8",
+    "eldenring.exe+0x1f109ea: add r11, rdx",
+    "eldenring.exe+0x1f109ed: sub rcx, r8",
+    "eldenring.exe+0x1f109f0: add qword ptr [r9 + 0x18], rcx"
+  ],
+  "stack_candidates": [
+    {
+      "stack_offset": "0x0",
+      "candidate": "eldenring.exe+0x4846850"
+    },
+    {
+      "stack_offset": "0x8",
+      "candidate": "eldenring.exe+0x1f38b67"
+    },
+    {
+      "stack_offset": "0x10",
+      "candidate": "eldenring.exe+0x4846928"
+    },
+    {
+      "stack_offset": "0x28",
+      "candidate": "eldenring.exe+0x1ed80fe"
+    },
+    {
+      "stack_offset": "0x38",
+      "candidate": "eldenring.exe+0x4846c90"
+    },
+    {
+      "stack_offset": "0x48",
+      "candidate": "eldenring.exe+0x4846928"
+    },
+    {
+      "stack_offset": "0x58",
+      "candidate": "eldenring.exe+0xe841b7"
+    },
+    {
+      "stack_offset": "0x78",
+      "candidate": "eldenring.exe+0x153b5c"
+    },
+    {
+      "stack_offset": "0x98",
+      "candidate": "eldenring.exe+0xe82949"
+    },
+    {
+      "stack_offset": "0xa0",
+      "candidate": "eldenring.exe+0x4846928"
+    },
+    {
+      "stack_offset": "0xa8",
+      "candidate": "eldenring.exe+0x4846928"
+    },
+    {
+      "stack_offset": "0xc8",
+      "candidate": "eldenring.exe+0x61ef56"
+    },
+    {
+      "stack_offset": "0x128",
+      "candidate": "eldenring.exe+0x624ebe"
+    },
+    {
+      "stack_offset": "0x130",
+      "candidate": "eldenring.exe+0x3b458b8"
+    },
+    {
+      "stack_offset": "0x138",
+      "candidate": "eldenring.exe+0x29cbe58"
+    },
+    {
+      "stack_offset": "0x1a8",
+      "candidate": "eldenring.exe+0x1b77bd"
+    },
+    {
+      "stack_offset": "0x1b0",
+      "candidate": "eldenring.exe+0x29cbe58"
+    },
+    {
+      "stack_offset": "0x1c8",
+      "candidate": "eldenring.exe+0x29cbe58"
+    },
+    {
+      "stack_offset": "0x1f0",
+      "candidate": "eldenring.exe+0x29cbe58"
+    },
+    {
+      "stack_offset": "0x210",
+      "candidate": "eldenring.exe+0x29cbe00"
+    },
+    {
+      "stack_offset": "0x228",
+      "candidate": "eldenring.exe+0xb0267f"
+    },
+    {
+      "stack_offset": "0x238",
+      "candidate": "eldenring.exe+0x120600"
+    },
+    {
+      "stack_offset": "0x248",
+      "candidate": "eldenring.exe+0x29cbe48"
+    },
+    {
+      "stack_offset": "0x258",
+      "candidate": "eldenring.exe+0x29cbe48"
+    },
+    {
+      "stack_offset": "0x268",
+      "candidate": "eldenring.exe+0x29cbe48"
+    },
+    {
+      "stack_offset": "0x298",
+      "candidate": "eldenring.exe+0xaf9e8b"
+    },
+    {
+      "stack_offset": "0x2f8",
+      "candidate": "eldenring.exe+0x29cbe48"
+    },
+    {
+      "stack_offset": "0x3a0",
+      "candidate": "eldenring.exe+0x3298080"
+    },
+    {
+      "stack_offset": "0x3a8",
+      "candidate": "eldenring.exe+0xaf5f37"
+    },
+    {
+      "stack_offset": "0x3c8",
+      "candidate": "eldenring.exe+0xa9f3d2"
+    },
+    {
+      "stack_offset": "0x408",
+      "candidate": "eldenring.exe+0x1ed80fe"
+    },
+    {
+      "stack_offset": "0x438",
+      "candidate": "eldenring.exe+0xaf5ce5"
+    },
+    {
+      "stack_offset": "0x488",
+      "candidate": "eldenring.exe+0x26d7de5"
+    },
+    {
+      "stack_offset": "0x4b8",
+      "candidate": "eldenring.exe+0x29cbe58"
+    },
+    {
+      "stack_offset": "0x4d8",
+      "candidate": "eldenring.exe+0x26d80e0"
+    },
+    {
+      "stack_offset": "0x578",
+      "candidate": "eldenring.exe+0x268f182"
+    },
+    {
+      "stack_offset": "0x608",
+      "candidate": "eldenring.exe+0x29cbe48"
+    },
+    {
+      "stack_offset": "0x610",
+      "candidate": "eldenring.exe+0x29cbe58"
+    },
+    {
+      "stack_offset": "0x618",
+      "candidate": "eldenring.exe+0x2657c3e"
+    },
+    {
+      "stack_offset": "0x658",
+      "candidate": "eldenring.exe+0xeb4044"
+    },
+    {
+      "stack_offset": "0x698",
+      "candidate": "eldenring.exe+0xdec466"
+    },
+    {
+      "stack_offset": "0x6b0",
+      "candidate": "eldenring.exe+0x29cbe48"
+    },
+    {
+      "stack_offset": "0x6d0",
+      "candidate": "eldenring.exe+0x29cbe58"
+    },
+    {
+      "stack_offset": "0x6f8",
+      "candidate": "eldenring.exe+0x0"
+    },
+    {
+      "stack_offset": "0x708",
+      "candidate": "eldenring.exe+0xc91634"
+    },
+    {
+      "stack_offset": "0x710",
+      "candidate": "eldenring.exe+0x3b44618"
+    },
+    {
+      "stack_offset": "0x748",
+      "candidate": "eldenring.exe+0xc9196e"
+    },
+    {
+      "stack_offset": "0x768",
+      "candidate": "eldenring.exe+0x0"
+    },
+    {
+      "stack_offset": "0x788",
+      "candidate": "eldenring.exe+0x24fe10b"
+    },
+    {
+      "stack_offset": "0x7c8",
+      "candidate": "kernel32.dll+0x2cd87"
+    },
+    {
+      "stack_offset": "0x7f8",
+      "candidate": "ntdll.dll+0xacaec"
+    },
+    {
+      "stack_offset": "0x828",
+      "candidate": "KERNELBASE.dll+0x10ed90"
+    }
+  ],
+  "note": "Stack candidates are raw words matching loaded modules, not a validated call stack."
+}

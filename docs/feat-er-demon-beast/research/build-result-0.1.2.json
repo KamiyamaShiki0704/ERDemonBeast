@@ -1,0 +1,34 @@
+{
+  "version": "0.1.2",
+  "source_revision": "4f877655983854e84f2f49a339889ee25ab63821",
+  "spec": "spec.md@1.0",
+  "design": "design.md@1.1",
+  "source_sha256": {
+    "Cargo.toml": "bee5f5be614324da9e211bac92a7148c78caf94d9b569e423ef662d4aa902d6f",
+    "Cargo.lock": "a4b8e0c20251a3677f9536d541e5c56a7c1e8cdd8d231737dfe7163b8a420ce0",
+    "src/lib.rs": "b8e153399e1fb721523dee86a4b2ceba3c816364212516d2c664c66cdfd6e914",
+    "src/session.rs": "05c7aadbd33b12ce9abceba70928243debc20dc120d2d8c26548c60ac317f45d",
+    "src/native.rs": "821ef82a98f3826b531a51e9206a39ece1cf2e8b86404642f1aaa9976b1424b9",
+    "src/native/capture.rs": "3bec302ad2a06b604a283722cd4e0c70c1346207af21c3d13b57827f0013df5c"
+  },
+  "dll_sha256": "1ec7f9ef2305f5cba81f5beaf93e89478ec19a46115ca307c55631b7fd489fd8",
+  "dll_size": 800768,
+  "machine": "0x8664",
+  "dllmain_prologue": [
+    "push rbp",
+    "push rsi",
+    "push rdi",
+    "sub rsp, 0xa0",
+    "lea rbp, [rsp + 0x80]",
+    "mov qword ptr [rbp + 0x18], 0xfffffffffffffffe",
+    "cmp edx, 1",
+    "jne 0x1800011db",
+    "mov rsi, rcx"
+  ],
+  "rust_tests": 9,
+  "analysis_tests": 6,
+  "small_stack_regression": "PASS; old DLL fails with 0xC00000FD",
+  "runtime_status": "NOT_RUN; user requested stop",
+  "final_acceptance": "PENDING",
+  "enabled": false
+}

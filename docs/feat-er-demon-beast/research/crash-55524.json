@@ -1,0 +1,189 @@
+{
+  "dump": "eldenring.exe.55524.dmp",
+  "thread_id": 57232,
+  "exception": "ExceptionCode.EXCEPTION_STACK_OVERFLOW",
+  "exception_information": [
+    1,
+    541543051264
+  ],
+  "exception_site": "er_demon_beast.dll+0x74047",
+  "registers": {
+    "Rip": "0x7ffbc59d4047",
+    "Rsp": "0x7e167befe8",
+    "Rbp": "0x0",
+    "Rax": "0x10090",
+    "Rbx": "0x1",
+    "Rcx": "0x7ffbc5960000",
+    "Rdx": "0x2",
+    "Rsi": "0x0",
+    "Rdi": "0x2",
+    "R8": "0x0",
+    "R9": "0x7e169b8000",
+    "R10": "0x7e167ae000",
+    "R11": "0x7e167b3000",
+    "R12": "0x7ffe0385",
+    "R13": "0x2000",
+    "R14": "0x7ffbc5960000",
+    "R15": "0x7ffbc5960000"
+  },
+  "instructions": [
+    "er_demon_beast.dll+0x74047: mov byte ptr [r11], 0",
+    "er_demon_beast.dll+0x7404b: cmp r10, r11",
+    "er_demon_beast.dll+0x7404e: jne 0x7ffbc59d4040",
+    "er_demon_beast.dll+0x74050: mov r10, qword ptr [rsp]",
+    "er_demon_beast.dll+0x74054: mov r11, qword ptr [rsp + 8]",
+    "er_demon_beast.dll+0x74059: add rsp, 0x10",
+    "er_demon_beast.dll+0x7405d: ret ",
+    "er_demon_beast.dll+0x7405e: int3 ",
+    "er_demon_beast.dll+0x7405f: int3 ",
+    "er_demon_beast.dll+0x74060: push rbx",
+    "er_demon_beast.dll+0x74062: sub rsp, 0x20",
+    "er_demon_beast.dll+0x74066: lea rax, [rip + 0x302cb]",
+    "er_demon_beast.dll+0x7406d: mov rbx, rcx",
+    "er_demon_beast.dll+0x74070: mov qword ptr [rcx], rax",
+    "er_demon_beast.dll+0x74073: test dl, 1"
+  ],
+  "stack_candidates": [
+    {
+      "stack_offset": "0x10",
+      "candidate": "er_demon_beast.dll+0x100d"
+    },
+    {
+      "stack_offset": "0x30",
+      "candidate": "er_demon_beast.dll+0x74302"
+    },
+    {
+      "stack_offset": "0x38",
+      "candidate": "er_demon_beast.dll+0x0"
+    },
+    {
+      "stack_offset": "0x58",
+      "candidate": "msvcrt.dll+0x7a10"
+    },
+    {
+      "stack_offset": "0x60",
+      "candidate": "msvcrt.dll+0x7b64"
+    },
+    {
+      "stack_offset": "0x80",
+      "candidate": "er_demon_beast.dll+0x743a0"
+    },
+    {
+      "stack_offset": "0x90",
+      "candidate": "ntdll.dll+0x11eada"
+    },
+    {
+      "stack_offset": "0x98",
+      "candidate": "er_demon_beast.dll+0x0"
+    },
+    {
+      "stack_offset": "0xc0",
+      "candidate": "ntdll.dll+0x10c33"
+    },
+    {
+      "stack_offset": "0xe0",
+      "candidate": "ntdll.dll+0x26844"
+    },
+    {
+      "stack_offset": "0x108",
+      "candidate": "er_demon_beast.dll+0x0"
+    },
+    {
+      "stack_offset": "0x158",
+      "candidate": "ntdll.dll+0x1cc938"
+    },
+    {
+      "stack_offset": "0x170",
+      "candidate": "ntdll.dll+0x2670b"
+    },
+    {
+      "stack_offset": "0x280",
+      "candidate": "ntdll.dll+0x1d2460"
+    },
+    {
+      "stack_offset": "0x298",
+      "candidate": "ntdll.dll+0x1d2460"
+    },
+    {
+      "stack_offset": "0x2a0",
+      "candidate": "ntdll.dll+0x1783d0"
+    },
+    {
+      "stack_offset": "0x2b8",
+      "candidate": "er_demon_beast.dll+0x5b970"
+    },
+    {
+      "stack_offset": "0x2c0",
+      "candidate": "ntdll.dll+0x10feb"
+    },
+    {
+      "stack_offset": "0x2c8",
+      "candidate": "er_demon_beast.dll+0x89420"
+    },
+    {
+      "stack_offset": "0x2e8",
+      "candidate": "ntdll.dll+0x1783d0"
+    },
+    {
+      "stack_offset": "0x2f0",
+      "candidate": "er_demon_beast.dll+0x5b970"
+    },
+    {
+      "stack_offset": "0x300",
+      "candidate": "er_demon_beast.dll+0x0"
+    },
+    {
+      "stack_offset": "0x318",
+      "candidate": "er_demon_beast.dll+0x89420"
+    },
+    {
+      "stack_offset": "0x370",
+      "candidate": "ntdll.dll+0x1d2890"
+    },
+    {
+      "stack_offset": "0x390",
+      "candidate": "ntdll.dll+0x109d5"
+    },
+    {
+      "stack_offset": "0x3a8",
+      "candidate": "er_demon_beast.dll+0x5b970"
+    },
+    {
+      "stack_offset": "0x3c8",
+      "candidate": "er_demon_beast.dll+0x743a0"
+    },
+    {
+      "stack_offset": "0x410",
+      "candidate": "ntdll.dll+0x8c033"
+    },
+    {
+      "stack_offset": "0x550",
+      "candidate": "ntdll.dll+0x8c033"
+    },
+    {
+      "stack_offset": "0x5b8",
+      "candidate": "ntdll.dll+0x0"
+    },
+    {
+      "stack_offset": "0x5d0",
+      "candidate": "ntdll.dll+0x8bee2"
+    },
+    {
+      "stack_offset": "0x5e0",
+      "candidate": "ntdll.dll+0x0"
+    },
+    {
+      "stack_offset": "0x620",
+      "candidate": "ntdll.dll+0xe142e"
+    },
+    {
+      "stack_offset": "0x6f8",
+      "candidate": "nvwgf2umx.dll+0xe5ca60"
+    },
+    {
+      "stack_offset": "0x770",
+      "candidate": "ntdll.dll+0xacac0"
+    }
+  ],
+  "note": "Stack candidates are raw words matching loaded modules, not a validated call stack."
+}
