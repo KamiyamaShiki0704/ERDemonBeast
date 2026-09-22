@@ -12,6 +12,7 @@
 /work/
 /captures/
 *.dmp
+__pycache__/
 
 # Machine-specific settings
 .env

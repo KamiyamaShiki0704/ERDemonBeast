@@ -1,6 +1,7 @@
 //! Experimental WW 2.7.1 backend. All engine work runs on the game task thread.
 //! The debug control fields are documented in research/control-audit.md.
 use crate::session::{Backend, Input, Session};
+mod capture;
 use eldenring::{
     cs::{
         CSTaskGroupIndex, CSTaskImp, ChrIns, FieldInsHandle, NpcParam, NpcThinkParam,
@@ -41,7 +42,7 @@ const MANIP_OWNER: usize = 0xa8;
 static DIRECTORY: OnceLock<PathBuf> = OnceLock::new();
 static RUNTIME: OnceLock<Mutex<Runtime>> = OnceLock::new();
 
-#[derive(Deserialize)]
+#[derive(Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 struct Config {
     enabled: bool,
@@ -57,6 +58,7 @@ struct Runtime {
     epoch: Instant,
     keys: [bool; 2],
     last_error: Option<String>,
+    capture: capture::Capture,
 }
 
 fn log(message: impl std::fmt::Display) {
@@ -73,7 +75,9 @@ fn log(message: impl std::fmt::Display) {
 #[unsafe(no_mangle)]
 unsafe extern "system" fn DllMain(module: HINSTANCE, reason: u32, _: *mut c_void) -> i32 {
     if reason == 1 {
-        let mut path = [0_u16; 32768];
+        // Game threads can reserve only 64KiB. A stack array here makes even
+        // DLL_THREAD_ATTACH overflow before the reason check executes.
+        let mut path = vec![0_u16; 32768];
         let len = unsafe { GetModuleFileNameW(Some(HMODULE(module.0)), &mut path) } as usize;
         if len > 0 && len < path.len() {
             let dll = PathBuf::from(String::from_utf16_lossy(&path[..len]));
@@ -111,7 +115,8 @@ fn initialize() -> Result<(), String> {
         return Err("invalid beast configuration".into());
     }
     log(format!(
-        "prototype 0.1.0; exe={hash}; ABI verified; enabled={}",
+        "prototype {}; exe={hash}; ABI verified; enabled={}",
+        env!("CARGO_PKG_VERSION"),
         config.enabled
     ));
     if !config.enabled {
@@ -121,6 +126,7 @@ fn initialize() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let task_imp =
         CSTaskImp::wait_for_instance(Duration::from_secs(30)).map_err(|e| e.to_string())?;
+    let capture = capture::Capture::new(&config)?;
     RUNTIME
         .set(Mutex::new(Runtime {
             session: Session::default(),
@@ -128,6 +134,7 @@ fn initialize() -> Result<(), String> {
             epoch: Instant::now(),
             keys: [false; 2],
             last_error: None,
+            capture,
         }))
         .map_err(|_| "already initialized")?;
     let task = task_imp.run_recurring(
@@ -201,18 +208,30 @@ fn update(_: &FD4TaskData) {
             GetAsyncKeyState(VK_F7.0 as i32) < 0,
         ]
     };
-    let input = Input {
+    let mut input = Input {
         enter: focused && pressed[0] && !runtime.keys[0],
         revert: focused && pressed[1] && !runtime.keys[1],
     };
     runtime.keys = pressed;
     let before = runtime.session.phase();
     let now = runtime.epoch.elapsed();
+    runtime.capture.commands(now, focused, &mut input);
+    // Loading/title screens may expose a temporary player with partially
+    // initialized modules. Idle callbacks have no reason to traverse actors.
+    if !needs_engine_access(before, input, runtime.capture.is_recording()) {
+        return;
+    }
+    let pre = capture::snapshot(&runtime.backend);
     let Runtime {
         session, backend, ..
     } = &mut *runtime;
     session.tick(now, input, backend);
     let after = runtime.session.phase();
+    let post = capture::snapshot(&runtime.backend);
+    let failure = runtime.session.last_error().map(str::to_owned);
+    runtime
+        .capture
+        .frame(now, before, after, input, focused, pre, post, failure);
     if before != after {
         log(format!(
             "t={:.3} {before:?} -> {after:?}",
@@ -226,6 +245,10 @@ fn update(_: &FD4TaskData) {
         }
         runtime.last_error = error;
     }
+}
+
+fn needs_engine_access(phase: crate::session::Phase, input: Input, recording: bool) -> bool {
+    phase != crate::session::Phase::Normal || input.enter || input.revert || recording
 }
 
 // Process-memory copies reject unreadable/unwritable pages instead of blindly
