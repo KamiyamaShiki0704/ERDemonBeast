@@ -14,7 +14,7 @@ work_packet:
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备, 下一阶段源资产只读盘点, 后续多形态需求与兼容性规划]
     out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: 用户确认 c0010 变身/移动/转向可用，但键鼠其他输入无效、动画异常。0.2.2 增强逐活动帧动作与物理键取证；等待 ACTION_TEST.md 人工测试。尚未修复攻击映射，不报告 SPEC-ERDB-002 通过。
+  current_task: 已读 0.2.2 人工测试，677 活动帧零丢帧，兽体收到 R1/R2/L1/SP_MOVE；两个周期正常恢复。用户已补入原版 c0010.hks 并询问原版转换规则，核对见 research/c0010-original-input-rules.md。尚待按原版状态规则适配 ER，共享 c9997 缺少 TDB 函数族；本轮未部署固定映射草案。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -32,6 +32,7 @@ work_packet:
     - 2026-09-23 用户明确每个形态分别支持 SpEffect 自动和按键两种触发模式；两种动作模式都预留，先实现输入与招式映射。
     - 2026-09-23 用户已把 c0010 放入 GA，要求将 DLL 部署到现有 F:/GoldenAge/_GoldenAge/dll/demon_beast，并授权补齐对应参数；测试游戏仍由用户执行。
     - 2026-09-24 用户反馈 c0010 可变身/移动/转向，其他按键无效，确认测试设备为键鼠；原运行 1790178283214-25840 三轮正常析构。
+    - 2026-09-24 用户完成 0.2.2 测试，并补入与 NR 原件哈希一致的 GA/action/script/c0010.hks；询问原版输入转换规则。不得继续按该文件缺失处理，不覆盖用户原件。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
@@ -53,15 +54,15 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-input-diagnostic-awaiting-user
+    stage: c0010-input-delivery-confirmed-original-rules-audited
     automatic_result: PARTIAL
     offline_tests: 21 Rust + 11 Python + small-stack regression PASS; Lua raw-R1 dispatch FAIL and AI-3000 control PASS (intentional diagnostic comparison)
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
-    runtime_tested: false
-    runtime_evidence: 0.2.1 c0010 run 1790178283214-25840; 0.2.2 not run
+    runtime_tested: true
+    runtime_evidence: 0.2.2 c0010 run 1790179759050-37584; 677 active frames, zero drops, two clean retirements
     runtime_scope: 用户确认变身/移动/转向；攻击失败；0.2.2 是诊断版
     final_acceptance: pending_c0010_user_test
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
