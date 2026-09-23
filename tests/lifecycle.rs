@@ -11,6 +11,7 @@ struct FakeGame {
     cleanup_pending: bool,
     fail_restore: bool,
     restore_count: usize,
+    finishing_pending: bool,
 }
 
 impl Backend for FakeGame {
@@ -41,6 +42,55 @@ impl Backend for FakeGame {
         self.body_hidden = false;
         Ok(!self.cleanup_pending)
     }
+    fn finish(&mut self) -> Result<bool, String> {
+        Ok(!self.finishing_pending)
+    }
+}
+
+#[test]
+fn manual_and_expiry_wait_for_animation_ack_before_cleanup() {
+    for manual in [false, true] {
+        let (mut s, mut g) = (
+            Session::default(),
+            FakeGame {
+                ready: true,
+                finishing_pending: true,
+                ..Default::default()
+            },
+        );
+        tick(&mut s, &mut g, 0, true, false);
+        tick(&mut s, &mut g, 1, false, false);
+        let end = if manual { 500 } else { 15001 };
+        tick(&mut s, &mut g, end, false, manual);
+        assert!(matches!(s.phase(), Phase::Finishing { .. }));
+        assert_eq!(g.restore_count, 0);
+        assert!(g.body_hidden);
+        tick(&mut s, &mut g, end + 1000, true, true);
+        assert_eq!(g.begin_count, 1);
+        assert_eq!(g.restore_count, 0);
+        g.finishing_pending = false;
+        tick(&mut s, &mut g, end + 2000, false, false);
+        assert_eq!(s.phase(), Phase::Normal);
+        assert!(!g.body_hidden);
+    }
+}
+
+#[test]
+fn missing_animation_ack_uses_bounded_emergency_recovery() {
+    let (mut s, mut g) = (
+        Session::default(),
+        FakeGame {
+            ready: true,
+            finishing_pending: true,
+            ..Default::default()
+        },
+    );
+    tick(&mut s, &mut g, 0, true, false);
+    tick(&mut s, &mut g, 1, false, false);
+    tick(&mut s, &mut g, 100, false, true);
+    tick(&mut s, &mut g, 8100, false, false);
+    assert_eq!(s.phase(), Phase::Normal);
+    assert!(s.last_error().unwrap().contains("behavior_finish_timeout"));
 }
 
 fn tick(session: &mut Session, game: &mut FakeGame, ms: u64, enter: bool, revert: bool) {

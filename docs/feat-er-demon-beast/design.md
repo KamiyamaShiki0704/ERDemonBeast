@@ -2,10 +2,10 @@
 id: FEAT-ER-demon-beast
 title: 首轮控制闭环技术设计
 type: design
-version: 1.3
+version: 1.4
 updated: 2026-09-23
 based_on:
-  - spec.md@1.0
+  - spec.md@1.1
 code_paths: [src/session.rs, src/native.rs, src/native/capture.rs, src/lib.rs]
 project_paths: [Cargo.toml, er-demon-beast.toml]
 ---
@@ -97,3 +97,17 @@ FrameEnd 的零动作可能已被此前行为更新消费，TAE 字段是请求�
 ## c0010 行为 v2 起手修正
 
 用户实测 v1 攻击/闪避失败。目标 EXE 静态核验后，在私有脚本非取消入口补 Wait 标志，使 ActionRequest 读取新按键；连段继续受 ActionCancelRequest 限制。私有副本移除一行未使用且会在裸/反斜线 chunk 名下抛错的路径初始化。只更新 d0010，其他行为资源与 DLL 不变。加入每实例最多 80 行、IO 失败隔离的临时脚本证据；见 research/c0010-behavior-adapter-v2.md。玩法仍由人验收。
+
+## c0010 v3 / DLL 0.3.0
+
+对应 Spec 1.1 的正常解除：Active → Finishing → Restoring → Normal。F7/15 秒到期发出相同退出请求，HKS 关闭新输入，等当前动作结束，再播放 Event20010；只有 HKS 确认退出动画实际经历运行并结束才开始清理。8 秒没有确认属于故障，日志 behavior_finish_timeout，执行紧急恢复且验收失败。进入的 3 秒保护超时保留；进入阶段 F7 仍是取消加载的紧急恢复，不是活动期正常退场。
+
+使用单个 c0010 原型的带 nonce 文本握手：DLL 在 spawn 前写 enter，私有 HKS 在初始化后的 Update 接入 Event20000，完成写 ready；活动计时从 ready 开始。退出依次 exit/finishing/done；close 写 closed。限定 ASCII token 与固定状态、最大 256 字节，不执行文件内容；HKS 最多 10Hz 读命令，DLL 最多 20Hz 读状态，只在状态变化时写。路径固定在已授权测试 DLL 的 Saved/er-demon-beast，兼容 manual-runs；不是通用多实体协议。IO 不可用由进入/结束超时触发恢复。旧 token 或半条消息不能确认本次结束。
+
+私有图只关闭 Event20000/20010 的 enableTae，保留动画、脚本和脚本控制的结束方式，避免调用 NR 专有 1011 等事件。两段原有 TAE 特效/音效/透明度也因此暂不执行；anibnd 和玩家图不变。转换前后全图 XML 语义核对，其他三个 binder 子文件字节不变。
+
+动作从 onActivate 拥有计时；Fire 前先占有待激活动作，阻止旧 Idle 回调跨过窗口。每个键需同时满足当前动作 TAE 最早窗口和 ER 取消信号；活动计时用游戏 DT，仅作额外下界，不伪造取消。10 个动作窗口由当前 anibnd 提取并在准备脚本中核对。动画变速、停帧和不同资源替换仍需后续验证，不声明通用帧精确还原。锁定移动显式使用战斗四方向表。
+
+镜头采用可恢复的内存参数覆盖：LockCamParam 0/1/2 和当前锁定目标 NpcParam 引用的行，距离/目标高度取原值与配置的较大值，默认关闭。记录行地址和原值；还原仅改仍等于本次写入值的字段，重载地址或其他模组后写值保留。不会修改 regulation；TAE 临时镜头行尚未全覆盖。人工应分别检查无锁定、锁定及解除后三种镜头。
+
+原生 capture 增加 finishing，正式 probe 以动画确认后的清理为恢复 3 秒起点；实际动画连续性及镜头仍为人工项。离线测试不能替代游戏验收。

@@ -8,7 +8,11 @@ local stamina, cancel, missing, ai, damage = 100, false, nil, -1, false
 local waiting, queued = false, {}
 local animations = {[0]=true,[3000]=true,[3001]=true,[3002]=true,[3003]=true,[3005]=true,
     [3007]=true,[3010]=true,[3030]=true,[3035]=true,[6000]=true}
-function hkbFireEvent(name) events[#events+1] = name end
+function hkbFireEvent(name)
+    events[#events+1] = name
+    local callback=_G[name:gsub('^W_','')..'_onActivate']
+    if callback then callback() end
+end
 function hkbGetVariable(name) return vars[name] or 0 end
 function hkbIsNodeActive() return false end
 function act(id, name, value)
@@ -16,6 +20,8 @@ function act(id, name, value)
     if id == Wait then waiting = true end
 end
 function env(id, key)
+    if id == ObtainedDT then return 1000/60 end
+    if id == GetFlyRouteState then return -1 end
     if id == GetHP then return 100 end
     if id == GetStamina then return stamina end
     if id == GetReceivedDamageType then return damage and DAMAGE_TYPE_DEATHIDLE or DAMAGE_TYPE_NONE end
@@ -31,6 +37,7 @@ function env(id, key)
     return 0
 end
 ERDB_TRACE_PATH = false -- Offline tests must not write a runtime log.
+ERDB_BRIDGE_ENABLED = false
 if arg[4] then
     local file = assert(io.open(common, 'rb'))
     local contents = file:read('*a'); file:close()
@@ -42,7 +49,12 @@ if adapter ~= 'baseline' and adapter ~= 'bundled' then dofile(adapter) end
 -- The behavior's luaFiles lists the original c0010 twice. Reproduce that ordering.
 dofile(original)
 dofile(original)
+local function activate(id)
+    _G[(id==6000 and 'Step' or 'Attack')..id..'_onActivate']()
+end
+local function tick(n) for _=1,n do Update() end end
 local function release()
+    IdleDefault_onActivate()
     input, timers, events = {}, {}, {}
     waiting, queued = false, {}
     Update()
@@ -71,7 +83,7 @@ for _, callback in ipairs({RunDefault_onUpdate, WalkFrontDefault_onUpdate}) do
 end
 for _, route in ipairs({{3000,0,3001},{3001,0,3002},{3002,0,3003},{3003,0,3000},
     {3005,0,3001},{3005,1,3007},{3007,0,3000},{6000,0,3010},{3010,1,3007}}) do
-    release(); press(route[2]); cancel = false
+    release(); activate(route[1]); tick(150); press(route[2]); cancel = false
     _G[(route[1] == 6000 and 'Step' or 'Attack')..route[1]..'_onUpdate']()
     assert(#events == 0, 'closed cancel window was bypassed')
     cancel = true
@@ -80,17 +92,17 @@ for _, route in ipairs({{3000,0,3001},{3001,0,3002},{3002,0,3003},{3003,0,3000},
 end
 release(); press(0); stamina = 0; vars.StaminaComboResetTest = 1
 IdleDefault_onUpdate(); assert(#events == 0, 'exhaustion ignored')
-release(); press(0); stamina = 100; cancel = true
+release(); activate(3001); tick(150); press(0); stamina = 100; cancel = true
 Attack3001_onUpdate(); expect('W_Attack3000')
 release(); press(0); missing = 3000
 IdleDefault_onUpdate(); assert(#events == 0, 'missing animation dispatched')
 missing = nil
 release(); ai = 3000
 IdleDefault_onUpdate(); expect('W_Attack3000'); ai = -1
-release(); press(0); damage = true
+release(); activate(3000); press(0); damage = true
 Attack3000_onUpdate(); expect('W_DeathIdleDefault'); damage = false
 release(); press(0); cancel = true
-Event20000_onUpdate(); expect('W_Attack3000')
+Event20000_onUpdate(); assert(#events==0, 'intro without an owned action bypassed window')
 release(); press(17)
 IdleDefault_onUpdate(); assert(#events == 0, 'ER rolling became NR ULTRA')
 -- Optional diagnostic IO failures cannot suppress gameplay.

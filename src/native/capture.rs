@@ -50,7 +50,7 @@ impl Capture {
         );
         let meta = json!({"schema":1,"run":run,"exe_sha256":EXE_HASH,
             "dll_sha256":dll_hash,"version":env!("CARGO_PKG_VERSION"),
-            "config":config,"spec":"spec.md@1.0","sample_period_s":0.05,
+            "config":config,"spec":if config.behavior_lifecycle {"spec.md@1.1"} else {"spec.md@1.0"},"sample_period_s":0.05,
             "active_action_trace":config.action_trace,"sampling_stage":"FrameEnd",
             "report_path":dir.join("report.md"),"frames_path":dir.join("frames.jsonl"),
             "build_manifest":fs::read_to_string(root.join("build-result.json")).ok()});
@@ -159,7 +159,8 @@ impl Capture {
         error: Option<String>,
     ) {
         let trace = self.action_trace
-            && (matches!(before, Phase::Active { .. }) || matches!(after, Phase::Active { .. }));
+            && (matches!(before, Phase::Active { .. } | Phase::Finishing { .. })
+                || matches!(after, Phase::Active { .. } | Phase::Finishing { .. }));
         if !trace && now < self.next_frame && before == after && !input.enter && !input.revert {
             return;
         }
@@ -193,6 +194,7 @@ fn phase(phase: Phase) -> &'static str {
         Phase::Normal => "normal",
         Phase::Entering { .. } => "entering",
         Phase::Active { .. } => "active",
+        Phase::Finishing { .. } => "finishing",
         Phase::Restoring { .. } => "restoring",
         Phase::Fault => "fault",
     }

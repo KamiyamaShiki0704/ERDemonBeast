@@ -5,6 +5,11 @@ enabled = false
 control_enabled = false
 # Optional per-active-frame input diagnostics; no gameplay changes.
 action_trace = false
+# c0010 behavior-v3 handshake only. Keep false for the c4070 baseline.
+behavior_lifecycle = false
+# Runtime minimum distance/target height, restored on exit; 0 disables overlay.
+camera_distance = 0.0
+camera_height = 0.0
 chr_id = 4070
 npc_param_id = 40700000
 npc_think_param_id = 40700000

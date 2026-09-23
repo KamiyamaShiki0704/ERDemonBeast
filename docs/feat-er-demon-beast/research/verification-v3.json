@@ -1,0 +1,42 @@
+{
+  "scope": "offline real-HKS mocked engine; not runtime acceptance",
+  "comparisons": [
+    {
+      "version": "v2",
+      "mode": "movement",
+      "exit_code": 1,
+      "output": "F:/Lua/luacdes/5.3/bin/lua.exe: ...ts\\delivery\\feat-er-demon-beast\\script\\test_c0010_v3.lua:59: locked direction collapsed: expected W_WalkLeftBattle, got W_WalkFrontDefault\nstack traceback:\n\t[C]: in function 'assert'\n\t...ts\\delivery\\feat-er-demon-beast\\script\\test_c0010_v3.lua:59: in main chunk\n\t[C]: in ?\n",
+      "script_sha256": "9275e9bfa0620b4aab68a19e454b25a4aa80f6d2e91149c47e3314e951bc238f"
+    },
+    {
+      "version": "v2",
+      "mode": "combo",
+      "exit_code": 1,
+      "output": "F:/Lua/luacdes/5.3/bin/lua.exe: ...ts\\delivery\\feat-er-demon-beast\\script\\test_c0010_v3.lua:69: stale global cancel interrupted attack before its TAE window\nstack traceback:\n\t[C]: in function 'assert'\n\t...ts\\delivery\\feat-er-demon-beast\\script\\test_c0010_v3.lua:69: in main chunk\n\t[C]: in ?\n",
+      "script_sha256": "9275e9bfa0620b4aab68a19e454b25a4aa80f6d2e91149c47e3314e951bc238f"
+    },
+    {
+      "version": "v3",
+      "mode": "movement",
+      "exit_code": 0,
+      "output": "PASS movement\n",
+      "script_sha256": "4f0c1ca9c1d3e559f533cb5028ea456a26d2fa4826613b09d9862d6c7eeb97a9"
+    },
+    {
+      "version": "v3",
+      "mode": "combo",
+      "exit_code": 0,
+      "output": "PASS combo\n",
+      "script_sha256": "4f0c1ca9c1d3e559f533cb5028ea456a26d2fa4826613b09d9862d6c7eeb97a9"
+    }
+  ],
+  "rust_tests": 25,
+  "python_tests": 16,
+  "lua_regressions": "PASS: five actions/nine edges/three chunk names and movement/combo/lifecycle",
+  "graph_roundtrip": "PASS",
+  "release_build": "PASS",
+  "clippy": "PASS",
+  "format": "PASS",
+  "small_stack": "PASS: 64 KiB",
+  "runtime_tested": false
+}

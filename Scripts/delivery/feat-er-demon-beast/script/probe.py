@@ -46,7 +46,7 @@ HUMAN = {
 }
 
 
-def analyze(rows):
+def analyze(rows, graceful=False):
     results = []
     for case in range(1, 7):
         selected = [r for r in rows if r.get("case") == case]
@@ -117,10 +117,19 @@ def analyze(rows):
             check("已记录恢复", bool(exits) and bool(recoveries))
             for exit_row in exits:
                 recovered = next((r for r in recoveries if r["t"] >= exit_row["t"]), None)
-                check("恢复 ≤3s", recovered is not None and recovered["t"] - exit_row["t"] <= 3)
+                cleanup = exit_row
+                if graceful:
+                    cleanup = next((r for r in frames if r['t'] >= exit_row['t']
+                                    and r['before'] == 'finishing' and r['phase'] != 'finishing'), None)
+                    check("结束动画确认后恢复 ≤3s", cleanup is not None and recovered is not None
+                          and recovered['t'] - cleanup['t'] <= 3)
+                    check("等待动作与退场完成需人工确认", False,
+                          "Finishing 仅表示 DLL 等待脚本确认；需合并 HKS starting/ready/finishing/done 与人工观察，超时恢复不能通过。", known=False)
+                else:
+                    check("恢复 ≤3s", recovered is not None and recovered["t"] - exit_row["t"] <= 3)
                 if recovered:
                     check("恢复字段与进入前一致", restored(recovered["post"], baseline))
-                    beast = exit_row["pre"].get("beast")
+                    beast = cleanup["pre"].get("beast") if cleanup else None
                     delta = distance(recovered["post"]["body"]["position"], beast["position"]) if beast else None
                     check("恢复位置水平误差 ≤1m", delta is not None and delta <= 1, str(delta))
             if case in (3, 5):
@@ -137,7 +146,8 @@ def analyze(rows):
                 if len(activations) == len(exits) == len(recoveries) == 1:
                     elapsed = exits[0]["t"] - activations[0]["t"]
                     check("15s 到期触发 ±0.25s", abs(elapsed - 15) <= .25, str(elapsed))
-                    check("活动开始后 ≤18.25s 恢复", recoveries[0]["t"] - activations[0]["t"] <= 18.25)
+                    if not graceful:
+                        check("活动开始后 ≤18.25s 恢复", recoveries[0]["t"] - activations[0]["t"] <= 18.25)
             if case == 5:
                 check("完成十轮手动闭环", len(requests) == len(activations) == len(exits) == len(recoveries) == 10
                       and all(r.get("revert") for r in exits))
@@ -167,7 +177,7 @@ def report(path):
         except (ValueError, UnicodeError):
             errors.append(f"line {index}: invalid/truncated JSON")
     meta = json.loads(path.with_name("meta.json").read_text(encoding="utf-8"))
-    results = analyze(rows)
+    results = analyze(rows, graceful=meta.get('config',{}).get('behavior_lifecycle',False))
     if errors:
         for result in results:
             if result["status"] != "NOT_RUN":

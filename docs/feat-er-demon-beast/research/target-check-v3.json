@@ -1,0 +1,34 @@
+{
+  "kind": "static-target-check",
+  "topic": "FEAT-ER-demon-beast",
+  "spec_version": "1.0",
+  "script_version": "1.0",
+  "executed_at": "2026-09-23T17:55:38.196328+00:00",
+  "exe": "F:\\SteamLibrary\\steamapps\\common\\ELDEN RING\\Game\\eldenring.exe",
+  "sha256": "1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891",
+  "supported": true,
+  "runtime_tested": false,
+  "checks": [
+    {
+      "name": "ctrl_override_getter",
+      "rva": "0x3c6f50",
+      "expected": "488b81b00300004885c07504488b4118c3",
+      "actual": "488b81b00300004885c07504488b4118c3",
+      "passed": true
+    },
+    {
+      "name": "ctrl_override_dispatch",
+      "rva": "0x3c726c",
+      "expected": "488b89b00300004885c97504488b4818488b01ff90d0000000",
+      "actual": "488b89b00300004885c97504488b4818488b01ff90d0000000",
+      "passed": true
+    },
+    {
+      "name": "camera_override_read",
+      "rva": "0x5af943",
+      "expected": "488b81b8000000",
+      "actual": "488b81b8000000",
+      "passed": true
+    }
+  ]
+}

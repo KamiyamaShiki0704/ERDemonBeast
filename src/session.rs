@@ -4,6 +4,7 @@ use std::time::Duration;
 pub const ENTER_TIMEOUT: Duration = Duration::from_secs(3);
 pub const ACTIVE_DURATION: Duration = Duration::from_secs(15);
 pub const RESTORE_TIMEOUT: Duration = Duration::from_secs(3);
+pub const FINISH_TIMEOUT: Duration = Duration::from_secs(8);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Phase {
@@ -12,6 +13,10 @@ pub enum Phase {
         since: Duration,
     },
     Active {
+        since: Duration,
+    },
+    /// Inputs are closed; the current action and exit animation are finishing.
+    Finishing {
         since: Duration,
     },
     Restoring {
@@ -33,6 +38,10 @@ pub trait Backend {
     fn begin(&mut self) -> Result<(), String>;
     fn poll_ready(&mut self) -> Result<bool, String>;
     fn maintain(&mut self) -> Result<(), String>;
+    /// Idempotently request a graceful exit. True acknowledges animation completion.
+    fn finish(&mut self) -> Result<bool, String> {
+        Ok(true)
+    }
     fn restore(&mut self) -> Result<bool, String>;
 }
 
@@ -92,9 +101,26 @@ impl Session {
             }
             Phase::Active { since } => {
                 if input.revert || now.saturating_sub(since) >= ACTIVE_DURATION {
-                    self.phase = Phase::Restoring { since: now };
+                    match backend.finish() {
+                        Ok(true) => self.phase = Phase::Restoring { since: now },
+                        Ok(false) => self.phase = Phase::Finishing { since: now },
+                        Err(error) => self.fail(now, error),
+                    }
                 } else if let Err(error) = backend.maintain() {
                     self.fail(now, error);
+                }
+            }
+            Phase::Finishing { since } => {
+                if let Err(error) = backend.maintain() {
+                    self.fail(now, error);
+                } else if now.saturating_sub(since) >= FINISH_TIMEOUT {
+                    self.fail(now, "behavior_finish_timeout; emergency recovery".into());
+                } else {
+                    match backend.finish() {
+                        Ok(true) => self.phase = Phase::Restoring { since: now },
+                        Ok(false) => {}
+                        Err(error) => self.fail(now, error),
+                    }
                 }
             }
             Phase::Restoring { .. } | Phase::Fault => {}

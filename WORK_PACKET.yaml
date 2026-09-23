@@ -3,18 +3,18 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: bf763fe (behavior v2 source; full revision and hashes in behavior-build-v2.json)
+    revision: v3 candidate working tree; exact source commit will be bound in build-result-v3.json
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
   authoritative_inputs:
-    spec: docs/feat-er-demon-beast/spec.md@1.0
-    design: docs/feat-er-demon-beast/design.md@1.3
+    spec: docs/feat-er-demon-beast/spec.md@1.1
+    design: docs/feat-er-demon-beast/design.md@1.4
   current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: 用户实测 v1 移动转向正常但攻击闪避失败；已部署行为 v2，仅更新私有 d0010，修复 Wait 输入门控和裸/反斜线路径初始化。等待用户按 BEHAVIOR_TEST.md 复测，限量 HKS 日志可定位初始化/请求/精力/事件。
+  current_task: 已完成 v3 候选离线验证，准备成套部署 DLL 0.3.0 与私有 HKS/Behbnd；修复锁定方向、窗口抢断、F7/到期等待，加入兽体登场退场与可恢复相机。完整 c0000 起手/视觉特效仍未完成；实机由用户执行。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -35,6 +35,8 @@ work_packet:
     - 2026-09-24 用户完成 0.2.2 测试，并补入与 NR 原件哈希一致的 GA/action/script/c0010.hks；询问原版输入转换规则。不得继续按该文件缺失处理，不覆盖用户原件。
     - 2026-09-24 用户明确允许继续同步修改 Behbnd 与 HKS，并提示核对 eventnameid/statenameid/variablenameid；本轮使用私有脚本引用并补齐实际缺项，保留用户原版 c0010.hks。
     - 2026-09-24 用户实测行为 v1 移动和转向正常，攻击与闪避仍失败；随后确认已退出游戏以安装修复。
+    - 2026-09-24 用户确认 v2 闪避、轻击、重击、防御、战技可执行，报告锁定方向、到期截断、无过渡、连点抢断、镜头五项问题。
+    - 2026-09-24 用户明确 F7 与到期解除都等待动作结束；Spec 1.1 据此调整正常恢复计时起点。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
@@ -56,19 +58,18 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-behavior-v2-installed-awaiting-human
+    stage: c0010-v3-candidate-verified
     automatic_result: PARTIAL
-    offline_tests: v1 两处红测复现；v2 裸/反斜线脚本加载与实际 HKS 输入回归 PASS；4 Python 资产测试 PASS；固定 EXE 的 Wait/ActionRequest 静态核验 PASS；DLL 保持 0.2.2
+    offline_tests: 25 Rust / 16 Python PASS；真实 HKS 五动作九连段及三种 chunk 名 PASS；v2 方向与抢断红测、v3 绿测；生命周期确认与 10 个 TAE 窗口核对 PASS；全图往返语义及 binder 未变项 PASS；64KiB DLL 回归 PASS
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
     runtime_tested: false
-    runtime_evidence: v1 run 1790182279124-59300 有 1396 个 Active 帧零丢帧，输入抵达但用户确认攻击闪避失败；v2 NOT_RUN
-    runtime_scope: v2 仅私有 HKS 修复；DLL/Behbnd/三表/参数保持已安装版本；离线检查不能代替实际动作播放和伤害验收
+    runtime_evidence: v2 run 1790183660130-51800 及用户五动作反馈；v3 NOT_RUN
+    runtime_scope: 锁定方向、衔接、正常退场、兽体登场退场、镜头效果待人测；完整 c0000 起手/特效未完成，伤害/碰撞未验收
     final_acceptance: pending_c0010_user_test
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
-    deployment: docs/feat-er-demon-beast/research/behavior-deployment-v2.json
-    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v2.json
+    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v3.json
+    verification: docs/feat-er-demon-beast/research/verification-v3.json
     parameter_evidence: docs/feat-er-demon-beast/research/c0010-param-patch-report.json
-    artifact_sha256: 63D42284E9BE348E49521BAD750A5D14D7B49417E3D49C972024545A2A38B176

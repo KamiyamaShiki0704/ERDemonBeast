@@ -1,11 +1,38 @@
--- ERDB behavior adapter 2: appended to a private copy of GA c9997.hks.
+-- ERDB behavior adapter 3: appended to a private copy of GA c9997.hks.
 -- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
 -- Preserve NR ground attack choices; use ER input/cancel interfaces.
 -- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
-ERDB_BEHAVIOR_VERSION = 2
+ERDB_BEHAVIOR_VERSION = 3
 local erdb_update = Update
 local erdb_ai_action = ExecAIAction
 local erdb_attack_common = AttackCommonFunction
+local erdb_move = ExecMove
+local erdb_idle_common, erdb_move_common = IdleCommonFunction, MoveCommonFunction
+local erdb_action, erdb_action_time, erdb_pending_action = nil, 0, nil
+local erdb_life = {phase="none", poll=0, token=nil}
+local erdb_lifecycle_tick, erdb_start_outro
+local function erdb_life_blocks_input()
+    return erdb_life.phase ~= "none" and erdb_life.phase ~= "active"
+end
+-- Earliest cancel windows in seconds, read from the installed c0010 TAE.
+-- Keys are ER R1/R2/L1/L2/SP_MOVE and 35=movement. These add a current-action
+-- lower bound; the engine cancel signal must ALSO be open (never force it).
+local erdb_windows = {
+    [3000]={[0]=0.8,[1]=1.5,[2]=1.5,[3]=1.5,[5]=1.5,[35]=55/30},
+    [3001]={[0]=25/30,[1]=50/30,[2]=50/30,[3]=50/30,[5]=50/30,[35]=58/30},
+    [3002]={[0]=34/30,[1]=50/30,[2]=50/30,[3]=50/30,[5]=50/30,[35]=58/30},
+    [3003]={[0]=1.6,[1]=55/30,[2]=55/30,[3]=55/30,[5]=55/30,[35]=1.9},
+    [3005]={[0]=61/30,[1]=1.6,[2]=2.1,[3]=2.1,[5]=61/30,[35]=64/30},
+    [3007]={[0]=71/30,[1]=71/30,[2]=71/30,[3]=71/30,[5]=71/30,[35]=71/30},
+    [3010]={[0]=35/30,[1]=38/30,[2]=53/30,[3]=53/30,[5]=53/30,[35]=2.1},
+    [3030]={[0]=38/30,[1]=38/30,[2]=38/30,[3]=38/30,[5]=38/30,[35]=47/30},
+    [3035]={},
+    [6000]={[0]=0.4,[1]=0.4,[2]=0.4,[3]=0.4,[5]=0.7,[35]=0.7}
+}
+local function erdb_window_open(input)
+    local window = erdb_windows[erdb_action]
+    return window ~= nil and window[input] ~= nil and erdb_action_time + 0.00001 >= window[input]
+end
 local erdb_held = {}
 local erdb_combo_reset = false
 local erdb_inputs = {0, 1, 2, 3, 5}
@@ -18,13 +45,13 @@ local function erdb_trace(message)
     local library = rawget(_G, "io")
     if type(library) ~= "table" or type(library.open) ~= "function" then return end
     pcall(function()
-        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v2.log", "a")
+        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v3.log", "a")
         if not file then return end
-        pcall(function() file:write("[DEBUG-erdb-v2] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
+        pcall(function() file:write("[DEBUG-erdb-v3] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
         file:close()
     end)
 end
-erdb_trace("loaded version=2")
+erdb_trace("loaded version=3")
 local erdb_next = {
     [3000]={3001,3005}, [3001]={3002,3005},
     [3002]={3003,3005}, [3003]={3000,3005},
@@ -34,6 +61,10 @@ local erdb_next = {
 }
 
 function Update()
+    erdb_lifecycle_tick()
+    if erdb_action ~= nil and erdb_pending_action == nil then
+        erdb_action_time = erdb_action_time + math.max(0, GetDeltaTime())
+    end
     if not erdb_observed.update then erdb_observed.update = true; erdb_trace("Update reached") end
     -- Observe release while in any state, including closed cancel windows.
     for _, input in ipairs(erdb_inputs) do
@@ -46,6 +77,7 @@ function Update()
 end
 
 local function erdb_dispatch(r1, r2, cancelling)
+    if erdb_life_blocks_input() then return FALSE end
     local request = ActionRequest
     if cancelling then request = ActionCancelRequest end
     -- NR ULTRA=17 collides with ER ROLLING=17. Do not copy that binding.
@@ -57,7 +89,7 @@ local function erdb_dispatch(r1, r2, cancelling)
             erdb_observed[input] = true
             erdb_trace("input=" .. input .. " cancel=" .. tostring(cancelling) .. " request=" .. tostring(requested) .. " stamina=" .. tostring(env(GetStamina)) .. " animation=" .. tostring(animation) .. " exists=" .. tostring(animation ~= nil and IsExistAnime(animation)))
         end
-        if not erdb_held[input] and requested == TRUE then
+        if not erdb_held[input] and requested == TRUE and (not cancelling or erdb_window_open(input)) then
             if env(GetStamina) <= 0 then
                 if GetVariable("StaminaComboResetTest") == 1 then erdb_combo_reset = true end
                 act(ResetInputQueue)
@@ -67,6 +99,7 @@ local function erdb_dispatch(r1, r2, cancelling)
                 erdb_held[input] = true
                 erdb_combo_reset = false
                 act(ResetInputQueue)
+                erdb_action, erdb_action_time, erdb_pending_action = animation, 0, animation
                 if animation == 6000 then Fire("W_Step6000")
                 else Fire("W_Attack" .. animation) end
                 erdb_trace("fired=" .. animation)
@@ -78,6 +111,7 @@ local function erdb_dispatch(r1, r2, cancelling)
 end
 
 function ExecAIAction(style)
+    if erdb_action ~= nil or erdb_life_blocks_input() then return FALSE end
     -- ER 2.7.1 act(9100) sets the waiting flag. env(1106) then reads
     -- new presses instead of animation-gated queued inputs. Only at the
     -- existing non-cancel entry; do not bypass attack cancel windows.
@@ -88,6 +122,11 @@ function ExecAIAction(style)
 end
 
 function AttackCommonFunction(action_number, style, ignore_guard_block)
+    if erdb_action ~= nil and erdb_action ~= action_number then return FALSE end
+    if erdb_life.phase == "pending_exit" then
+        if env(IsAnimEnd, 1) == TRUE then erdb_start_outro(); return TRUE end
+        return FALSE
+    end
     local next_moves = erdb_next[action_number]
     if next_moves == nil then
         return erdb_attack_common(action_number, style, ignore_guard_block)
@@ -101,9 +140,142 @@ function AttackCommonFunction(action_number, style, ignore_guard_block)
     if erdb_dispatch(r1, r2, true) == TRUE then return TRUE end
     -- The graph's CMSG already has FireIdleEvent on animation end.
     -- Preserve normal ER transitions; don't fabricate a timeout or force playback.
-    if ExecTransToDefaultFromBattle(TRUE, FALSE) == TRUE then return TRUE end
-    if ExecActiveTransition(TRUE, style, MOVE_TYPE_NONE, TRUE) == TRUE then return TRUE end
+    if erdb_window_open(35) and ExecTransToDefaultFromBattle(TRUE, FALSE) == TRUE then return TRUE end
+    if erdb_window_open(35) and ExecActiveTransition(TRUE, style, MOVE_TYPE_NONE, TRUE) == TRUE then return TRUE end
     return FALSE
+end
+
+-- Activation, rather than the outgoing state's callback, owns the clock.
+for animation, _ in pairs(erdb_windows) do
+    local id = animation
+    local name = (id == 6000 and "Step" or "Attack") .. id .. "_onActivate"
+    local previous = _G[name]
+    _G[name] = function()
+        if type(previous) == "function" then previous() end
+        erdb_action, erdb_action_time, erdb_pending_action = id, 0, nil
+        act(ResetInputQueue)
+    end
+end
+for _, name in ipairs({"IdleDefault", "IdleBattle", "RunDefault", "RunBattle",
+    "WalkFrontDefault", "WalkFrontBattle", "WalkBackBattle", "WalkLeftBattle", "WalkRightBattle"}) do
+    local callback = name .. "_onActivate"
+    local previous = _G[callback]
+    _G[callback] = function()
+        if type(previous) == "function" then previous() end
+        if erdb_pending_action == nil then erdb_action, erdb_action_time = nil, 0 end
+    end
+end
+function IdleCommonFunction(style, anim_id)
+    if erdb_action ~= nil or erdb_life_blocks_input() then return FALSE end
+    return erdb_idle_common(style, anim_id)
+end
+function MoveCommonFunction(style, move_type)
+    if erdb_action ~= nil or erdb_life_blocks_input() then return FALSE end
+    return erdb_move_common(style, move_type)
+end
+function ExecMove(move_type, is_on_cancel)
+    if erdb_life_blocks_input() then return FALSE end
+    if erdb_action ~= nil and not erdb_window_open(35) then return FALSE end
+    if GetVariable("IsLockon") == TRUE then
+        local speed = GetVariable("MoveSpeedLevel")
+        if speed <= 0 or (is_on_cancel == TRUE and env(IsMoveCancelPossible) == FALSE) then return FALSE end
+        local direction = GetMoveDir(speed)
+        if direction == move_type then return FALSE end
+        local route = move_table_battle[direction]
+        if route ~= nil and IsExistAnime(route[1]) == TRUE then
+            act(SetMovementScaleMult, g_EnemyMovementSpeed)
+            SetIdleType(AI_STATE_BATTLE)
+            Fire(route[2])
+            return TRUE
+        end
+        return FALSE -- Never replace a missing lateral/backward clip with forward motion.
+    end
+    return erdb_move(move_type, is_on_cancel)
+end
+
+-- One owned c0010 in this prototype. The DLL creates a fresh nonce before
+-- spawning; old files cannot acknowledge another transformation. Only fixed
+-- words are parsed, never dofile/load/execute contents. IO runs at <= 10 Hz.
+local function erdb_bridge_path(name)
+    return (rawget(_G, "ERDB_BRIDGE_DIR") or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast") .. "/" .. name
+end
+local function erdb_status(state)
+    local library = rawget(_G, "io")
+    if type(library) ~= "table" or type(library.open) ~= "function" then return end
+    pcall(function()
+        local file=library.open(erdb_bridge_path("behavior-status.txt"),"w")
+        if not file then return end
+        pcall(function() file:write(erdb_life.token .. "\n" .. state .. "\n") end)
+        file:close()
+    end)
+    erdb_trace("lifecycle=" .. state)
+end
+erdb_start_outro = function()
+    if erdb_life.phase == "outro" or erdb_life.phase == "done" then return end
+    erdb_life.phase="outro"
+    act(ResetInputQueue)
+    erdb_status("finishing")
+    Fire("W_Event20010")
+end
+erdb_lifecycle_tick = function()
+    if rawget(_G,"ERDB_BRIDGE_ENABLED") == false then return end
+    -- Install after original c0010 has loaded its own Event callbacks.
+    if not erdb_life.callbacks then
+        erdb_life.callbacks=true
+        local enter_update, exit_update = Event20000_onUpdate, Event20010_onUpdate
+        local enter_activate, exit_activate = Event20000_onActivate, Event20010_onActivate
+        Event20000_onActivate=function()
+            if type(enter_activate)=="function" then enter_activate() end
+            erdb_life.intro_live=true; erdb_life.intro_running=false
+        end
+        Event20010_onActivate=function()
+            if type(exit_activate)=="function" then exit_activate() end
+            erdb_life.outro_live=true; erdb_life.outro_running=false
+        end
+        Event20000_onUpdate=function()
+            if erdb_life.phase == "intro" then
+                if erdb_life.intro_live and env(IsAnimEnd,1) == FALSE then erdb_life.intro_running=true end
+                if erdb_life.intro_running and env(IsAnimEnd,1) == TRUE then
+                    erdb_life.phase="active"
+                    erdb_action, erdb_pending_action=nil,nil
+                    erdb_status("ready"); Fire("W_Idle")
+                end
+                return
+            end
+            if type(enter_update)=="function" then return enter_update() end
+        end
+        Event20010_onUpdate=function()
+            if erdb_life.phase == "outro" then
+                if erdb_life.outro_live and env(IsAnimEnd,1) == FALSE then erdb_life.outro_running=true end
+                if erdb_life.outro_running and env(IsAnimEnd,1) == TRUE then
+                    erdb_life.phase="done";erdb_status("done")
+                end
+                return
+            end
+            if type(exit_update)=="function" then return exit_update() end
+        end
+    end
+    if erdb_life.phase == "pending_exit" and erdb_action == nil then erdb_start_outro() end
+    erdb_life.poll = erdb_life.poll - math.max(0,GetDeltaTime())
+    if erdb_life.poll > 0 then return end
+    erdb_life.poll=0.1
+    local library=rawget(_G,"io")
+    if type(library)~="table" or type(library.open)~="function" then return end
+    local ok, token, command=pcall(function()
+        local file=library.open(erdb_bridge_path("behavior-command.txt"),"r")
+        if not file then return nil,nil end
+        local contents=file:read(257);file:close()
+        if not contents or #contents>256 then return nil,nil end
+        return contents:match("^(%d+%-%d+%-%d+)\n(%a+)\n$")
+    end)
+    if not ok or token==nil then return end
+    if erdb_life.token==nil and command=="enter" then
+        erdb_life.token=token;erdb_life.phase="intro"
+        erdb_status("starting");act(ResetInputQueue);Fire("W_Event20000")
+    elseif token==erdb_life.token and command=="exit" and erdb_life.phase=="active" then
+        erdb_life.phase="pending_exit";act(ResetInputQueue)
+        if erdb_action==nil then erdb_start_outro() end
+    end
 end
 
 -- Original c0010.hks's Event20000 callback depends on this entry point.

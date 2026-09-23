@@ -1,6 +1,8 @@
 //! Experimental WW 2.7.1 backend. All engine work runs on the game task thread.
 //! The debug control fields are documented in research/control-audit.md.
 use crate::session::{Backend, Input, Session};
+mod behavior_bridge;
+mod camera_profile;
 mod capture;
 use eldenring::{
     cs::{
@@ -51,6 +53,12 @@ struct Config {
     /// Diagnostic only: record each active frame and a small set of mouse/key states.
     #[serde(default)]
     action_trace: bool,
+    #[serde(default)]
+    behavior_lifecycle: bool,
+    #[serde(default)]
+    camera_distance: f32,
+    #[serde(default)]
+    camera_height: f32,
     chr_id: i32,
     npc_param_id: i32,
     npc_think_param_id: i32,
@@ -118,6 +126,16 @@ fn initialize() -> Result<(), String> {
         || config.ownership_tag <= 0
     {
         return Err("invalid beast configuration".into());
+    }
+    if config.behavior_lifecycle && config.chr_id != 10 {
+        return Err("behavior lifecycle currently supports only the private c0010 adapter".into());
+    }
+    if !config.camera_distance.is_finite()
+        || !config.camera_height.is_finite()
+        || !(0.0..=20.0).contains(&config.camera_distance)
+        || !(0.0..=10.0).contains(&config.camera_height)
+    {
+        return Err("invalid camera profile".into());
     }
     log(format!(
         "prototype {}; exe={hash}; ABI verified; enabled={} control_enabled={}",
@@ -478,6 +496,8 @@ struct NativeBackend {
     body_patch_count: usize,
     retirement: Retirement,
     spawn_existing: std::collections::HashSet<FieldInsHandle>,
+    behavior: Option<behavior_bridge::BehaviorBridge>,
+    camera: camera_profile::CameraProfile,
 }
 #[derive(Default)]
 enum Retirement {
@@ -499,6 +519,9 @@ impl NativeBackend {
         self.linked = false;
         self.spawn_existing.clear();
         self.retirement = Retirement::None;
+        if let Some(bridge) = self.behavior.take() {
+            bridge.close();
+        }
     }
     fn new(config: Config) -> Self {
         Self {
@@ -514,6 +537,8 @@ impl NativeBackend {
             body_patch_count: 0,
             retirement: Retirement::None,
             spawn_existing: Default::default(),
+            behavior: None,
+            camera: Default::default(),
         }
     }
     fn world(&self) -> Result<&'static mut WorldChrMan, String> {
@@ -822,6 +847,13 @@ impl Backend for NativeBackend {
             .collect();
         write(init_address + 0x10, &rotation)?;
         write(init_address + 0xc8, &[0])?;
+        if self.config.behavior_lifecycle {
+            // Shared with the private HKS, including when the DLL is copied into
+            // a manual-runs directory. Only one owned c0010 is supported here.
+            self.behavior = Some(behavior_bridge::BehaviorBridge::start(PathBuf::from(
+                "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast",
+            ))?);
+        }
         self.pending = true;
         world.debug_chr_creator.spawn = true;
         Ok(())
@@ -832,12 +864,36 @@ impl Backend for NativeBackend {
         if !self.capture_pending(world)? {
             return Ok(false);
         }
-        self.link(world)?;
-        Ok(true)
+        if !self.linked {
+            self.link(world)?;
+        }
+        self.maintain()?;
+        if let Some(bridge) = &mut self.behavior {
+            bridge.ready()
+        } else {
+            Ok(true)
+        }
     }
     fn maintain(&mut self) -> Result<(), String> {
         let world = self.world()?;
         self.validate_session(world, true)?;
+        let mut camera_ids = vec![0, 1, 2];
+        if let Some(player) = world.main_player.as_ref()
+            && let Some(target) = world.chr_ins_by_handle(&player.locked_on_enemy)
+        {
+            Identity::of(target)?;
+            let repo = unsafe { SoloParamRepository::instance() }.map_err(|e| e.to_string())?;
+            if let Some(npc) = repo.get::<NpcParam>(target.npc_param_id as u32)
+                && npc.lock_camera_param_id() >= 0
+            {
+                camera_ids.push(npc.lock_camera_param_id() as u32);
+            }
+        }
+        self.camera.apply(
+            &camera_ids,
+            self.config.camera_distance,
+            self.config.camera_height,
+        )?;
         let beast = self.beast.ok_or("no beast")?.resolve(world)?;
         if beast.modules.as_ref().data.as_ref().hp <= 0 {
             return Err("beast died; recovery requested".into());
@@ -861,7 +917,16 @@ impl Backend for NativeBackend {
         }
         Ok(())
     }
+    fn finish(&mut self) -> Result<bool, String> {
+        self.maintain()?;
+        if let Some(bridge) = &mut self.behavior {
+            bridge.finish()
+        } else {
+            Ok(true)
+        }
+    }
     fn restore(&mut self) -> Result<bool, String> {
+        self.camera.restore()?;
         match &self.retirement {
             Retirement::Requested | Retirement::Draining => return Ok(false),
             Retirement::Quarantined(error) => return Err(error.clone()),

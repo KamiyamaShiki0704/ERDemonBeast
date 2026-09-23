@@ -74,3 +74,9 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, MANUAL_TEST.md]
 ## c0010 行为 v2
 
 用户确认 v1 移动/转向正常、攻击/闪避失败。修复私有 HKS 的 Wait 起手条件与裸/反斜线 chunk 名初始化；证据和红绿测试见 research/c0010-behavior-adapter-v2.md。四个资产测试与真实 HKS 回归通过。确认 ER 进程完全退出后，仅部署 d0010.hks，SHA256 9275e9bfa0620b4aab68a19e454b25a4aa80f6d2e91149c47e3314e951bc238f。DLL 仍为 0.2.2，其余四个行为文件和四个保护输入逐项验哈希不变。安装元数据保留最初备份，旧整包回滚入口仍有效；v1 私有脚本另存 _backups/behavior-v2-20260924-010918。实际攻击、闪避和恢复待用户按 BEHAVIOR_TEST.md 验收，不宣称游戏修复已通过。
+
+## c0010 行为 v3 / DLL 0.3.0 候选
+
+Spec 1.1 / Design 1.4；用户确认 v2 五动作可用并要求 F7 与到期等待当前动作结束。新增方向分派、动作所有权和 TAE 时间下界、Finishing 与动画确认、两段兽体演出、运行时镜头恢复。红绿证据与限制见 research/c0010-behavior-adapter-v3.md；25 Rust、16 Python、Lua 回归、图往返、固定 EXE、64KiB DLL 线程加载检查通过，见 research/verification-v3.json。人工步骤 BEHAVIOR_TEST.md。未启动游戏。
+
+Manage-C0010V3.ps1 按固定白名单与前后哈希成套安装/恢复 DLL、PDB、配置、HKS、Behbnd 及元数据；所有修改前备份，安装异常回滚。三张名字表和四个原始保护输入只验哈希。成套回退入口 Restore-C0010V3.cmd。完整 c0000 起手/视觉及实际镜头仍为未完成/未验证项，不能声明原版演出全部还原。
