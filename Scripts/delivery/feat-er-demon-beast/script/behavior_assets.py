@@ -111,7 +111,7 @@ def audit_graphs(paths):
 
 def prepare(extracted, ga, adapter, output):
     required, checked, scripts = audit_graphs(sorted(extracted.glob('*.xml')))
-    report = {'version': 1, 'graph_contract': checked, 'original_lua_files': scripts, 'name_tables': {}, 'files': []}
+    report = {'version': 2, 'graph_contract': checked, 'original_lua_files': scripts, 'name_tables': {}, 'files': []}
     for kind, names in required.items():
         relative = f'action/{kind}nameid.txt'
         source = (ga / relative).read_bytes()
