@@ -8,6 +8,8 @@
 
 ## 开始阅读
 
+- [多形态自定义需求](docs/feat-er-demon-beast/requirements-custom-forms.md)：真实魔兽阶段之后的 SpEffect 路由、独立时长与玩家动作规则扩展。
+
 - [控制基线与下一阶段](docs/feat-er-demon-beast/research/control-baseline-and-next-stage.md)：人工反馈、两次释放证据及 c0010 源资产盘点。
 
 - [主题入口](docs/feat-er-demon-beast/feat-readme.md)：目标和分阶段范围。
