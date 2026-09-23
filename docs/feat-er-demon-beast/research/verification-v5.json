@@ -1,0 +1,50 @@
+{
+  "source_revision": "c14f05031dcc3d5d4f7775164e2a23f9c80a2533",
+  "spec": "1.2",
+  "design": "1.5",
+  "rust": {
+    "tests": 26,
+    "result": "PASS"
+  },
+  "python": {
+    "tests": 16,
+    "result": "PASS"
+  },
+  "lua": [
+    "entry bootstrap and node validation",
+    "owned combo windows",
+    "five actions/nine edges",
+    "outro graph transition with stuck end slot",
+    "skill automatic completion",
+    "skill F7 waits same notification",
+    "original and fourway option plus missing clips"
+  ],
+  "graph": "PASS complete graph isomorphism, twelve pointer edits/two arrays; binder readback verified",
+  "tae": "PASS re-extracted current 1011 type/time values",
+  "clippy": "PASS",
+  "fmt": "PASS",
+  "release": "PASS",
+  "dll_thread_64k": "PASS",
+  "runtime": "NOT_RUN",
+  "final_acceptance": "PENDING_HUMAN",
+  "dll_sha256": "50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119",
+  "hks_sha256": "06bad139c5e001ce771af56156d4fb5c800825ab7d4966f03a82e396f989cc40",
+  "protected_inputs": {
+    "action/script/c9997.hks": "d6194e7507a446c2d4b1e0aa4e85e6e657cb28e2be342943139174c106ad6319",
+    "action/script/c0010.hks": "ba4d2c96119b8a9986009192c2b4e08b4a45bfb7da9a601f5a8075eefb5c0a1f",
+    "chr/c0010.anibnd.dcx": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2",
+    "regulation.bin": "07444d99aef7166a2ad9e8a505842134518ca62851bdeaaee20e6f6149abc4cd",
+    "action/eventnameid.txt": "1ba9b780d99ebc9fa070ea180efdd3be16dd5ce58b80b91662bc32158b4c7c99",
+    "action/statenameid.txt": "be131a06f600e875dce8e64e296ff6c2756442e195c811bd697987df19f1f49f",
+    "action/variablenameid.txt": "2a84a383d82d1eb4b8c6484f9ecd6d69b131360ee3609727c2bf486574b1216f"
+  },
+  "installation": {
+    "targets_verified": 10,
+    "backups_verified": 10,
+    "protected_inputs_verified": 7,
+    "record": "deployment-v5.json",
+    "backup": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\complete-v3-20260924-030148-254",
+    "rollback": "Restore-C0010V5.cmd -> DLL 0.3.0 / behavior v4",
+    "rollback_executed": false
+  }
+}

@@ -3,18 +3,18 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: b1317656bf6a9db9aea82d7664905b1b908c5514 (v4 HKS fix; native DLL remains 188bdb2 build)
+    revision: c14f05031dcc3d5d4f7775164e2a23f9c80a2533 (DLL 0.3.1 and behavior v5)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
   authoritative_inputs:
-    spec: docs/feat-er-demon-beast/spec.md@1.1
-    design: docs/feat-er-demon-beast/design.md@1.4
+    spec: docs/feat-er-demon-beast/spec.md@1.2
+    design: docs/feat-er-demon-beast/design.md@1.5
   current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: v3 四轮 F6 均约 3 秒 enter_timeout、无登场/无法操作；v4 私有 HKS 修正初始化时机与动画节点确认，已离线红绿验证并部署；DLL 0.3.0 与 Behbnd 不变，实机仍由用户执行。
+  current_task: v5 已部署；锁定移动可配置且默认原版，Behbnd 转换 20010/3035 的原版 1011 解除通知，HKS/Native 接收实际图转换完成；等待用户验证退场和战技自动解除。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -38,6 +38,8 @@ work_packet:
     - 2026-09-24 用户确认 v2 闪避、轻击、重击、防御、战技可执行，报告锁定方向、到期截断、无过渡、连点抢断、镜头五项问题。
     - 2026-09-24 用户明确 F7 与到期解除都等待动作结束；Spec 1.1 据此调整正常恢复计时起点。
     - 2026-09-24 用户报告 v3 F6 后无法操作、几秒恢复，补充没有登场动画；运行 1790187506821-58692 四轮 enter_timeout，v3 进入人测失败。
+    - 2026-09-24 用户确认 v4 登场和其他动作正常，报告退场卡住、锁定非前方向不响应，指出战技原版自行解除。
+    - 2026-09-24 用户要求锁定四向移动配置，关闭时明确选择“用原版逻辑”；本轮默认 false，后续多形态分别保存。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
@@ -59,19 +61,20 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-behavior-v4-installed-awaiting-human
+    stage: c0010-behavior-v5-installed-awaiting-human
     automatic_result: PARTIAL
-    offline_tests: 进入初始化次序 v3 红测/v4 绿测；实际节点结束确认/错误节点拒绝/攻击等待/方向/连段/五动作九衔接/三种 chunk 名与 Lua 语法 PASS；DLL 未变沿用既有离线结果
+    offline_tests: 26 Rust、16 Python、真实 HKS 登场/动作/连段/通知/配置回归、全图指针与字段往返、TAE 原通知校验、64KiB DLL 线程加载、Clippy/fmt/release PASS
     runtime_tested: false
-    runtime_evidence: v3 run 1790187506821-58692 四轮进入失败；无 Active 帧；v4 NOT_RUN
-    runtime_scope: 首先验证登场、可操作、不会约 3 秒恢复，随后 F7 等待退场；完整 c0000 起手/特效仍未完成
+    runtime_evidence: v4 run 1790188649293-50956 四轮进入成功、四轮退场 8 秒 timeout；用户认可登场与其他项；v5 NOT_RUN
+    runtime_scope: 原版锁定移动、F7/到期普通退场、战技在自身通知解除、重复清理；动画事件 ER 投递仍需人工确认
     final_acceptance: pending_c0010_user_test
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
-    artifact_sha256: fcbff114cd3cd64b9dc6e9595a3c69c0e0bd6335db05e4e4e54a799dcfa47daa
-    rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V3.cmd
-    verification: docs/feat-er-demon-beast/research/verification-v4.json
-    failure_packet: docs/feat-er-demon-beast/research/entry-timeout-v3.json
-    deployment: docs/feat-er-demon-beast/research/deployment-v4.json
-    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v4.json
-    build_result: docs/feat-er-demon-beast/research/build-result-v4.json
-    private_hks_sha256: 67ffb22b9a837cf9d92a7fd00c6ab5a6e55dc4737ff0247bab0751b6bb478ea3
+    artifact_sha256: 50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119
+    rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V5.cmd
+    rollback_target: DLL 0.3.0 + behavior v4；恢复后原 v3 成套回退入口可再退 v2
+    verification: docs/feat-er-demon-beast/research/verification-v5.json
+    failure_packet: docs/feat-er-demon-beast/research/exit-notification-v4.json
+    deployment: docs/feat-er-demon-beast/research/deployment-v5.json
+    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v5.json
+    build_result: docs/feat-er-demon-beast/research/build-result-v5.json
+    private_hks_sha256: 06bad139c5e001ce771af56156d4fb5c800825ab7d4966f03a82e396f989cc40
