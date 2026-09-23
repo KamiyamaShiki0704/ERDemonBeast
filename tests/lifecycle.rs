@@ -12,6 +12,7 @@ struct FakeGame {
     fail_restore: bool,
     restore_count: usize,
     finishing_pending: bool,
+    animation_completed: bool,
 }
 
 impl Backend for FakeGame {
@@ -45,6 +46,27 @@ impl Backend for FakeGame {
     fn finish(&mut self) -> Result<bool, String> {
         Ok(!self.finishing_pending)
     }
+    fn completed(&mut self) -> Result<bool, String> {
+        Ok(self.animation_completed)
+    }
+}
+
+#[test]
+fn finisher_ack_restores_before_expiry_without_manual_exit() {
+    let mut s = Session::default();
+    let mut g = FakeGame {
+        ready: true,
+        ..Default::default()
+    };
+    tick(&mut s, &mut g, 0, true, false);
+    tick(&mut s, &mut g, 1, false, false);
+    tick(&mut s, &mut g, 1000, false, false);
+    assert!(matches!(s.phase(), Phase::Active { .. }));
+    g.animation_completed = true;
+    tick(&mut s, &mut g, 4000, false, false);
+    assert_eq!(s.phase(), Phase::Normal);
+    assert_eq!(g.restore_count, 1);
+    assert!(s.last_error().is_none());
 }
 
 #[test]

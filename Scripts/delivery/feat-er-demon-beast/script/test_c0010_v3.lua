@@ -60,7 +60,8 @@ if mode == 'lifecycle' then
     assert(status()=='1-2-3\nfinishing\n')
     tick(1);assert(status()=='1-2-3\nfinishing\n','stale end accepted before running')
     ended=false;tick(1);assert(status()=='1-2-3\nfinishing\n')
-    ended=true;tick(1);assert(status()=='1-2-3\ndone\n')
+    ended=true;tick(1);assert(status()=='1-2-3\nfinishing\n')
+    active_node='IdleDefault_CMSG';tick(1);assert(status()=='1-2-3\ndone\n')
 elseif mode == 'movement' then
     vars.IsLockon=1;vars.MoveSpeedLevel=0.5
     for _,v in ipairs({{-90,'W_WalkLeftBattle'},{90,'W_WalkRightBattle'},{180,'W_WalkBackBattle'}}) do

@@ -7,6 +7,7 @@ control_enabled = false
 action_trace = false
 # c0010 behavior-v3 handshake only. Keep false for the c4070 baseline.
 behavior_lifecycle = false
+locked_four_way_movement = false
 # Runtime minimum distance/target height, restored on exit; 0 disables overlay.
 camera_distance = 0.0
 camera_height = 0.0

@@ -92,3 +92,7 @@ v3 run 1790187506821-58692 四轮 enter_timeout、无 Active，用户确认无�
 2026-09-24 02:35 完全退出 ER 后安装 HKS v4（67ffb22b9a837cf9d92a7fd00c6ab5a6e55dc4737ff0247bab0751b6bb478ea3）及四份文档/版本元数据。DLL 0.3.0、PDB、配置、Behbnd、三张名字表、原始 c0010/c9997、anibnd 和参数内容保持原哈希。复用 v3 安装器的十文件事务，输出中的 v3 标签是旧脚本固定文案；准确包版本见 deployment-v4.json / behavior-build-v4.json。安装与备份核对通过，未启动游戏。
 
 父 deployment-v3.json 的 after 哈希已同步新包，before 和原始备份不变；Restore-C0010V3.cmd 仍可整套退回用户已验证动作可用的 DLL 0.2.2 + 行为 v2。此次失败 v3 资源单独备份在 complete-v3-20260924-023558-127，保留父记录原件。新版本仍待用户按 BEHAVIOR_TEST.md 的“先验证本次进入修复”复测；未宣称已确定唯一实机回调故障或实际登场已成功。
+
+## v5 / DLL 0.3.1
+
+Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场仍触发 8 秒超时；记录 exit-notification-v4.json。实现原版/四向配置、两处原版 1011 到 Behbnd clip trigger 的转换、HKS 实际节点完成确认及 Native 主动完成接收。详见 research/c0010-behavior-adapter-v5.md。自动检查只证明离线契约；新图事件的 ER 投递及实际演出仍待人工。

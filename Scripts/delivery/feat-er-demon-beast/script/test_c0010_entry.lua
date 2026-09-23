@@ -51,5 +51,6 @@ command('exit')
 for _=1,8 do Update();IdleDefault_onUpdate() end
 assert(node=='Event20010_CMSG','outro did not start')
 ended=false;Update();assert(status()=='4-5-6\nfinishing\n')
-ended=true;Update();assert(status()=='4-5-6\ndone\n','actual outro end never acknowledged')
+ended=true;Update();assert(status()=='4-5-6\nfinishing\n','outro accepted slot instead of graph trigger')
+node='IdleDefault_CMSG';Update();assert(status()=='4-5-6\ndone\n','actual outro graph event never acknowledged')
 print('PASS: bootstrap ordering, no synthetic event activation, actual node/end, stale unrelated end, entry/exit acknowledgements')

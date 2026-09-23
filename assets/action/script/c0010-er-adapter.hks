@@ -1,8 +1,8 @@
--- ERDB behavior adapter 4: appended to a private copy of GA c9997.hks.
+-- ERDB behavior adapter 5: appended to a private copy of GA c9997.hks.
 -- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
 -- Preserve NR ground attack choices; use ER input/cancel interfaces.
 -- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
-ERDB_BEHAVIOR_VERSION = 4
+ERDB_BEHAVIOR_VERSION = 5
 local erdb_update = Update
 local erdb_ai_action = ExecAIAction
 local erdb_attack_common = AttackCommonFunction
@@ -10,7 +10,11 @@ local erdb_move = ExecMove
 local erdb_idle_common, erdb_move_common = IdleCommonFunction, MoveCommonFunction
 local erdb_action, erdb_action_time, erdb_pending_action = nil, 0, nil
 local erdb_action_running = false
-local erdb_life = {phase="none", poll=0, token=nil}
+local erdb_life = {phase="none", poll=0, token=nil, fourway=false}
+local erdb_skill_seen = false
+local function erdb_original_heading()
+    if not erdb_life.fourway then act(LockonFixedAngleCancel) end
+end
 local erdb_lifecycle_tick, erdb_start_outro, erdb_start_intro, erdb_observe_lifecycle
 local function erdb_life_blocks_input()
     return erdb_life.phase ~= "none" and erdb_life.phase ~= "active"
@@ -39,20 +43,28 @@ local erdb_combo_reset = false
 local erdb_inputs = {0, 1, 2, 3, 5}
 -- Temporary bounded diagnosis; missing/disabled Lua IO must never break actions.
 local erdb_trace_count, erdb_observed = 0, {}
+local erdb_life_trace_count = 0
 local function erdb_trace(message)
     local trace_path = rawget(_G, "ERDB_TRACE_PATH")
-    if trace_path == false or erdb_trace_count >= 80 then return end
-    erdb_trace_count = erdb_trace_count + 1
+    if trace_path == false then return end
+    local input = message:match("^input=") or message:match("^fired=")
+    if input then
+        if erdb_trace_count >= 80 then return end
+        erdb_trace_count=erdb_trace_count+1
+    else
+        if erdb_life_trace_count >= 80 then return end
+        erdb_life_trace_count=erdb_life_trace_count+1
+    end
     local library = rawget(_G, "io")
     if type(library) ~= "table" or type(library.open) ~= "function" then return end
     pcall(function()
-        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v4.log", "a")
+        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v5.log", "a")
         if not file then return end
-        pcall(function() file:write("[DEBUG-erdb-v4] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
+        pcall(function() file:write("[ERDB-v5] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
         file:close()
     end)
 end
-erdb_trace("loaded version=4")
+erdb_trace("loaded version=5")
 local erdb_next = {
     [3000]={3001,3005}, [3001]={3002,3005},
     [3002]={3003,3005}, [3003]={3000,3005},
@@ -123,6 +135,12 @@ function ExecAIAction(style)
 end
 
 function AttackCommonFunction(action_number, style, ignore_guard_block)
+    erdb_original_heading()
+    if erdb_life.phase=="intro" or erdb_life.phase=="outro" or erdb_life.phase=="done" then return FALSE end
+    if erdb_action == 3035 then
+        -- Skill owns its 1011 clip trigger, including when F7/expiry is pending.
+        return ExecPassiveTransition(JUDGE_FALL_TYPE_DEFAULT, FALSE, ignore_guard_block, TRUE)
+    end
     if erdb_action ~= nil and erdb_action ~= action_number then return FALSE end
     if erdb_pending_action ~= nil then return FALSE end
     if erdb_action ~= nil and env(IsAnimEnd, 1) == FALSE then erdb_action_running = true end
@@ -170,19 +188,22 @@ for _, name in ipairs({"IdleDefault", "IdleBattle", "RunDefault", "RunBattle",
     end
 end
 function IdleCommonFunction(style, anim_id)
+    erdb_original_heading()
     if erdb_start_intro() then return TRUE end
     if erdb_action ~= nil or erdb_life_blocks_input() then return FALSE end
     return erdb_idle_common(style, anim_id)
 end
 function MoveCommonFunction(style, move_type)
+    erdb_original_heading()
     if erdb_start_intro() then return TRUE end
     if erdb_action ~= nil or erdb_life_blocks_input() then return FALSE end
     return erdb_move_common(style, move_type)
 end
 function ExecMove(move_type, is_on_cancel)
+    erdb_original_heading()
     if erdb_life_blocks_input() then return FALSE end
     if erdb_action ~= nil and not erdb_window_open(35) then return FALSE end
-    if GetVariable("IsLockon") == TRUE then
+    if erdb_life.fourway and GetVariable("IsLockon") == TRUE then
         local speed = GetVariable("MoveSpeedLevel")
         if speed <= 0 or (is_on_cancel == TRUE and env(IsMoveCancelPossible) == FALSE) then return FALSE end
         local direction = GetMoveDir(speed)
@@ -234,8 +255,29 @@ erdb_start_intro = function()
 end
 erdb_observe_lifecycle = function()
     local phase=erdb_life.phase
-    if phase~="intro" and phase~="outro" then return end
-    local node=phase=="intro" and "Event20000_CMSG" or "Event20010_CMSG"
+    -- The skill's graph trigger carries NR 1011 to Event20010. Observe the
+    -- actual transition; don't wait for another outro or a wall-clock delay.
+    if (phase=="active" or phase=="pending_exit") and erdb_action==3035 then
+        if IsNodeActive("Attack3035_CMSG")==TRUE then erdb_skill_seen=true end
+        if erdb_skill_seen and IsNodeActive("Event20010_CMSG")==TRUE then
+            erdb_trace("notification=3035:1011 graph transition observed")
+            erdb_life.phase="done";erdb_status("done");return
+        end
+    else erdb_skill_seen=false end
+    if phase=="outro" then
+        if IsNodeActive("Event20010_CMSG")==TRUE and erdb_life.running~="outro" then
+            erdb_life.running="outro";erdb_trace("animation=outro:active")
+        end
+        -- Only the converted outro clip trigger fires Idle. No IsAnimEnd slot
+        -- dependency here: the original NR clip reverts before its final frame.
+        if erdb_life.running=="outro" and (IsNodeActive("IdleDefault_CMSG")==TRUE or IsNodeActive("IdleBattle_CMSG")==TRUE) then
+            erdb_trace("notification=20010:1011 graph transition observed")
+            erdb_life.phase="done";erdb_status("done")
+        end
+        return
+    end
+    if phase~="intro" then return end
+    local node="Event20000_CMSG"
     local active=IsNodeActive(node)==TRUE
     local ended=env(IsAnimEnd,1)==TRUE
     -- Actual graph identity + a running->ended observation. No late-created
@@ -248,13 +290,9 @@ erdb_observe_lifecycle = function()
     if not ended then erdb_life.running=phase;return end
     if erdb_life.running~=phase then return end
     erdb_life.running=nil
-    if phase=="intro" then
-        erdb_life.phase="active"
-        erdb_action,erdb_pending_action=nil,nil
-        erdb_status("ready");Fire("W_Idle")
-    else
-        erdb_life.phase="done";erdb_status("done")
-    end
+    erdb_life.phase="active"
+    erdb_action,erdb_pending_action=nil,nil
+    erdb_status("ready");Fire("W_Idle")
 end
 erdb_lifecycle_tick = function()
     if rawget(_G,"ERDB_BRIDGE_ENABLED") == false then return end
@@ -265,16 +303,23 @@ erdb_lifecycle_tick = function()
     erdb_life.poll=0.1
     local library=rawget(_G,"io")
     if type(library)~="table" or type(library.open)~="function" then return end
-    local ok, token, command=pcall(function()
+    local ok, token, command, movement=pcall(function()
         local file=library.open(erdb_bridge_path("behavior-command.txt"),"r")
         if not file then return nil,nil end
         local contents=file:read(257);file:close()
         if not contents or #contents>256 then return nil,nil end
+        local token,command,movement=contents:match("^(%d+%-%d+%-%d+)\n(%a+)\n(%a+)\n$")
+        if token then
+            if movement~="original" and movement~="fourway" then return nil,nil end
+            return token,command,movement
+        end
         return contents:match("^(%d+%-%d+%-%d+)\n(%a+)\n$")
     end)
     if not ok or token==nil then return end
     if erdb_life.token==nil and command=="enter" then
         erdb_life.token=token;erdb_life.phase="awaiting_intro"
+        erdb_life.fourway=movement=="fourway"
+        erdb_trace("locked movement="..(movement or "original"))
         erdb_trace("entry armed; awaiting live state")
     elseif token==erdb_life.token and command=="exit" and erdb_life.phase=="active" then
         erdb_life.phase="pending_exit";act(ResetInputQueue)

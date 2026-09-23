@@ -55,6 +55,9 @@ struct Config {
     action_trace: bool,
     #[serde(default)]
     behavior_lifecycle: bool,
+    /// False preserves the form's original heading/movement behavior.
+    #[serde(default)]
+    locked_four_way_movement: bool,
     #[serde(default)]
     camera_distance: f32,
     #[serde(default)]
@@ -850,9 +853,10 @@ impl Backend for NativeBackend {
         if self.config.behavior_lifecycle {
             // Shared with the private HKS, including when the DLL is copied into
             // a manual-runs directory. Only one owned c0010 is supported here.
-            self.behavior = Some(behavior_bridge::BehaviorBridge::start(PathBuf::from(
-                "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast",
-            ))?);
+            self.behavior = Some(behavior_bridge::BehaviorBridge::start(
+                PathBuf::from("F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast"),
+                self.config.locked_four_way_movement,
+            )?);
         }
         self.pending = true;
         world.debug_chr_creator.spawn = true;
@@ -916,6 +920,12 @@ impl Backend for NativeBackend {
             return Err("control ownership lost".into());
         }
         Ok(())
+    }
+    fn completed(&mut self) -> Result<bool, String> {
+        match &mut self.behavior {
+            Some(bridge) => bridge.completed(),
+            None => Ok(false),
+        }
     }
     fn finish(&mut self) -> Result<bool, String> {
         self.maintain()?;

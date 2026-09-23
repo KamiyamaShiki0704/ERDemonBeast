@@ -2,10 +2,10 @@
 id: FEAT-ER-demon-beast
 title: 首轮控制闭环技术设计
 type: design
-version: 1.4
+version: 1.5
 updated: 2026-09-23
 based_on:
-  - spec.md@1.1
+  - spec.md@1.2
 code_paths: [src/session.rs, src/native.rs, src/native/capture.rs, src/lib.rs]
 project_paths: [Cargo.toml, er-demon-beast.toml]
 ---
@@ -115,3 +115,13 @@ FrameEnd 的零动作可能已被此前行为更新消费，TAE 字段是请求�
 ## v4 进入链修正
 
 v3 四轮人测进入超时，不能以旧离线通过代替实际通过。私有脚本撤去根 Update 立即发登场和运行中安装 Event 回调的机制；改为根 Update 准备请求、已有 Idle/Move 状态回调发出。登场/退场完成检查实际 CMSG 节点与运行→结束序列；原 Event20000 经 TDB 入口交还生命周期。保留 3 秒超时，DLL 与 Behbnd 不变。阶段日志与调度边界回归见 research/c0010-entry-fix-v4.md。
+
+## v5：原版移动选项与 NR 解除通知转换
+
+locked_four_way_movement=false 为当前 c0010 默认；私有 HKS 调用已核对的 ER LockonFixedAngleCancel，并委托已有移动选择。true 时使用四方向路由并检查动画存在。DLL 将 original/fourway 随单次 nonce 传入桥文件，不在 HKS 硬编码用户选项；旧两行 enter 输入兼容为 original。
+
+在 Behbnd 中给 Event20010/Attack3035 的六个变体 clip 各接一个共享 hkbClipTriggerArray。使用实际 TAE 1011 的 float32 起点：20010=17/30，3035=110/30；前者发送既有 W_Idle，后者发送既有 W_Event20010。完整图往返按一一映射比较全部对象、指针别名和字段。名字表无需新增。
+
+HKS 在观察实际退场节点后，等待时间轴事件转入 Idle，确认 done；战技在观察实际 Attack3035 后转入 Event20010，直接确认 done，不再播放完整第二次退场。退场不能凭 slot 1 或累计 DeltaTime 确认。进入仍沿用 v4 已经人测通过的节点与 slot 结束规则。原本 NR 1011 的引擎实现不作为 ER 调用。
+
+Native Backend 增加只读 completed 查询；Active 维护成功且当前 nonce done 后进入既有恢复/清理路径。F7/到期仍走 finish，战技中结束请求等待同一通知。故障恢复继续保留 8 秒保护，通知实际是否在 ER 投递属于人工项，不能由 HKX roundtrip 或 Lua 模拟回调代替。

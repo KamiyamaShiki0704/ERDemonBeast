@@ -28,7 +28,7 @@ function ReplaceFile([string]$source,[string]$target) {
 }
 if($Mode -eq 'Restore') {
     $data=Get-Content -LiteralPath $Record -Raw | ConvertFrom-Json
-    if($data.status -ne 'installed') {throw 'No installed v3 transaction'}
+    if($data.status -ne 'installed') {throw 'No installed transaction'}
     foreach($file in $data.files) {
         if((Hash (Target $file)) -ne $file.after) {throw "Later edit detected: $($file.relative)"}
         if((Hash (Join-Path $data.backup ($file.scope+'/'+$file.relative))) -ne $file.before) {throw 'Backup hash mismatch'}
@@ -38,7 +38,7 @@ if($Mode -eq 'Restore') {
         if((Hash (Target $file)) -ne $file.before) {throw 'Restore hash mismatch'}
     }
     $data.status='restored';$data | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Record -Encoding utf8
-    Write-Output 'RESTORED: DLL 0.2.2 and behavior v2 together.'
+    Write-Output 'RESTORED: all files to the exact pre-install backup recorded in this transaction.'
     return
 }
 if(-not $Package -or (Test-Path -LiteralPath $Record)) {throw 'Fresh transaction record and package required'}
@@ -82,4 +82,4 @@ try {
     throw $failure
 }
 $data | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Record -Encoding utf8
-Write-Output "INSTALLED: DLL 0.3.0 and behavior v3; backup=$backup"
+Write-Output "INSTALLED: paired DLL/behavior package; backup=$backup"

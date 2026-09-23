@@ -38,6 +38,10 @@ pub trait Backend {
     fn begin(&mut self) -> Result<(), String>;
     fn poll_ready(&mut self) -> Result<bool, String>;
     fn maintain(&mut self) -> Result<(), String>;
+    /// Animation-owned termination (e.g. a finisher); never requests an exit.
+    fn completed(&mut self) -> Result<bool, String> {
+        Ok(false)
+    }
     /// Idempotently request a graceful exit. True acknowledges animation completion.
     fn finish(&mut self) -> Result<bool, String> {
         Ok(true)
@@ -108,6 +112,12 @@ impl Session {
                     }
                 } else if let Err(error) = backend.maintain() {
                     self.fail(now, error);
+                } else {
+                    match backend.completed() {
+                        Ok(true) => self.phase = Phase::Restoring { since: now },
+                        Ok(false) => {}
+                        Err(error) => self.fail(now, error),
+                    }
                 }
             }
             Phase::Finishing { since } => {

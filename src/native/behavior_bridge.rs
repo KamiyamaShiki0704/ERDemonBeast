@@ -14,9 +14,10 @@ pub(super) struct BehaviorBridge {
     exiting: bool,
     cached: String,
     next_poll: Instant,
+    fourway: bool,
 }
 impl BehaviorBridge {
-    pub(super) fn start(root: PathBuf) -> Result<Self, String> {
+    pub(super) fn start(root: PathBuf, fourway: bool) -> Result<Self, String> {
         fs::create_dir_all(&root).map_err(|e| e.to_string())?;
         let token = format!(
             "{}-{}-{}",
@@ -33,6 +34,7 @@ impl BehaviorBridge {
             exiting: false,
             cached: String::new(),
             next_poll: Instant::now(),
+            fourway,
         };
         result.command("enter")?;
         Ok(result)
@@ -40,7 +42,12 @@ impl BehaviorBridge {
     fn command(&self, command: &str) -> Result<(), String> {
         fs::write(
             self.root.join("behavior-command.txt"),
-            format!("{}\n{}\n", self.token, command),
+            format!(
+                "{}\n{}\n{}\n",
+                self.token,
+                command,
+                if self.fourway { "fourway" } else { "original" }
+            ),
         )
         .map_err(|e| format!("behavior command: {e}"))
     }
@@ -68,6 +75,9 @@ impl BehaviorBridge {
     pub(super) fn ready(&mut self) -> Result<bool, String> {
         Ok(self.poll()? == "ready")
     }
+    pub(super) fn completed(&mut self) -> Result<bool, String> {
+        Ok(self.poll()? == "done")
+    }
     pub(super) fn finish(&mut self) -> Result<bool, String> {
         if !self.exiting {
             self.command("exit")?;
@@ -92,13 +102,19 @@ mod tests {
             std::process::id(),
             SERIAL.fetch_add(1, Ordering::Relaxed)
         ));
-        let mut b = BehaviorBridge::start(root.clone()).unwrap();
+        let mut b = BehaviorBridge::start(root.clone(), false).unwrap();
+        assert!(
+            fs::read_to_string(root.join("behavior-command.txt"))
+                .unwrap()
+                .ends_with("enter\noriginal\n")
+        );
         let status = root.join("behavior-status.txt");
         fs::write(&status, "old-token\ndone\n").unwrap();
         assert!(!b.ready().unwrap());
         fs::write(&status, format!("{}\nready\n", b.token)).unwrap();
         b.next_poll = Instant::now();
         assert!(b.ready().unwrap());
+        assert!(!b.completed().unwrap());
         assert!(!b.finish().unwrap());
         fs::write(&status, format!("{}\ndo", b.token)).unwrap();
         b.next_poll = Instant::now();
@@ -106,6 +122,7 @@ mod tests {
         fs::write(&status, format!("{}\ndone\n", b.token)).unwrap();
         b.next_poll = Instant::now();
         assert!(b.finish().unwrap());
+        assert!(b.completed().unwrap());
         b.close();
         assert!(
             fs::read_to_string(root.join("behavior-command.txt"))

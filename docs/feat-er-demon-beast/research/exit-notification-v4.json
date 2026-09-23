@@ -1,0 +1,63 @@
+{
+  "classification": "v4 behavior exit acknowledgement mismatch; original NR revert notification not translated",
+  "run": "1790188649293-50956",
+  "expected": "normal outro completion, no 8-second emergency; skill self-revert at original notification",
+  "actual": "four successful entries, four behavior_finish_timeout recoveries; outro active but slot 1 stayed false",
+  "cycles": [
+    {
+      "active": 33.68,
+      "finishing": 44.98,
+      "timeout": 52.98,
+      "normal": 53.053
+    },
+    {
+      "active": 71.166,
+      "finishing": 86.175,
+      "timeout": 94.186,
+      "normal": 94.387
+    },
+    {
+      "active": 135.892,
+      "finishing": 150.905,
+      "timeout": 158.909,
+      "normal": 158.993
+    },
+    {
+      "active": 162.497,
+      "finishing": 177.51,
+      "timeout": 185.511,
+      "normal": 185.579
+    }
+  ],
+  "log": "F:/GoldenAge/_GoldenAge/dll/demon_beast/er-demon-beast.log",
+  "hks_log": "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v4.log",
+  "resource_notifications": [
+    {
+      "event": 1011,
+      "start": 0.56666666,
+      "animation": 20010,
+      "end": 0.6666667,
+      "revert_type": 0
+    },
+    {
+      "event": 1011,
+      "start": 3.6666667,
+      "animation": 3035,
+      "end": 3.7666667,
+      "revert_type": 0
+    }
+  ],
+  "observed_clip_duration": {
+    "20010": 0.666666687,
+    "3035": 5.933333397
+  },
+  "rejected_hypotheses": [
+    "outro long animation: actual HKX duration 0.667s",
+    "TAE disabled unconditionally suppresses clip end: static CMSG branch separates these paths",
+    "missing lateral behavior states: states exist but three HKX clips absent"
+  ],
+  "unproven": "exact runtime reason slot 1 fails for outro; new Havok clip triggers require human test",
+  "red_command": "lua test_c0010_v5.lua <installed-v4-private> <original-c0010.lua> tmp outro",
+  "red_output": "outro stuck despite real graph completion event",
+  "seam_limit": "real HKS code with replayed node transition; Havok trigger delivery is not emulated"
+}
