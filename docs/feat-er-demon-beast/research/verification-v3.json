@@ -20,14 +20,14 @@
       "mode": "movement",
       "exit_code": 0,
       "output": "PASS movement\n",
-      "script_sha256": "4f0c1ca9c1d3e559f533cb5028ea456a26d2fa4826613b09d9862d6c7eeb97a9"
+      "script_sha256": "229d00985e35899a21fab948ca939a24c99dd760eb9a384b91726329f0206a4d"
     },
     {
       "version": "v3",
       "mode": "combo",
       "exit_code": 0,
       "output": "PASS combo\n",
-      "script_sha256": "4f0c1ca9c1d3e559f533cb5028ea456a26d2fa4826613b09d9862d6c7eeb97a9"
+      "script_sha256": "229d00985e35899a21fab948ca939a24c99dd760eb9a384b91726329f0206a4d"
     }
   ],
   "rust_tests": 25,

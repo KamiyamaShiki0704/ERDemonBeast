@@ -9,6 +9,7 @@ local erdb_attack_common = AttackCommonFunction
 local erdb_move = ExecMove
 local erdb_idle_common, erdb_move_common = IdleCommonFunction, MoveCommonFunction
 local erdb_action, erdb_action_time, erdb_pending_action = nil, 0, nil
+local erdb_action_running = false
 local erdb_life = {phase="none", poll=0, token=nil}
 local erdb_lifecycle_tick, erdb_start_outro
 local function erdb_life_blocks_input()
@@ -123,8 +124,10 @@ end
 
 function AttackCommonFunction(action_number, style, ignore_guard_block)
     if erdb_action ~= nil and erdb_action ~= action_number then return FALSE end
+    if erdb_pending_action ~= nil then return FALSE end
+    if erdb_action ~= nil and env(IsAnimEnd, 1) == FALSE then erdb_action_running = true end
     if erdb_life.phase == "pending_exit" then
-        if env(IsAnimEnd, 1) == TRUE then erdb_start_outro(); return TRUE end
+        if erdb_action_running and env(IsAnimEnd, 1) == TRUE then erdb_start_outro(); return TRUE end
         return FALSE
     end
     local next_moves = erdb_next[action_number]
@@ -153,6 +156,7 @@ for animation, _ in pairs(erdb_windows) do
     _G[name] = function()
         if type(previous) == "function" then previous() end
         erdb_action, erdb_action_time, erdb_pending_action = id, 0, nil
+        erdb_action_running = false
         act(ResetInputQueue)
     end
 end

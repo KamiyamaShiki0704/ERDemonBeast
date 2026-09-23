@@ -107,7 +107,7 @@
     {
       "relative": "action/script/d0010.hks",
       "before": "9275e9bfa0620b4aab68a19e454b25a4aa80f6d2e91149c47e3314e951bc238f",
-      "after": "4f0c1ca9c1d3e559f533cb5028ea456a26d2fa4826613b09d9862d6c7eeb97a9"
+      "after": "229d00985e35899a21fab948ca939a24c99dd760eb9a384b91726329f0206a4d"
     },
     {
       "before": "4dfc652738707bbbec831ec37bec14dfd2ca6c62b8066baa550d3fe1c0cafe02",
@@ -132,7 +132,7 @@
     "chr/c0010.anibnd.dcx": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2",
     "regulation.bin": "07444d99aef7166a2ad9e8a505842134518ca62851bdeaaee20e6f6149abc4cd"
   },
-  "adapter_sha256": "9eb1917c27380cd36c44ebf6187a3c53a6eb76c7e674b37d2dd395c551081b82",
+  "adapter_sha256": "0a77b71ba04392317d3bf8cd3d0c9fccbc442bdf919b85921259d9649a82e81b",
   "scope": "c0010 lock direction, owned-action windows, intro/outro handshake; DLL 0.3.0 required",
   "binder_entries": [
     {

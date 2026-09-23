@@ -44,7 +44,9 @@ if mode == 'lifecycle' then
     ended=false;IdleDefault_onActivate();pressed[0]=true;duration[0]=10
     IdleDefault_onUpdate();Attack3000_onActivate()
     local f=assert(io.open(ERDB_BRIDGE_DIR..'/behavior-command.txt','w'));f:write('1-2-3\nexit\n');f:close()
-    events={};tick(8);Attack3000_onUpdate()
+    events={};tick(8);ended=true;Attack3000_onUpdate()
+    assert(#events==0,'stale animation-end signal interrupted newly activated attack')
+    ended=false;Attack3000_onUpdate()
     assert(#events==0,'expiry/manual request interrupted unfinished attack')
     ended=true;Attack3000_onUpdate();assert(events[#events]=='W_Event20010')
     assert(status()=='1-2-3\nfinishing\n')
