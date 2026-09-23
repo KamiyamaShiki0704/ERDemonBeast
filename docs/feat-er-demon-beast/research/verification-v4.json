@@ -1,0 +1,21 @@
+{
+  "comparisons": [
+    {
+      "version": "v3",
+      "script_sha256": "229d00985e35899a21fab948ca939a24c99dd760eb9a384b91726329f0206a4d",
+      "exit_code": 1,
+      "output": "F:/Lua/luacdes/5.3/bin/lua.exe: ...delivery\\feat-er-demon-beast\\script\\test_c0010_entry.lua:41: entry event was lost before initial state could receive it\nstack traceback:\n\t[C]: in function 'assert'\n\t...delivery\\feat-er-demon-beast\\script\\test_c0010_entry.lua:41: in main chunk\n\t[C]: in ?\n"
+    },
+    {
+      "version": "v4",
+      "script_sha256": "67ffb22b9a837cf9d92a7fd00c6ab5a6e55dc4737ff0247bab0751b6bb478ea3",
+      "exit_code": 0,
+      "output": "PASS: bootstrap ordering, no synthetic event activation, actual node/end, stale unrelated end, entry/exit acknowledgements\n"
+    }
+  ],
+  "syntax": "PASS",
+  "regressions": "PASS: entry ordering/actual-node end/stale signal; attack wait; movement/combo; five actions/nine edges/three chunk names",
+  "runtime_tested": false,
+  "dll": "unchanged 0.3.0; previous native tests not rerun",
+  "limitations": "Startup scheduling is an adversarial seam, not a claimed runtime trace. Final cause/effect requires human rerun."
+}

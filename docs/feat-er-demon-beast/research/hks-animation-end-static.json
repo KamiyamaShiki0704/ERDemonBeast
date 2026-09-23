@@ -1,0 +1,92 @@
+{
+  "exe_sha256": "1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891",
+  "scope": "static only; does not establish runtime callback ordering",
+  "finding": "env339 reads action flag module +0x1d8 bit(slot). CMSG TAE branch can skip to 0x19ba614; clip-end notification at 0x19ba648 is after that branch and uses checkAnimEndSlotNo at +0xc0. TAE=false alone does not gate off that notification.",
+  "blocks": {
+    "env339": {
+      "rva": "0x411d52",
+      "bytes": "ba02000000498bcce871da7e00488b0e488b9190010000488b4a088bd0e8cc4cffff0fb6f8e931180000",
+      "instructions": [
+        "411d52: mov edx, 2",
+        "411d57: mov rcx, r12",
+        "411d5a: call 0xbff7d0",
+        "411d5f: mov rcx, qword ptr [rsi]",
+        "411d62: mov rdx, qword ptr [rcx + 0x190]",
+        "411d69: mov rcx, qword ptr [rdx + 8]",
+        "411d6d: mov edx, eax",
+        "411d6f: call 0x406a40",
+        "411d74: movzx edi, al",
+        "411d77: jmp 0x4135ad"
+      ]
+    },
+    "end_flag_read": {
+      "rva": "0x406a40",
+      "bytes": "488b81d80100008bd2480fa3d00f92c0c3",
+      "instructions": [
+        "406a40: mov rax, qword ptr [rcx + 0x1d8]",
+        "406a47: mov edx, edx",
+        "406a49: bt rax, rdx",
+        "406a4d: setb al",
+        "406a50: ret "
+      ]
+    },
+    "cmsg_tae_and_end": {
+      "rva": "0x19ba562",
+      "bytes": "4438a7b50000000f28d8f30f119fe40000000f57f6410f95c4418bcc83c90280bffd00000000410f44cc448bc14183c80480bfc500000001440f45c14585c074710fbf8700010000443bf875354885db74300f2e9fe000000075270f2ffe762280bbc40000000175190f2fb3b80000007310f30f5805bc0b0101f30f1187e0000000488b06418bc8f30f1087e8000000f30f1097e0000000488b502848895424288b97ec000000f30f11442420e89ceeffff4885db0f848700000080bb5001000000747e0f2ffe76794c8b0e488b4b48440fb687c40000004883e1fe8b97c00000004d8b4928e8f3ecffff",
+      "instructions": [
+        "19ba562: cmp byte ptr [rdi + 0xb5], r12b",
+        "19ba569: movaps xmm3, xmm0",
+        "19ba56c: movss dword ptr [rdi + 0xe4], xmm3",
+        "19ba574: xorps xmm6, xmm6",
+        "19ba577: setne r12b",
+        "19ba57b: mov ecx, r12d",
+        "19ba57e: or ecx, 2",
+        "19ba581: cmp byte ptr [rdi + 0xfd], 0",
+        "19ba588: cmove ecx, r12d",
+        "19ba58c: mov r8d, ecx",
+        "19ba58f: or r8d, 4",
+        "19ba593: cmp byte ptr [rdi + 0xc5], 1",
+        "19ba59a: cmovne r8d, ecx",
+        "19ba59e: test r8d, r8d",
+        "19ba5a1: je 0x19ba614",
+        "19ba5a3: movsx eax, word ptr [rdi + 0x100]",
+        "19ba5aa: cmp r15d, eax",
+        "19ba5ad: jne 0x19ba5e4",
+        "19ba5af: test rbx, rbx",
+        "19ba5b2: je 0x19ba5e4",
+        "19ba5b4: ucomiss xmm3, dword ptr [rdi + 0xe0]",
+        "19ba5bb: jne 0x19ba5e4",
+        "19ba5bd: comiss xmm7, xmm6",
+        "19ba5c0: jbe 0x19ba5e4",
+        "19ba5c2: cmp byte ptr [rbx + 0xc4], 1",
+        "19ba5c9: jne 0x19ba5e4",
+        "19ba5cb: comiss xmm6, dword ptr [rbx + 0xb8]",
+        "19ba5d2: jae 0x19ba5e4",
+        "19ba5d4: addss xmm0, dword ptr [rip + 0x1010bbc]",
+        "19ba5dc: movss dword ptr [rdi + 0xe0], xmm0",
+        "19ba5e4: mov rax, qword ptr [rsi]",
+        "19ba5e7: mov ecx, r8d",
+        "19ba5ea: movss xmm0, dword ptr [rdi + 0xe8]",
+        "19ba5f2: movss xmm2, dword ptr [rdi + 0xe0]",
+        "19ba5fa: mov rdx, qword ptr [rax + 0x28]",
+        "19ba5fe: mov qword ptr [rsp + 0x28], rdx",
+        "19ba603: mov edx, dword ptr [rdi + 0xec]",
+        "19ba609: movss dword ptr [rsp + 0x20], xmm0",
+        "19ba60f: call 0x19b94b0",
+        "19ba614: test rbx, rbx",
+        "19ba617: je 0x19ba6a4",
+        "19ba61d: cmp byte ptr [rbx + 0x150], 0",
+        "19ba624: je 0x19ba6a4",
+        "19ba626: comiss xmm7, xmm6",
+        "19ba629: jbe 0x19ba6a4",
+        "19ba62b: mov r9, qword ptr [rsi]",
+        "19ba62e: mov rcx, qword ptr [rbx + 0x48]",
+        "19ba632: movzx r8d, byte ptr [rdi + 0xc4]",
+        "19ba63a: and rcx, 0xfffffffffffffffe",
+        "19ba63e: mov edx, dword ptr [rdi + 0xc0]",
+        "19ba644: mov r9, qword ptr [r9 + 0x28]",
+        "19ba648: call 0x19b9340"
+      ]
+    }
+  }
+}

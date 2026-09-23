@@ -1,6 +1,12 @@
-# c0010 行为 v3 / DLL 0.3.0 人工测试
+# c0010 行为 v4 / DLL 0.3.0 人工测试
 
 本轮候选针对锁定移动方向、连段抢断、F7/到期等待、兽体登场退场、相机。离线检查通过不等于实机通过；本轮不自动启动游戏。
+
+## 先验证本次进入修复
+
+v3 四次 F6 均停在 starting，约 3 秒 enter_timeout，用户确认没有登场动画。本次只更新私有 HKS：由就绪状态发出登场，并直接核对实际动画节点和结束标记。DLL、Behbnd、超时和相机参数保持 v3 安装值。
+
+先重新启动，F6 后不要按其他键：观察是否出现登场、能否移动/轻击、是否不再约 3 秒自动解除。成功后在攻击刚起手时按 F7，检查等待和退场。先反馈这四项，再测其余内容。若仍失败，退出后收集日志；本次增加 entry armed / intro dispatched / animation=intro:true:false / lifecycle=ready 四个关键阶段，不要仅凭发出了事件认定动画开始。
 
 ## 测试顺序
 
@@ -25,6 +31,6 @@
 
 ## 日志与回退
 
-退出后运行 Collect-C0010Logs.cmd。新增 Saved/er-demon-beast/c0010-hks-v3.log 和 behavior-command/status.txt；DLL 日志及 frames.jsonl 记录 finishing 与异常恢复。日志里的 fired 只表示发出了事件，不独立证明动画播完。
+退出后运行 Collect-C0010Logs.cmd。新增 Saved/er-demon-beast/c0010-hks-v4.log 和 behavior-command/status.txt；DLL 日志及 frames.jsonl 记录 finishing 与异常恢复。日志里的 fired 只表示发出了事件，不独立证明动画播完。
 
 本次整套回退请在游戏完全退出后运行 **Restore-C0010V3.cmd**：一起恢复旧 DLL 0.2.2、配置、v2 HKS/Behbnd 及版本元数据。带哈希保护，后续修改过目标文件会拒绝覆盖。原 Restore-C0010Behavior.cmd 是更早的资产卸载入口，不用于本次版本回退。

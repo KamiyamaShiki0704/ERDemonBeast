@@ -1,0 +1,44 @@
+{
+  "kind": "failure-packet",
+  "run": "1790187506821-58692",
+  "dll_sha256": "fcbff114cd3cd64b9dc6e9595a3c69c0e0bd6335db05e4e4e54a799dcfa47daa",
+  "frames_sha256": "e642e3393aa0b701a8d266aab3e270d2b5566a2d2aca230415270b9eb0fef9f9",
+  "expected": "intro animation then controllable Active",
+  "actual": "no intro seen by human; input blocked; four enter_timeout recoveries; no Active frames",
+  "cycles": [
+    {
+      "enter": 106.7405202,
+      "timeout": 109.7568171,
+      "elapsed": 3.0162969000000004,
+      "error": "enter_timeout",
+      "restore_s": 0.05122459999999762,
+      "owned_after": 0
+    },
+    {
+      "enter": 111.306825,
+      "timeout": 114.3074417,
+      "elapsed": 3.000616699999995,
+      "error": "enter_timeout",
+      "restore_s": 0.10106210000000715,
+      "owned_after": 0
+    },
+    {
+      "enter": 115.8073341,
+      "timeout": 118.8073689,
+      "elapsed": 3.0000347999999946,
+      "error": "enter_timeout",
+      "restore_s": 0.050727100000003134,
+      "owned_after": 0
+    },
+    {
+      "enter": 120.2235284,
+      "timeout": 123.2236998,
+      "elapsed": 3.0001713999999993,
+      "error": "enter_timeout",
+      "restore_s": 0.05088409999999044,
+      "owned_after": 0
+    }
+  ],
+  "hks_status": "starting, never ready",
+  "final_acceptance": "FAIL v3 entry"
+}

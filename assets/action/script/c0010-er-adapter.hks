@@ -1,8 +1,8 @@
--- ERDB behavior adapter 3: appended to a private copy of GA c9997.hks.
+-- ERDB behavior adapter 4: appended to a private copy of GA c9997.hks.
 -- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
 -- Preserve NR ground attack choices; use ER input/cancel interfaces.
 -- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
-ERDB_BEHAVIOR_VERSION = 3
+ERDB_BEHAVIOR_VERSION = 4
 local erdb_update = Update
 local erdb_ai_action = ExecAIAction
 local erdb_attack_common = AttackCommonFunction
@@ -11,7 +11,7 @@ local erdb_idle_common, erdb_move_common = IdleCommonFunction, MoveCommonFunctio
 local erdb_action, erdb_action_time, erdb_pending_action = nil, 0, nil
 local erdb_action_running = false
 local erdb_life = {phase="none", poll=0, token=nil}
-local erdb_lifecycle_tick, erdb_start_outro
+local erdb_lifecycle_tick, erdb_start_outro, erdb_start_intro, erdb_observe_lifecycle
 local function erdb_life_blocks_input()
     return erdb_life.phase ~= "none" and erdb_life.phase ~= "active"
 end
@@ -46,13 +46,13 @@ local function erdb_trace(message)
     local library = rawget(_G, "io")
     if type(library) ~= "table" or type(library.open) ~= "function" then return end
     pcall(function()
-        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v3.log", "a")
+        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v4.log", "a")
         if not file then return end
-        pcall(function() file:write("[DEBUG-erdb-v3] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
+        pcall(function() file:write("[DEBUG-erdb-v4] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
         file:close()
     end)
 end
-erdb_trace("loaded version=3")
+erdb_trace("loaded version=4")
 local erdb_next = {
     [3000]={3001,3005}, [3001]={3002,3005},
     [3002]={3003,3005}, [3003]={3000,3005},
@@ -170,10 +170,12 @@ for _, name in ipairs({"IdleDefault", "IdleBattle", "RunDefault", "RunBattle",
     end
 end
 function IdleCommonFunction(style, anim_id)
+    if erdb_start_intro() then return TRUE end
     if erdb_action ~= nil or erdb_life_blocks_input() then return FALSE end
     return erdb_idle_common(style, anim_id)
 end
 function MoveCommonFunction(style, move_type)
+    if erdb_start_intro() then return TRUE end
     if erdb_action ~= nil or erdb_life_blocks_input() then return FALSE end
     return erdb_move_common(style, move_type)
 end
@@ -221,44 +223,42 @@ erdb_start_outro = function()
     erdb_status("finishing")
     Fire("W_Event20010")
 end
+erdb_start_intro = function()
+    if erdb_life.phase ~= "awaiting_intro" then return false end
+    -- Root Update also runs during bootstrap. Dispatch only from a live state
+    -- callback, after the initial graph state can receive transitions.
+    erdb_life.phase="intro"
+    erdb_status("starting");act(ResetInputQueue);Fire("W_Event20000")
+    erdb_trace("intro dispatched from live state")
+    return true
+end
+erdb_observe_lifecycle = function()
+    local phase=erdb_life.phase
+    if phase~="intro" and phase~="outro" then return end
+    local node=phase=="intro" and "Event20000_CMSG" or "Event20010_CMSG"
+    local active=IsNodeActive(node)==TRUE
+    local ended=env(IsAnimEnd,1)==TRUE
+    -- Actual graph identity + a running->ended observation. No late-created
+    -- onActivate callback, elapsed-time completion, or foreign slot-end ack.
+    local signal=phase..":"..tostring(active)..":"..tostring(ended)
+    if erdb_life.signal~=signal then
+        erdb_life.signal=signal;erdb_trace("animation="..signal)
+    end
+    if not active then return end
+    if not ended then erdb_life.running=phase;return end
+    if erdb_life.running~=phase then return end
+    erdb_life.running=nil
+    if phase=="intro" then
+        erdb_life.phase="active"
+        erdb_action,erdb_pending_action=nil,nil
+        erdb_status("ready");Fire("W_Idle")
+    else
+        erdb_life.phase="done";erdb_status("done")
+    end
+end
 erdb_lifecycle_tick = function()
     if rawget(_G,"ERDB_BRIDGE_ENABLED") == false then return end
-    -- Install after original c0010 has loaded its own Event callbacks.
-    if not erdb_life.callbacks then
-        erdb_life.callbacks=true
-        local enter_update, exit_update = Event20000_onUpdate, Event20010_onUpdate
-        local enter_activate, exit_activate = Event20000_onActivate, Event20010_onActivate
-        Event20000_onActivate=function()
-            if type(enter_activate)=="function" then enter_activate() end
-            erdb_life.intro_live=true; erdb_life.intro_running=false
-        end
-        Event20010_onActivate=function()
-            if type(exit_activate)=="function" then exit_activate() end
-            erdb_life.outro_live=true; erdb_life.outro_running=false
-        end
-        Event20000_onUpdate=function()
-            if erdb_life.phase == "intro" then
-                if erdb_life.intro_live and env(IsAnimEnd,1) == FALSE then erdb_life.intro_running=true end
-                if erdb_life.intro_running and env(IsAnimEnd,1) == TRUE then
-                    erdb_life.phase="active"
-                    erdb_action, erdb_pending_action=nil,nil
-                    erdb_status("ready"); Fire("W_Idle")
-                end
-                return
-            end
-            if type(enter_update)=="function" then return enter_update() end
-        end
-        Event20010_onUpdate=function()
-            if erdb_life.phase == "outro" then
-                if erdb_life.outro_live and env(IsAnimEnd,1) == FALSE then erdb_life.outro_running=true end
-                if erdb_life.outro_running and env(IsAnimEnd,1) == TRUE then
-                    erdb_life.phase="done";erdb_status("done")
-                end
-                return
-            end
-            if type(exit_update)=="function" then return exit_update() end
-        end
-    end
+    erdb_observe_lifecycle()
     if erdb_life.phase == "pending_exit" and erdb_action == nil then erdb_start_outro() end
     erdb_life.poll = erdb_life.poll - math.max(0,GetDeltaTime())
     if erdb_life.poll > 0 then return end
@@ -274,8 +274,8 @@ erdb_lifecycle_tick = function()
     end)
     if not ok or token==nil then return end
     if erdb_life.token==nil and command=="enter" then
-        erdb_life.token=token;erdb_life.phase="intro"
-        erdb_status("starting");act(ResetInputQueue);Fire("W_Event20000")
+        erdb_life.token=token;erdb_life.phase="awaiting_intro"
+        erdb_trace("entry armed; awaiting live state")
     elseif token==erdb_life.token and command=="exit" and erdb_life.phase=="active" then
         erdb_life.phase="pending_exit";act(ResetInputQueue)
         if erdb_action==nil then erdb_start_outro() end
@@ -285,6 +285,10 @@ end
 -- Original c0010.hks's Event20000 callback depends on this entry point.
 -- Keep that original file intact and satisfy its ground-action dependency.
 function AttackCommonFunction_TDB(r1, r2, l1, l2, b1, b2, guardcondition, use_atk_queue, comboCount, gen_hand)
+    if erdb_life.phase=="intro" then
+        erdb_observe_lifecycle()
+        return TRUE -- Own the original Event20000 callback until acknowledged.
+    end
     if ExecPassiveTransition(JUDGE_FALL_TYPE_DEFAULT, FALSE, TRUE, TRUE) == TRUE then return TRUE end
     return erdb_dispatch(r1, r2, true)
 end

@@ -2,6 +2,7 @@
 local common, original, mode = arg[1], arg[2], arg[3]
 local pressed, duration, events, vars = {}, {}, {}, {}
 local wait, cancel, ended = false, true, false
+local active_node=nil
 ERDB_TRACE_PATH = false
 ERDB_BRIDGE_ENABLED = false
 if mode=='lifecycle' then
@@ -14,8 +15,13 @@ function act(id, name, value)
     if id == SetHavokVariable then vars[name] = value end
 end
 function hkbGetVariable(name) return vars[name] or 0 end
-function hkbFireEvent(name) events[#events+1] = name end
-function hkbIsNodeActive() return false end
+function hkbFireEvent(name)
+    events[#events+1] = name
+    if name=='W_Event20000' then active_node='Event20000_CMSG' end
+    if name=='W_Event20010' then active_node='Event20010_CMSG' end
+    if name=='W_Idle' then active_node='IdleDefault_CMSG' end
+end
+function hkbIsNodeActive(name) return name==active_node end
 function env(id, key)
     if id == GetHP or id == GetStamina then return 100 end
     if id == GetReceivedDamageType then return DAMAGE_TYPE_NONE end
@@ -37,10 +43,12 @@ if mode == 'lifecycle' then
     local function status()
         local f=assert(io.open(ERDB_BRIDGE_DIR..'/behavior-status.txt','r'));local s=f:read('*a');f:close();return s
     end
-    tick(1);assert(events[#events]=='W_Event20000','entry animation was not requested')
-    ended=true;Event20000_onUpdate();assert(status()=='1-2-3\nstarting\n','stale end accepted before activation')
-    Event20000_onActivate();ended=false;Event20000_onUpdate();assert(status()=='1-2-3\nstarting\n')
-    ended=true;Event20000_onUpdate();assert(status()=='1-2-3\nready\n')
+    tick(1);assert(#events==0,'bootstrap root dispatched entry before live state')
+    IdleDefault_onActivate();IdleDefault_onUpdate()
+    assert(events[#events]=='W_Event20000','entry animation was not requested')
+    ended=true;tick(1);assert(status()=='1-2-3\nstarting\n','stale end accepted before running')
+    ended=false;tick(1);Event20000_onUpdate();assert(status()=='1-2-3\nstarting\n')
+    ended=true;tick(1);assert(status()=='1-2-3\nready\n')
     ended=false;IdleDefault_onActivate();pressed[0]=true;duration[0]=10
     IdleDefault_onUpdate();Attack3000_onActivate()
     local f=assert(io.open(ERDB_BRIDGE_DIR..'/behavior-command.txt','w'));f:write('1-2-3\nexit\n');f:close()
@@ -50,9 +58,9 @@ if mode == 'lifecycle' then
     assert(#events==0,'expiry/manual request interrupted unfinished attack')
     ended=true;Attack3000_onUpdate();assert(events[#events]=='W_Event20010')
     assert(status()=='1-2-3\nfinishing\n')
-    Event20010_onUpdate();assert(status()=='1-2-3\nfinishing\n','stale end accepted before activation')
-    Event20010_onActivate();ended=false;Event20010_onUpdate();assert(status()=='1-2-3\nfinishing\n')
-    ended=true;Event20010_onUpdate();assert(status()=='1-2-3\ndone\n')
+    tick(1);assert(status()=='1-2-3\nfinishing\n','stale end accepted before running')
+    ended=false;tick(1);assert(status()=='1-2-3\nfinishing\n')
+    ended=true;tick(1);assert(status()=='1-2-3\ndone\n')
 elseif mode == 'movement' then
     vars.IsLockon=1;vars.MoveSpeedLevel=0.5
     for _,v in ipairs({{-90,'W_WalkLeftBattle'},{90,'W_WalkRightBattle'},{180,'W_WalkBackBattle'}}) do
