@@ -75,6 +75,7 @@ def prepare(root, ga_root, mode, full_stack, save_root):
 def collect(root):
     from probe import report
     from audit_retirement import analyze
+    from audit_actions import report as action_report
     logs = root / "manual-runs"
     for log in logs.glob("*/er-demon-beast.log"):
         result = {"scope": "restoration deadline only; not full Spec acceptance",
@@ -82,10 +83,20 @@ def collect(root):
         (log.parent / "retirement-report.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     for trace in logs.glob("*/Saved/er-demon-beast/*/frames.jsonl"):
         report(trace)
+        action_report(trace)
+    # Users may load this DLL directly from their existing GoldenAge profile.
+    for trace in (root / "Saved/er-demon-beast").glob("*/frames.jsonl"):
+        report(trace)
+        action_report(trace)
     destination = root / ("erdb-logs-" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".zip")
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
         for path in logs.rglob("*"):
             if path.is_file() and path.suffix.lower() in (".log", ".json", ".jsonl", ".md", ".toml", ".me3", ".txt"):
+                archive.write(path, path.relative_to(root))
+        direct = [root / name for name in ("er-demon-beast.log", "capture-latest.json", "er-demon-beast.toml", "build-result.json")]
+        direct.extend((root / "Saved/er-demon-beast").rglob("*"))
+        for path in direct:
+            if path.is_file() and path.suffix.lower() in (".log", ".json", ".jsonl", ".md", ".toml"):
                 archive.write(path, path.relative_to(root))
     return {"log_archive":str(destination.resolve()), "contains_saves_or_dlls":False}
 

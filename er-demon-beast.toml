@@ -3,6 +3,8 @@
 enabled = false
 # enabled=true + control_enabled=false installs only the observation callback.
 control_enabled = false
+# Optional per-active-frame input diagnostics; no gameplay changes.
+action_trace = false
 chr_id = 4070
 npc_param_id = 40700000
 npc_think_param_id = 40700000

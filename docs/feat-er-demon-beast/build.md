@@ -11,7 +11,7 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, MANUAL_TEST.md]
 
 # Build 结果
 
-自动结论：**PARTIAL**。0.2.1 离线检查通过，人工测试包已准备。按用户要求，本轮没有启动或操作游戏。第二例 EXE+1F109C4 访问异常尚未证明根因；六组正式 Probe 均无本版本实机通过结果。
+当前自动结论：**PARTIAL**。0.2.2 为 c0010 键鼠动作诊断版，尚未修复攻击行为。21 Rust + 11 Python、fmt、Clippy、release 和小栈加载检查通过。用户确认 0.2.1 c0010 变身/移动/转向可用，但其他按键无效；详见 research/c0010-action-diagnosis.md 和 ACTION_TEST.md。没有启动或操作游戏。下面保留历史 0.2.1 构建与部署证据。
 
 ## 固定输入和产物
 

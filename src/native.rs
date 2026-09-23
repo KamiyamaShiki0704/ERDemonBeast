@@ -48,6 +48,9 @@ struct Config {
     enabled: bool,
     #[serde(default)]
     control_enabled: bool,
+    /// Diagnostic only: record each active frame and a small set of mouse/key states.
+    #[serde(default)]
+    action_trace: bool,
     chr_id: i32,
     npc_param_id: i32,
     npc_think_param_id: i32,

@@ -4,10 +4,29 @@ from pathlib import Path
 import tempfile
 import tomllib
 import unittest
-from manual_test import make_profile, prepare
+import zipfile
+from manual_test import make_profile, prepare, collect
 
 
 class ManualPreparation(unittest.TestCase):
+    def test_collect_includes_direct_loader_trace_but_never_save_or_dll(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            trace = root / 'Saved/er-demon-beast/direct/frames.jsonl'
+            trace.parent.mkdir(parents=True)
+            trace.write_text('')
+            trace.with_name('meta.json').write_text(json.dumps({'run':'direct', 'dll_sha256':'fixture'}))
+            (root / 'er-demon-beast.log').write_text('fixture')
+            (trace.parent / 'ER0000.Shiki').write_bytes(b'private-save')
+            (root / 'er_demon_beast.dll').write_bytes(b'dll')
+            result = collect(root)
+            with zipfile.ZipFile(result['log_archive']) as archive:
+                names = archive.namelist()
+            self.assertIn('Saved/er-demon-beast/direct/frames.jsonl', names)
+            self.assertIn('Saved/er-demon-beast/direct/action-report.json', names)
+            self.assertIn('er-demon-beast.log', names)
+            self.assertFalse(any(n.endswith(('.Shiki', '.dll')) for n in names))
+
     def test_profiles_are_offline_and_never_reuse_summon_or_duplicate_beast(self):
         base = {"start_online":True, "natives":[{"path":"dll/Summon/Summon.dll"},
                 {"path":"dll/er_demon_beast.dll"}, {"path":"dll/hud.dll"}],

@@ -79,3 +79,9 @@ Rust cdylib，运行时绑定固定采用 Summon 的 fsrs `02fa5681e27fd2ecd9da7
 固定 Summon 原件保留，运行时引用读取使用本项目 src/retirement.rs 适配副本。以 ReadProcessMemory 完整复制数组及节点，拒绝不完整复制或向量头变化，允许跨多个可读内存区域。保留连续两次零引用和任务代理清空条件，增加限频 read_error 定位，不放宽 Spec 的 3 秒恢复阈值。
 
 完全释放并恢复成功后清空旧世界及调试控制地址；活动或清理中的世界变化仍拒绝释放。用户 0.2.0 的 37.115 秒失败和新版本待复测状态见 research/retirement-stall-0.2.1.md。
+
+## 0.2.2 c0010 输入诊断补充
+
+action_trace 默认关闭，测试配置开启时在 Active 期间每个 FrameEnd 保留已有前后快照，并增加动作读回/输入允许掩码及有限物理键状态。只记录游戏前台的鼠标左右键、Shift/Ctrl/Space；不将物理键当作语义动作，不增加引擎写入。无 Case 时的活动采样不再限制为一秒，但仍不构成正式 Case 验收。普通状态及加载屏幕入口策略保持原规则。
+
+FrameEnd 的零动作可能已被此前行为更新消费，TAE 字段是请求队列标识，不能独立证明动画播放。audit_actions.py 只汇总观察值；缺帧和截断标记为不完整。收集器同时包含直接 DLL 加载与 manual-runs 两种日志。人工输入顺序见 ACTION_TEST.md；现场攻击根因和修复尚待此证据，未复制 NR 引擎专用 HKS 到 ER。
