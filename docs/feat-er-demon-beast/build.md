@@ -70,3 +70,7 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, MANUAL_TEST.md]
 仅向 GA/regulation.bin 的 NpcParam 和 NpcThinkParam 各新增 100000；ER 40700000 为测试基础，白名单适配 NR 物理字段并清除狼的常驻效果及掉落。不是完整战斗参数移植。写回读回验证两个表内原有 9919 行的原始数据和名字均一致，其他表的原始字节及 binder ID/flags 均一致。备份及部署哈希见 research/deployment-c0010.json；参数详情见 research/c0010-param-patch-report.json。
 
 已核对五个资源包容器能读回。GA/action/script/c0010.hks 未找到，c9997.hks 存在，动作兼容尚未证实。测试步骤见 C0010_TEST.md。附独立离线手动入口和带哈希保护的回滚脚本；代理未执行游戏启动。回滚脚本语法检查通过，临时文件执行测试被“游戏正在运行”守卫拒绝，未做真实回滚，不报告该执行测试已通过。安装前游戏未运行；部署后检测到用户游戏已启动，随后仅做只读核对和项目记录。
+
+## c0010 行为 v2
+
+用户确认 v1 移动/转向正常、攻击/闪避失败。修复私有 HKS 的 Wait 起手条件与裸/反斜线 chunk 名初始化；证据和红绿测试见 research/c0010-behavior-adapter-v2.md。四个资产测试与真实 HKS 回归通过。确认 ER 进程完全退出后，仅部署 d0010.hks，SHA256 9275e9bfa0620b4aab68a19e454b25a4aa80f6d2e91149c47e3314e951bc238f。DLL 仍为 0.2.2，其余四个行为文件和四个保护输入逐项验哈希不变。安装元数据保留最初备份，旧整包回滚入口仍有效；v1 私有脚本另存 _backups/behavior-v2-20260924-010918。实际攻击、闪避和恢复待用户按 BEHAVIOR_TEST.md 验收，不宣称游戏修复已通过。

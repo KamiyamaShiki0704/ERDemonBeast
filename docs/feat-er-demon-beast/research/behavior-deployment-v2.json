@@ -1,0 +1,41 @@
+{
+  "root": "F:\\GoldenAge\\_GoldenAge\\GA",
+  "backup": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\behavior-20260924-004322-305",
+  "status": "installed",
+  "files": [
+    {
+      "relative": "action/eventnameid.txt",
+      "before": "5ae37469f930d0e9913a0bed0df81e3a594022090b67a56393cb7c4f72d7465a",
+      "after": "1ba9b780d99ebc9fa070ea180efdd3be16dd5ce58b80b91662bc32158b4c7c99"
+    },
+    {
+      "relative": "action/statenameid.txt",
+      "before": "01ae72e4add4727207bcc5c19149008b230e963890cf0b8d278c4b8502883780",
+      "after": "be131a06f600e875dce8e64e296ff6c2756442e195c811bd697987df19f1f49f"
+    },
+    {
+      "relative": "action/variablenameid.txt",
+      "before": "e649618921f5cff6f29f57681600159a9b89d93797df7c2e717b40ef79607f33",
+      "after": "2a84a383d82d1eb4b8c6484f9ecd6d69b131360ee3609727c2bf486574b1216f"
+    },
+    {
+      "relative": "action/script/d0010.hks",
+      "before": null,
+      "after": "9275e9bfa0620b4aab68a19e454b25a4aa80f6d2e91149c47e3314e951bc238f"
+    },
+    {
+      "before": "829245817a1234dea3594687a1c54001553dedb062614bbde6071c0a5f9be268",
+      "after": "4dfc652738707bbbec831ec37bec14dfd2ca6c62b8066baa550d3fe1c0cafe02",
+      "relative": "chr/c0010.behbnd.dcx"
+    }
+  ],
+  "protected_inputs": {
+    "action/script/c9997.hks": "d6194e7507a446c2d4b1e0aa4e85e6e657cb28e2be342943139174c106ad6319",
+    "action/script/c0010.hks": "ba4d2c96119b8a9986009192c2b4e08b4a45bfb7da9a601f5a8075eefb5c0a1f",
+    "chr/c0010.anibnd.dcx": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2",
+    "regulation.bin": "07444d99aef7166a2ad9e8a505842134518ca62851bdeaaee20e6f6149abc4cd"
+  },
+  "behavior_version": 2,
+  "script_upgrade_backup": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\behavior-v2-20260924-010918",
+  "script_previous_sha256": "7e5655dd81f0377da6903b86c8d28fc581d9dbc92efd2b0fe810838dd1b6f3b8"
+}

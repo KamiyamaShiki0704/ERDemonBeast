@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 724ed53 (behavior adapter source; exact full revision in behavior-build-v1.json)
+    revision: bf763fe (behavior v2 source; full revision and hashes in behavior-build-v2.json)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
@@ -14,7 +14,7 @@ work_packet:
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: c0010 行为适配包 v1 已安装并逐文件验 SHA256；Behbnd 仅改私有 d0010.hks 引用，原版 c0010 保留，三表追加 29/21/14 项。等待用户按 BEHAVIOR_TEST.md 验证地面攻击、连段与恢复；完整跳跃/伤害仍排除。
+  current_task: 用户实测 v1 移动转向正常但攻击闪避失败；已部署行为 v2，仅更新私有 d0010，修复 Wait 输入门控和裸/反斜线路径初始化。等待用户按 BEHAVIOR_TEST.md 复测，限量 HKS 日志可定位初始化/请求/精力/事件。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -34,6 +34,7 @@ work_packet:
     - 2026-09-24 用户反馈 c0010 可变身/移动/转向，其他按键无效，确认测试设备为键鼠；原运行 1790178283214-25840 三轮正常析构。
     - 2026-09-24 用户完成 0.2.2 测试，并补入与 NR 原件哈希一致的 GA/action/script/c0010.hks；询问原版输入转换规则。不得继续按该文件缺失处理，不覆盖用户原件。
     - 2026-09-24 用户明确允许继续同步修改 Behbnd 与 HKS，并提示核对 eventnameid/statenameid/variablenameid；本轮使用私有脚本引用并补齐实际缺项，保留用户原版 c0010.hks。
+    - 2026-09-24 用户实测行为 v1 移动和转向正常，攻击与闪避仍失败；随后确认已退出游戏以安装修复。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
@@ -55,19 +56,19 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-behavior-v1-installed-awaiting-human
+    stage: c0010-behavior-v2-installed-awaiting-human
     automatic_result: PARTIAL
-    offline_tests: actual HKS ground-action harness PASS; 14 Python PASS including real installer/rollback fixtures; HKX and BND roundtrip plus existing name-ID preservation PASS; DLL unchanged from verified 0.2.2
+    offline_tests: v1 两处红测复现；v2 裸/反斜线脚本加载与实际 HKS 输入回归 PASS；4 Python 资产测试 PASS；固定 EXE 的 Wait/ActionRequest 静态核验 PASS；DLL 保持 0.2.2
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
     runtime_tested: false
-    runtime_evidence: behavior v1 NOT_RUN; historical 0.2.2 run 1790179759050-37584 proved input arrival and two clean retirements
-    runtime_scope: 新行为资产待人测；DLL 沿用 0.2.2；不能将脚本离线通过当作实际播放或伤害通过
+    runtime_evidence: v1 run 1790182279124-59300 有 1396 个 Active 帧零丢帧，输入抵达但用户确认攻击闪避失败；v2 NOT_RUN
+    runtime_scope: v2 仅私有 HKS 修复；DLL/Behbnd/三表/参数保持已安装版本；离线检查不能代替实际动作播放和伤害验收
     final_acceptance: pending_c0010_user_test
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
-    deployment: docs/feat-er-demon-beast/research/behavior-deployment-v1.json
-    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v1.json
+    deployment: docs/feat-er-demon-beast/research/behavior-deployment-v2.json
+    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v2.json
     parameter_evidence: docs/feat-er-demon-beast/research/c0010-param-patch-report.json
     artifact_sha256: 63D42284E9BE348E49521BAD750A5D14D7B49417E3D49C972024545A2A38B176
