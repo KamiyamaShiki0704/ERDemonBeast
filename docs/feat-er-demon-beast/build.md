@@ -54,3 +54,7 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, MANUAL_TEST.md]
 - 旧 0.1.1 两份无 Case 的采集报告仍保留在 dist 对应 Saved 路径，仅为历史加载记录；不复用为当前验收结果。
 
 本次用户优先复测 03/04，每种组合十轮 F6/F7 及一次自然到期。若再次卡住，等十秒写出定位日志后退出收集。基础稳定后再按 Spec 进行六组 Probe。最终 PASS/FAIL 由用户给出。
+
+## 后续人工反馈
+
+用户回复“1和2看起来没问题”，按路线中的控制闭环与首轮行为记录为人工初步通过。已读取 0.2.1 完整组合运行，两次恢复 0.116/0.219 秒并完成析构；见 research/control-baseline-and-next-stage.md 和 research/retirement-user-check-0.2.1.json。本构建的历史离线清单不回写，未录制的正式 Case 不补报自动 PASS。下一阶段准备真实 c0010 最小形态。

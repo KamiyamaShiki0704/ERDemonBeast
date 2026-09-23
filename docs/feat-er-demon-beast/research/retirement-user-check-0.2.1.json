@@ -1,0 +1,29 @@
+{
+  "scope": "recorded restoration deadline and destructor evidence only; not full Spec acceptance",
+  "runs": [
+    {
+      "log": "dist\\er-demon-beast-0.2.1\\manual-runs\\20260923-195816-868518-control\\er-demon-beast.log",
+      "sha256": "725b69184d04ad41b1c994112560a20ca2bce75d945b9e62e694c213cf96b4d8",
+      "cycles": [
+        {
+          "start": 42.782,
+          "line": 9,
+          "unknown_observations": 0,
+          "destroyed": true,
+          "timeout": false,
+          "status": "PASS",
+          "seconds": 0.116
+        },
+        {
+          "start": 59.785,
+          "line": 20,
+          "unknown_observations": 0,
+          "destroyed": true,
+          "timeout": false,
+          "status": "PASS",
+          "seconds": 0.219
+        }
+      ]
+    }
+  ]
+}

@@ -12,11 +12,11 @@ work_packet:
     design: docs/feat-er-demon-beast/design.md@1.3
   current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
   scope:
-    in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备]
+    in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备, 下一阶段源资产只读盘点]
     out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或现用游戏配置]
-  current_task: 0.2.1 修复跨内存区域读取误判与已结束会话绑定残留；20+10 离线检查通过。用户 0.2.0 出现 37.115 秒清理等待，实际 None 原因未证实，等待新包 03/04 复测。
+  current_task: 用户反馈路线第 1/2 阶段看起来没问题；0.2.1 完整组合日志两轮释放为 0.116/0.219 秒。保留当前控制基线，下一阶段准备真实 c0010 最小形态的资源兼容性与范围。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
-  asset_paths: []
+  asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
   probe_cases: [PROBE-ERDB-001, PROBE-ERDB-002, PROBE-ERDB-003, PROBE-ERDB-004, PROBE-ERDB-005, PROBE-ERDB-006]
   human_decisions:
@@ -27,10 +27,11 @@ work_packet:
     - 2026-09-23 用户要求“先别测了……先自检一下是不是 dll 有问题”；实机暂停，仅离线自检，不自动恢复游戏测试。
     - 2026-09-23 用户允许复用 Summon 新版召唤/内存清理框架，要求继续自检修复，并明确后续游戏测试由用户执行。
     - 2026-09-23 用户已测试 03/04，反馈基本可用，偶发 F7 后 c4070 残留且按键无响应；日志证实一轮 37.115 秒才析构。
+    - 2026-09-23 用户回复“1和2看起来没问题”，按刚才路线的控制闭环与首轮行为理解，记录人工初步通过；未据此补写六组正式 Case 的自动 PASS。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
-    - 已建立获批的原生采集；用户已做 0.2.0 基础控制测试；六组正式 Case 尚无最终通过结论。
+    - 已建立获批的原生采集；用户已反馈基础闭环和首轮行为未发现问题；0.2.1 两轮释放日志符合阈值，但不填补未录制的正式 Case。
     - 0.2.1 仅存项目 dist，根配置 enabled/control_enabled 均 false；手动脚本在包内生成每轮配置/日志，原 GoldenAge profile 未修改。
     - Summon 源码固定 01491edfa709545786d0fe795ab2fb2458dca4e1；共享三份 fixture 已与 EXE 验证。原项目只读。
     - 下轮先读 MANUAL_TEST.md 和 research/retirement-stall-0.2.1.md；原 Summon 文件不变，运行时使用 src/retirement.rs 适配副本。第二例 EXE+1F109C4 未归因，禁止把离线测试当作实机通过。
@@ -40,14 +41,16 @@ work_packet:
     evidence: 当前任务用户消息“可以，继续任务”，对应 spec.md@0.1 全部首轮范围与六组 Probe。
     pending: []
   latest_result:
-    stage: manual-test-package-ready
+    stage: control-baseline-human-feedback-received
     automatic_result: PARTIAL
     offline_tests: 20 Rust + 10 Python + small-stack regression PASS; 3 Summon binary fixtures PASS
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
-    runtime_tested: false
-    final_acceptance: pending
+    runtime_tested: true
+    runtime_evidence: docs/feat-er-demon-beast/research/retirement-user-check-0.2.1.json
+    runtime_scope: user full-stack run; two completed retirements; no formal Case IDs
+    final_acceptance: preliminary_human_pass_stages_1_2
     artifact: dist/er-demon-beast-0.2.1/er_demon_beast.dll
     artifact_sha256: D075B652731E399048CA140CC8E42BA7A82F0490499DEC3EF73B98EC8D96FB82

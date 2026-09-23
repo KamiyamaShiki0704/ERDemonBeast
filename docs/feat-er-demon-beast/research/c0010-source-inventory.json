@@ -1,0 +1,30 @@
+{
+  "mode": "read-only inventory; no conversion or compatibility assertion",
+  "files": [
+    {
+      "path": "F:\\SteamLibrary\\steamapps\\common\\ELDEN RING NIGHTREIGN\\Game\\chr\\c0010.anibnd.dcx",
+      "bytes": 1171056,
+      "sha256": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2"
+    },
+    {
+      "path": "F:\\SteamLibrary\\steamapps\\common\\ELDEN RING NIGHTREIGN\\Game\\chr\\c0010.behbnd.dcx",
+      "bytes": 202160,
+      "sha256": "829245817a1234dea3594687a1c54001553dedb062614bbde6071c0a5f9be268"
+    },
+    {
+      "path": "F:\\SteamLibrary\\steamapps\\common\\ELDEN RING NIGHTREIGN\\Game\\chr\\c0010.chrbnd.dcx",
+      "bytes": 1031424,
+      "sha256": "f4892413a4b2277e4befffb8902d6fbac6bbf14ad82ed0ce6425fb203e6f234d"
+    },
+    {
+      "path": "F:\\SteamLibrary\\steamapps\\common\\ELDEN RING NIGHTREIGN\\Game\\chr\\c0010_h.texbnd.dcx",
+      "bytes": 14180528,
+      "sha256": "0152c9993062f18ee2088aa5abadb883313898664b776aefa8a02240159fb11e"
+    },
+    {
+      "path": "F:\\SteamLibrary\\steamapps\\common\\ELDEN RING NIGHTREIGN\\Game\\chr\\c0010_l.texbnd.dcx",
+      "bytes": 952976,
+      "sha256": "f26d84b767a80eac4782adc1fcd7d74217af386163524c17c8136d8533e9ddc6"
+    }
+  ]
+}
