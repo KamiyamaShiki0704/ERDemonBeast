@@ -80,3 +80,7 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, MANUAL_TEST.md]
 Spec 1.1 / Design 1.4；用户确认 v2 五动作可用并要求 F7 与到期等待当前动作结束。新增方向分派、动作所有权和 TAE 时间下界、Finishing 与动画确认、两段兽体演出、运行时镜头恢复。红绿证据与限制见 research/c0010-behavior-adapter-v3.md；25 Rust、16 Python、Lua 回归、图往返、固定 EXE、64KiB DLL 线程加载检查通过，见 research/verification-v3.json。人工步骤 BEHAVIOR_TEST.md。未启动游戏。
 
 Manage-C0010V3.ps1 按固定白名单与前后哈希成套安装/恢复 DLL、PDB、配置、HKS、Behbnd 及元数据；所有修改前备份，安装异常回滚。三张名字表和四个原始保护输入只验哈希。成套回退入口 Restore-C0010V3.cmd。完整 c0000 起手/视觉及实际镜头仍为未完成/未验证项，不能声明原版演出全部还原。
+
+### v3 安装结果
+
+2026-09-24 01:59（本地）确认 ER 未运行后完成十文件事务安装；源码 188bdb20629c5d44befb094adfdf1f990c232c07，DLL SHA256 fcbff114cd3cd64b9dc6e9595a3c69c0e0bd6335db05e4e4e54a799dcfa47daa。安装后十个目标与全部 v2 备份逐项哈希核对通过，七项保护输入保持不变，原资产整体回滚记录也一致。事务记录 research/deployment-v3.json；精确构建与源码哈希 research/build-result-v3.json。备份 complete-v3-20260924-015939-004。未实际执行回退或游戏测试；回退脚本只做语法及完整备份/当前目标哈希核对，不报告实机恢复 PASS。

@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: v3 candidate working tree; exact source commit will be bound in build-result-v3.json
+    revision: 188bdb20629c5d44befb094adfdf1f990c232c07 (v3 implementation; deployment evidence committed separately)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
@@ -14,7 +14,7 @@ work_packet:
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: 已完成 v3 候选离线验证，准备成套部署 DLL 0.3.0 与私有 HKS/Behbnd；修复锁定方向、窗口抢断、F7/到期等待，加入兽体登场退场与可恢复相机。完整 c0000 起手/视觉特效仍未完成；实机由用户执行。
+  current_task: 已完成 v3 候选离线验证并成套部署 DLL 0.3.0 与私有 HKS/Behbnd；修复锁定方向、窗口抢断、F7/到期等待，加入兽体登场退场与可恢复相机。完整 c0000 起手/视觉特效仍未完成；实机由用户执行。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -58,7 +58,7 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-v3-candidate-verified
+    stage: c0010-v3-installed-awaiting-human
     automatic_result: PARTIAL
     offline_tests: 25 Rust / 16 Python PASS；真实 HKS 五动作九连段及三种 chunk 名 PASS；v2 方向与抢断红测、v3 绿测；生命周期确认与 10 个 TAE 窗口核对 PASS；全图往返语义及 binder 未变项 PASS；64KiB DLL 回归 PASS
     format: PASS
@@ -70,6 +70,10 @@ work_packet:
     runtime_scope: 锁定方向、衔接、正常退场、兽体登场退场、镜头效果待人测；完整 c0000 起手/特效未完成，伤害/碰撞未验收
     final_acceptance: pending_c0010_user_test
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
+    artifact_sha256: fcbff114cd3cd64b9dc6e9595a3c69c0e0bd6335db05e4e4e54a799dcfa47daa
+    deployment: docs/feat-er-demon-beast/research/deployment-v3.json
+    build_result: docs/feat-er-demon-beast/research/build-result-v3.json
+    rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V3.cmd
     behavior_build: docs/feat-er-demon-beast/research/behavior-build-v3.json
     verification: docs/feat-er-demon-beast/research/verification-v3.json
     parameter_evidence: docs/feat-er-demon-beast/research/c0010-param-patch-report.json
