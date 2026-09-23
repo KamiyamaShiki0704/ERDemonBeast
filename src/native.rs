@@ -242,6 +242,16 @@ fn update(data: &FD4TaskData) {
         }
         input = Input::default();
     }
+    if (input.enter || input.revert)
+        && matches!(
+            before,
+            crate::session::Phase::Restoring { .. } | crate::session::Phase::Fault
+        )
+    {
+        log(format!(
+            "control input deferred: phase={before:?}; cleanup still owned; see retirement read_error"
+        ));
+    }
     // Loading/title screens may expose a temporary player with partially
     // initialized modules. Idle callbacks have no reason to traverse actors.
     if !needs_engine_access(before, input, runtime.capture.is_recording()) {
@@ -476,6 +486,17 @@ enum Retirement {
     Quarantined(String),
 }
 impl NativeBackend {
+    fn finish_restore(&mut self) {
+        debug_assert!(!self.pending && self.patches.is_empty() && self.beast.is_none());
+        self.body = None;
+        self.world_address = 0;
+        self.debug_address = 0;
+        self.debug_manipulator = 0;
+        self.body_patch_count = 0;
+        self.linked = false;
+        self.spawn_existing.clear();
+        self.retirement = Retirement::None;
+    }
     fn new(config: Config) -> Self {
         Self {
             config,
@@ -842,13 +863,13 @@ impl Backend for NativeBackend {
             Retirement::Requested | Retirement::Draining => return Ok(false),
             Retirement::Quarantined(error) => return Err(error.clone()),
             Retirement::Complete => {
-                self.body = None;
-                self.retirement = Retirement::None;
+                self.finish_restore();
                 return Ok(true);
             }
             Retirement::None => {}
         }
-        if self.body.is_none() && self.patches.is_empty() && !self.pending {
+        if self.body.is_none() && self.beast.is_none() && self.patches.is_empty() && !self.pending {
+            self.finish_restore();
             return Ok(true);
         }
         let world = self.world()?;
@@ -900,7 +921,7 @@ impl Backend for NativeBackend {
             }
             self.beast = None;
         }
-        self.body = None;
+        self.finish_restore();
         Ok(true)
     }
 }
@@ -993,5 +1014,23 @@ mod tests {
         value = 789;
         patch.apply(true).unwrap();
         assert_eq!(value, 789);
+    }
+
+    #[test]
+    fn completed_retirement_releases_world_binding_for_next_session() {
+        use crate::session::Backend;
+        let config = toml::from_str(include_str!("../er-demon-beast.toml")).unwrap();
+        let mut backend = super::NativeBackend::new(config);
+        backend.world_address = 123;
+        backend.debug_address = 456;
+        backend.debug_manipulator = 789;
+        backend.retirement = super::Retirement::Complete;
+        assert!(backend.restore().unwrap());
+        assert_eq!(
+            backend.world_address, 0,
+            "finished session must not pin the next world"
+        );
+        assert_eq!(backend.debug_address, 0);
+        assert_eq!(backend.debug_manipulator, 0);
     }
 }

@@ -1,0 +1,44 @@
+{
+  "scope": "recorded restoration deadline and destructor evidence only; not full Spec acceptance",
+  "runs": [
+    {
+      "log": "dist\\er-demon-beast-0.2.0\\manual-runs\\20260923-193702-479003-control\\er-demon-beast.log",
+      "sha256": "48704e3f0fbb2af84d1c563f6b192e3151ce1669c6df3a38d61b1413ed6ce412",
+      "cycles": [
+        {
+          "start": 39.386,
+          "line": 9,
+          "unknown_observations": 7,
+          "destroyed": true,
+          "timeout": false,
+          "status": "PASS",
+          "seconds": 2.131
+        }
+      ]
+    },
+    {
+      "log": "dist\\er-demon-beast-0.2.0\\manual-runs\\20260923-194022-500787-control\\er-demon-beast.log",
+      "sha256": "cf6796c98203b9f84454c9c1e136859126583c9741a702a895cd58d9dab42535",
+      "cycles": [
+        {
+          "start": 39.676,
+          "line": 9,
+          "unknown_observations": 1,
+          "destroyed": true,
+          "timeout": false,
+          "status": "PASS",
+          "seconds": 0.216
+        },
+        {
+          "start": 68.247,
+          "line": 22,
+          "unknown_observations": 168,
+          "destroyed": true,
+          "timeout": true,
+          "status": "FAIL",
+          "seconds": 37.115
+        }
+      ]
+    }
+  ]
+}

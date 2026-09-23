@@ -74,7 +74,12 @@ def prepare(root, ga_root, mode, full_stack, save_root):
 
 def collect(root):
     from probe import report
+    from audit_retirement import analyze
     logs = root / "manual-runs"
+    for log in logs.glob("*/er-demon-beast.log"):
+        result = {"scope": "restoration deadline only; not full Spec acceptance",
+                  "cycles": analyze(log.read_text(encoding="utf-8", errors="replace"))}
+        (log.parent / "retirement-report.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     for trace in logs.glob("*/Saved/er-demon-beast/*/frames.jsonl"):
         report(trace)
     destination = root / ("erdb-logs-" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".zip")

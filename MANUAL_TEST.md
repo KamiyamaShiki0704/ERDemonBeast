@@ -1,10 +1,16 @@
-# ER Demon Beast 0.2.0 — 人工测试
+# ER Demon Beast 0.2.1 — 人工测试
 
-这一版由你手动启动和验证。代理本轮没有启动游戏。已修复确认的加载栈溢出，并接入固定版本的 Summon 清理源码；游戏本体的另一例访问异常尚不能凭离线检查宣布消除。
+这一版由你手动启动和验证。代理本轮没有启动游戏。0.2.1 修复可复现的跨可读内存区域误判和已结束会话地址残留，并增加清理失败定位日志；尚不能凭离线检查宣布你遇到的偶发等待已消除。
+
+## 本次优先复测
+
+你已测过 0.2.0 的 03、04；本次直接使用新包中的 **03-control-minimal.cmd**，稳定后再用 **04-control-goldenage.cmd**。每种组合连续 10 轮：F6 后活动 2 秒、F7 恢复，等 5 秒再开始下一轮。每轮观察 3 秒内恢复、兽体消失及下次 F6 可进入，最后补一轮 15 秒自然到期。
+
+如果卡住，额外等待 10 秒，让 `read_error` 摘要写出，再退出并运行 **05-collect-logs.cmd**。告诉我组合、轮次和是否自行恢复；无需反复按 F6/F7。收集包会额外包含 `retirement-report.json`，只判定日志中的恢复耗时，不代替完整功能验收。旧包及旧日志保留。
 
 ## 测试包与环境
 
-包目录：`D:\_Ugit\FSTool\_Mod\_Project\er-demon-beast\dist\er-demon-beast-0.2.0`。
+包目录：`D:\_Ugit\FSTool\_Mod\_Project\er-demon-beast\dist\er-demon-beast-0.2.1`。
 
 启动脚本读取 `F:\GoldenAge\_GoldenAge\Start_GoldenAge.me3`，使用该目录的 ME3 与 GA 资源、当前 Steam ER EXE，强制单机。按你的选择直接使用 `ER0000.Shiki`；每次启动前自动备份到包内 `save-backups/<本次运行>/`，不覆盖之前备份。
 

@@ -2,7 +2,7 @@
 id: FEAT-ER-demon-beast
 title: 首轮控制闭环技术设计
 type: design
-version: 1.2
+version: 1.3
 updated: 2026-09-23
 based_on:
   - spec.md@1.0
@@ -73,3 +73,9 @@ Rust cdylib，运行时绑定固定采用 Summon 的 fsrs `02fa5681e27fd2ecd9da7
 先固定来源并核对 ABI，再运行 Rust 离线生命周期测试、格式/静态检查、release 构建及 PE/哈希检查。不是 UE 项目，不运行 buildeditor_development.bat。
 
 脚本位于 `Scripts/delivery/feat-er-demon-beast/script/`。隔离产物位于忽略目录 `dist/`；不更改游戏原文件或现用启动配置。回滚为退出测试进程并移除独立测试 profile 中的 DLL，严禁活跃状态热卸载 DLL。
+
+## 0.2.1 恢复期读取与会话结束
+
+固定 Summon 原件保留，运行时引用读取使用本项目 src/retirement.rs 适配副本。以 ReadProcessMemory 完整复制数组及节点，拒绝不完整复制或向量头变化，允许跨多个可读内存区域。保留连续两次零引用和任务代理清空条件，增加限频 read_error 定位，不放宽 Spec 的 3 秒恢复阈值。
+
+完全释放并恢复成功后清空旧世界及调试控制地址；活动或清理中的世界变化仍拒绝释放。用户 0.2.0 的 37.115 秒失败和新版本待复测状态见 research/retirement-stall-0.2.1.md。
