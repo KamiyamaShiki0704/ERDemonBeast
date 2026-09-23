@@ -4,10 +4,20 @@ import shutil
 import subprocess
 import tempfile
 import unittest
-from behavior_assets import append_names, name_table, digest
+from behavior_assets import append_names, name_table, digest, private_script
 
 
 class BehaviorAssets(unittest.TestCase):
+    def test_private_script_only_removes_unused_unsafe_path_declaration(self):
+        statement = b'local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)"):gsub("/", "\\\\")\r\n'
+        common = b'\xef\xbb\xbf-- original\r\n' + statement + b'function Update() end\r\n'
+        result = private_script(common, b'-- adapter')
+        self.assertTrue(result.startswith(b'-- original\r\n'))
+        self.assertIn(b'function Update() end\r\n', result)
+        self.assertNotIn(statement, result)
+        for source in (b'no expected declaration', common + b'print(script_dir)'):
+            with self.assertRaises(ValueError): private_script(source, b'-- adapter')
+
     def test_append_preserves_existing_ids_encoding_and_eof_sentinel(self):
         source = b'#\x82\xa0\r\nNum  = 2\r\n1 = "B"\r\n2 = "A"\r\n\0\0\0\0'
         patched, added = append_names(source, {'A', 'B', 'C', 'D'})

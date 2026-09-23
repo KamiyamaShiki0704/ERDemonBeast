@@ -13,6 +13,18 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def private_script(common, adapter):
+    # GA has one unused local whose path calculation throws on a bare HKS
+    # chunk name or Windows backslashes, before the appended adapter executes.
+    # Remove only that statement from the private copy; never edit GA c9997.
+    lines = common.removeprefix(b'\xef\xbb\xbf').splitlines(keepends=True)
+    matches = [i for i, line in enumerate(lines) if line.startswith(b'local script_dir = debug.getinfo(1, "S").source:')]
+    if len(matches) != 1 or len(re.findall(rb'\bscript_dir\b', common)) != 1:
+        raise ValueError('unexpected GA script_dir declaration/use; review private script preparation')
+    lines[matches[0]] = b'-- ERDB: omitted unused script_dir calculation (bare/backslash chunk names).\n'
+    return b''.join(lines) + b'\n\n-- ERDB private c0010 adapter follows.\n' + adapter
+
+
 def name_table(data):
     pairs = [(int(i), n.decode('ascii')) for i, n in re.findall(rb'(?m)^\s*(\d+)\s*=\s*"([^"\r\n]+)"', data)]
     declared = int(re.search(rb'Num\s*=\s*(\d+)', data)[1])
@@ -120,7 +132,7 @@ def prepare(extracted, ga, adapter, output):
     common = ga / 'action/script/c9997.hks'
     private = output / 'action/script/d0010.hks'
     private.parent.mkdir(parents=True, exist_ok=True)
-    private.write_bytes(common.read_bytes() + b'\n\n-- ERDB private c0010 adapter follows.\n' + adapter.read_bytes())
+    private.write_bytes(private_script(common.read_bytes(), adapter.read_bytes()))
     previous = ga / 'action/script/d0010.hks'
     if previous.exists():
         raise ValueError('private d0010.hks already exists; refuse an unreviewed replacement')

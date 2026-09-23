@@ -1,14 +1,30 @@
--- ERDB behavior adapter 1: appended to a private copy of GA c9997.hks.
+-- ERDB behavior adapter 2: appended to a private copy of GA c9997.hks.
 -- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
 -- Preserve NR ground attack choices; use ER input/cancel interfaces.
 -- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
-ERDB_BEHAVIOR_VERSION = 1
+ERDB_BEHAVIOR_VERSION = 2
 local erdb_update = Update
 local erdb_ai_action = ExecAIAction
 local erdb_attack_common = AttackCommonFunction
 local erdb_held = {}
 local erdb_combo_reset = false
 local erdb_inputs = {0, 1, 2, 3, 5}
+-- Temporary bounded diagnosis; missing/disabled Lua IO must never break actions.
+local erdb_trace_count, erdb_observed = 0, {}
+local function erdb_trace(message)
+    local trace_path = rawget(_G, "ERDB_TRACE_PATH")
+    if trace_path == false or erdb_trace_count >= 80 then return end
+    erdb_trace_count = erdb_trace_count + 1
+    local library = rawget(_G, "io")
+    if type(library) ~= "table" or type(library.open) ~= "function" then return end
+    pcall(function()
+        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v2.log", "a")
+        if not file then return end
+        pcall(function() file:write("[DEBUG-erdb-v2] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
+        file:close()
+    end)
+end
+erdb_trace("loaded version=2")
 local erdb_next = {
     [3000]={3001,3005}, [3001]={3002,3005},
     [3002]={3003,3005}, [3003]={3000,3005},
@@ -18,9 +34,13 @@ local erdb_next = {
 }
 
 function Update()
+    if not erdb_observed.update then erdb_observed.update = true; erdb_trace("Update reached") end
     -- Observe release while in any state, including closed cancel windows.
     for _, input in ipairs(erdb_inputs) do
-        if env(ActionDuration, input) <= 0 then erdb_held[input] = false end
+        if env(ActionDuration, input) <= 0 then
+            erdb_held[input] = false
+            erdb_observed[input] = false
+        end
     end
     erdb_update()
 end
@@ -32,7 +52,12 @@ local function erdb_dispatch(r1, r2, cancelling)
     local routes = {{0,tonumber(r1)}, {1,tonumber(r2)}, {2,3030}, {3,3035}, {5,6000}}
     for _, route in ipairs(routes) do
         local input, animation = route[1], route[2]
-        if not erdb_held[input] and env(request, input) == TRUE then
+        local requested = env(request, input)
+        if not erdb_observed[input] and (requested == TRUE or env(ActionDuration, input) > 0) then
+            erdb_observed[input] = true
+            erdb_trace("input=" .. input .. " cancel=" .. tostring(cancelling) .. " request=" .. tostring(requested) .. " stamina=" .. tostring(env(GetStamina)) .. " animation=" .. tostring(animation) .. " exists=" .. tostring(animation ~= nil and IsExistAnime(animation)))
+        end
+        if not erdb_held[input] and requested == TRUE then
             if env(GetStamina) <= 0 then
                 if GetVariable("StaminaComboResetTest") == 1 then erdb_combo_reset = true end
                 act(ResetInputQueue)
@@ -44,6 +69,7 @@ local function erdb_dispatch(r1, r2, cancelling)
                 act(ResetInputQueue)
                 if animation == 6000 then Fire("W_Step6000")
                 else Fire("W_Attack" .. animation) end
+                erdb_trace("fired=" .. animation)
                 return TRUE
             end
         end
@@ -52,6 +78,11 @@ local function erdb_dispatch(r1, r2, cancelling)
 end
 
 function ExecAIAction(style)
+    -- ER 2.7.1 act(9100) sets the waiting flag. env(1106) then reads
+    -- new presses instead of animation-gated queued inputs. Only at the
+    -- existing non-cancel entry; do not bypass attack cancel windows.
+    act(Wait)
+    if not erdb_observed.entry then erdb_observed.entry = true; erdb_trace("ExecAIAction reached") end
     if erdb_dispatch(3000, 3005, false) == TRUE then return TRUE end
     return erdb_ai_action(style)
 end

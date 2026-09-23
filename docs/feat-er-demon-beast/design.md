@@ -93,3 +93,7 @@ FrameEnd 的零动作可能已被此前行为更新消费，TAE 字段是请求�
 适配器通过 ER ActionRequest / ActionCancelRequest 分别处理起手与动作取消，保留原版地面连段选择。既有 CMSG 负责动作结束返回待机。ER 编号与 NR 不同的 ULTRA/ROLLING 不直接照搬。对图引用的全量名称做差集追加，保留三个 name-ID 表既有 ID，并在写回后验证引用完备。所有五个安装目标与四个保护输入使用 SHA256 预检，安装先备份，回滚拒绝覆盖后续修改。
 
 脚本、实际结构证据和离线入口见 research/c0010-behavior-adapter-v1.md；具体人工输入见 BEHAVIOR_TEST.md。该资源候选不改变 DLL 控制、计时与退出生命周期，也不扩张完整伤害、跳跃或联机验收范围。
+
+## c0010 行为 v2 起手修正
+
+用户实测 v1 攻击/闪避失败。目标 EXE 静态核验后，在私有脚本非取消入口补 Wait 标志，使 ActionRequest 读取新按键；连段继续受 ActionCancelRequest 限制。私有副本移除一行未使用且会在裸/反斜线 chunk 名下抛错的路径初始化。只更新 d0010，其他行为资源与 DLL 不变。加入每实例最多 80 行、IO 失败隔离的临时脚本证据；见 research/c0010-behavior-adapter-v2.md。玩法仍由人验收。
