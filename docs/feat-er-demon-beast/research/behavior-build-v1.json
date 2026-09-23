@@ -1,0 +1,445 @@
+{
+  "version": 1,
+  "graph_contract": {
+    "Attack3000": {
+      "animation": "3000",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3001": {
+      "animation": "3001",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3002": {
+      "animation": "3002",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3003": {
+      "animation": "3003",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3005": {
+      "animation": "3005",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3007": {
+      "animation": "3007",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3010": {
+      "animation": "3010",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3030": {
+      "animation": "3030",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3035": {
+      "animation": "3035",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Step6000": {
+      "animation": "6000",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    }
+  },
+  "original_lua_files": [
+    "c9997.hks",
+    "modifier.hks",
+    "c0010.hks",
+    "c0010.hks"
+  ],
+  "name_tables": {
+    "event": {
+      "before": 2915,
+      "after": 2944,
+      "required": 1394,
+      "additions": [
+        [
+          2916,
+          "W_AddTalkReaction"
+        ],
+        [
+          2917,
+          "W_DamageExtraLarge"
+        ],
+        [
+          2918,
+          "W_DamageFookShotPull"
+        ],
+        [
+          2919,
+          "W_Event00"
+        ],
+        [
+          2920,
+          "W_Event01"
+        ],
+        [
+          2921,
+          "W_Jump_TDB_F"
+        ],
+        [
+          2922,
+          "W_Jump_TDB_N"
+        ],
+        [
+          2923,
+          "W_Jump_TDB_R"
+        ],
+        [
+          2924,
+          "W_Land_TDB_F"
+        ],
+        [
+          2925,
+          "W_Land_TDB_N"
+        ],
+        [
+          2926,
+          "W_Land_TDB_R"
+        ],
+        [
+          2927,
+          "W_Land_TDB_toF"
+        ],
+        [
+          2928,
+          "W_Land_TDB_toR"
+        ],
+        [
+          2929,
+          "W_ThrowCounter"
+        ],
+        [
+          2930,
+          "W_WallJumpReady_TDB"
+        ],
+        [
+          2931,
+          "W_WallJumpStart_TDB"
+        ],
+        [
+          2932,
+          "W_WeakPartBlend_SubSA_01_Add"
+        ],
+        [
+          2933,
+          "W_WeakPartBlend_SubSA_01_NoAdd"
+        ],
+        [
+          2934,
+          "W_WeakPartBlend_SubSA_02_Add"
+        ],
+        [
+          2935,
+          "W_WeakPartBlend_SubSA_02_NoAdd"
+        ],
+        [
+          2936,
+          "W_WeakPartBlend_SubSA_03_Add"
+        ],
+        [
+          2937,
+          "W_WeakPartBlend_SubSA_03_NoAdd"
+        ],
+        [
+          2938,
+          "W_WeakPartBlend_SubSA_Add"
+        ],
+        [
+          2939,
+          "W_WeakPartBlend_SubSA_NoAdd"
+        ],
+        [
+          2940,
+          "WeakPartBlend_SubSA_01_Add_to_WeakPartBlend_SubSA_01_NoAdd"
+        ],
+        [
+          2941,
+          "WeakPartBlend_SubSA_02_Add_to_WeakPartBlend_SubSA_02_NoAdd"
+        ],
+        [
+          2942,
+          "WeakPartBlend_SubSA_03_Add_to_WeakPartBlend_SubSA_03_NoAdd"
+        ],
+        [
+          2943,
+          "WeakPartBlend_SubSA_Add_to_WeakPartBlend_SubSA_NoAdd"
+        ],
+        [
+          2944,
+          "WeakPartBlend_SubSA_NoAdd_to_WeakPartBlend_SubSA_Add"
+        ]
+      ]
+    },
+    "state": {
+      "before": 2390,
+      "after": 2411,
+      "required": 1031,
+      "additions": [
+        [
+          2391,
+          "DamageExtraLarge"
+        ],
+        [
+          2392,
+          "DamageFookShotPull"
+        ],
+        [
+          2393,
+          "Jump_TDB_F"
+        ],
+        [
+          2394,
+          "Jump_TDB_N"
+        ],
+        [
+          2395,
+          "Jump_TDB_R"
+        ],
+        [
+          2396,
+          "Land_TDB_F"
+        ],
+        [
+          2397,
+          "Land_TDB_N"
+        ],
+        [
+          2398,
+          "Land_TDB_R"
+        ],
+        [
+          2399,
+          "Land_TDB_toF"
+        ],
+        [
+          2400,
+          "Land_TDB_toR"
+        ],
+        [
+          2401,
+          "ThrowCounter"
+        ],
+        [
+          2402,
+          "WallJumpReady_TDB"
+        ],
+        [
+          2403,
+          "WallJumpStart_TDB"
+        ],
+        [
+          2404,
+          "WeakPartBlend_SubSA_01_Add"
+        ],
+        [
+          2405,
+          "WeakPartBlend_SubSA_01_NoAdd"
+        ],
+        [
+          2406,
+          "WeakPartBlend_SubSA_02_Add"
+        ],
+        [
+          2407,
+          "WeakPartBlend_SubSA_02_NoAdd"
+        ],
+        [
+          2408,
+          "WeakPartBlend_SubSA_03_Add"
+        ],
+        [
+          2409,
+          "WeakPartBlend_SubSA_03_NoAdd"
+        ],
+        [
+          2410,
+          "WeakPartBlend_SubSA_Add"
+        ],
+        [
+          2411,
+          "WeakPartBlend_SubSA_NoAdd"
+        ]
+      ]
+    },
+    "variable": {
+      "before": 667,
+      "after": 681,
+      "required": 215,
+      "additions": [
+        [
+          668,
+          "AddReactionAgree"
+        ],
+        [
+          669,
+          "AddReactionConfuse"
+        ],
+        [
+          670,
+          "AddReactionDisagree"
+        ],
+        [
+          671,
+          "AttackCountHoly"
+        ],
+        [
+          672,
+          "BlendWeakPart_SubSA"
+        ],
+        [
+          673,
+          "BlendWeakPart_SubSA01"
+        ],
+        [
+          674,
+          "BlendWeakPart_SubSA02"
+        ],
+        [
+          675,
+          "BlendWeakPart_SubSA03"
+        ],
+        [
+          676,
+          "ContactWallAngle"
+        ],
+        [
+          677,
+          "L_Toe_Root_Target"
+        ],
+        [
+          678,
+          "R_Toe_Root_Target"
+        ],
+        [
+          679,
+          "Selector_WallContactType"
+        ],
+        [
+          680,
+          "Selector_WallJumpType"
+        ],
+        [
+          681,
+          "ThrowCounterID"
+        ]
+      ]
+    }
+  },
+  "files": [
+    {
+      "relative": "action/eventnameid.txt",
+      "before": "5ae37469f930d0e9913a0bed0df81e3a594022090b67a56393cb7c4f72d7465a",
+      "after": "1ba9b780d99ebc9fa070ea180efdd3be16dd5ce58b80b91662bc32158b4c7c99"
+    },
+    {
+      "relative": "action/statenameid.txt",
+      "before": "01ae72e4add4727207bcc5c19149008b230e963890cf0b8d278c4b8502883780",
+      "after": "be131a06f600e875dce8e64e296ff6c2756442e195c811bd697987df19f1f49f"
+    },
+    {
+      "relative": "action/variablenameid.txt",
+      "before": "e649618921f5cff6f29f57681600159a9b89d93797df7c2e717b40ef79607f33",
+      "after": "2a84a383d82d1eb4b8c6484f9ecd6d69b131360ee3609727c2bf486574b1216f"
+    },
+    {
+      "relative": "action/script/d0010.hks",
+      "before": null,
+      "after": "7e5655dd81f0377da6903b86c8d28fc581d9dbc92efd2b0fe810838dd1b6f3b8"
+    },
+    {
+      "before": "829245817a1234dea3594687a1c54001553dedb062614bbde6071c0a5f9be268",
+      "after": "4dfc652738707bbbec831ec37bec14dfd2ca6c62b8066baa550d3fe1c0cafe02",
+      "relative": "chr/c0010.behbnd.dcx"
+    }
+  ],
+  "character_patch": {
+    "offset": 1758,
+    "length_preserved": true,
+    "changed_bytes": [
+      1758,
+      1759,
+      1760,
+      1761,
+      1762
+    ]
+  },
+  "protected_inputs": {
+    "action/script/c9997.hks": "d6194e7507a446c2d4b1e0aa4e85e6e657cb28e2be342943139174c106ad6319",
+    "action/script/c0010.hks": "ba4d2c96119b8a9986009192c2b4e08b4a45bfb7da9a601f5a8075eefb5c0a1f",
+    "chr/c0010.anibnd.dcx": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2",
+    "regulation.bin": "07444d99aef7166a2ad9e8a505842134518ca62851bdeaaee20e6f6149abc4cd"
+  },
+  "adapter_sha256": "e5739f3c595784fea75f131e6b6ed1d7594392942887d063991b9fc783e19a52",
+  "scope": "Ground action/ER cancel adapter; existing behavior transitions preserved; runtime pending human",
+  "binder_entries": [
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\c0010.hkx",
+      "flags": "Flag1",
+      "hash": "4385fd3379eef7bd7c1babcadc9c968c0019d5de1251583bf35c2a55ca7a8e4a",
+      "id": 7000300
+    },
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Characters\\c0010.hkx",
+      "flags": "Flag1",
+      "hash": "64ff7cb2550aef21965a16d8294387b30d831465a27d11e5086df76002c7b5af",
+      "id": 7000400
+    },
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Behaviors\\c0010.hkx",
+      "flags": "Flag1",
+      "hash": "2af317c4b5c7572670ab0498b560646b9c785c77b7224d12f4f8a4010af5126f",
+      "id": 7000500
+    },
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Behaviors\\c9997.hkx",
+      "flags": "Flag1",
+      "hash": "4bd532f23b54fe523282244b2c35617c0c3e95c6ebfca98012719a3fd04a9ba1",
+      "id": 7000501
+    }
+  ],
+  "roundtrip": "PASS; 3 entries byte-identical; character entry fixed-length script rename only",
+  "verified_tae_ids": [
+    3000,
+    3001,
+    3002,
+    3003,
+    3005,
+    3007,
+    3010,
+    3030,
+    3035,
+    6000
+  ],
+  "source_revision": "724ed534bd3bdb35bd5bbea14a0ed5e15eef4002",
+  "spec": "spec.md@1.0; c0010 behavior extension explicitly approved 2026-09-24",
+  "checks": {
+    "hkx_roundtrip": "PASS",
+    "name_id_preservation": "PASS",
+    "python_tests": 14,
+    "runtime": "PENDING_HUMAN",
+    "hks_actual_script_harness": "PASS",
+    "installer_and_rollback_fixture": "PASS"
+  }
+}

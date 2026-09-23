@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 03a0a35faa6e3cb4509efaa00565a77e7af862a9
+    revision: 724ed53 (behavior adapter source; exact full revision in behavior-build-v1.json)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
@@ -14,7 +14,7 @@ work_packet:
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: c0010 行为适配包 v1 已离线生成并通过真实 HKS 调用测试，Behbnd 仅改私有 d0010.hks 引用，原版 c0010 保留；三表追加 29/21/14 项。按 BEHAVIOR_TEST.md 准备人工验证地面攻击、连段与恢复，完整跳跃/伤害仍排除。
+  current_task: c0010 行为适配包 v1 已安装并逐文件验 SHA256；Behbnd 仅改私有 d0010.hks 引用，原版 c0010 保留，三表追加 29/21/14 项。等待用户按 BEHAVIOR_TEST.md 验证地面攻击、连段与恢复；完整跳跃/伤害仍排除。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -55,18 +55,19 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-input-delivery-confirmed-original-rules-audited
+    stage: c0010-behavior-v1-installed-awaiting-human
     automatic_result: PARTIAL
-    offline_tests: 21 Rust + 11 Python + small-stack regression PASS; Lua raw-R1 dispatch FAIL and AI-3000 control PASS (intentional diagnostic comparison)
+    offline_tests: actual HKS ground-action harness PASS; 14 Python PASS including real installer/rollback fixtures; HKX and BND roundtrip plus existing name-ID preservation PASS; DLL unchanged from verified 0.2.2
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
-    runtime_tested: true
-    runtime_evidence: 0.2.2 c0010 run 1790179759050-37584; 677 active frames, zero drops, two clean retirements
-    runtime_scope: 用户确认变身/移动/转向；攻击失败；0.2.2 是诊断版
+    runtime_tested: false
+    runtime_evidence: behavior v1 NOT_RUN; historical 0.2.2 run 1790179759050-37584 proved input arrival and two clean retirements
+    runtime_scope: 新行为资产待人测；DLL 沿用 0.2.2；不能将脚本离线通过当作实际播放或伤害通过
     final_acceptance: pending_c0010_user_test
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
-    deployment: docs/feat-er-demon-beast/research/build-result-0.2.2.json
+    deployment: docs/feat-er-demon-beast/research/behavior-deployment-v1.json
+    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v1.json
     parameter_evidence: docs/feat-er-demon-beast/research/c0010-param-patch-report.json
     artifact_sha256: 63D42284E9BE348E49521BAD750A5D14D7B49417E3D49C972024545A2A38B176
