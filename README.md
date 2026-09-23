@@ -8,6 +8,8 @@
 
 ## 开始阅读
 
+- [c0010 测试部署](docs/feat-er-demon-beast/C0010_TEST.md)：用户提供资源后的加载/控制测试，DLL 与专用参数已部署，等待用户实机反馈。
+
 - [多形态自定义需求](docs/feat-er-demon-beast/requirements-custom-forms.md)：真实魔兽阶段之后的 SpEffect 路由、独立时长与玩家动作规则扩展。
 
 - [控制基线与下一阶段](docs/feat-er-demon-beast/research/control-baseline-and-next-stage.md)：人工反馈、两次释放证据及 c0010 源资产盘点。

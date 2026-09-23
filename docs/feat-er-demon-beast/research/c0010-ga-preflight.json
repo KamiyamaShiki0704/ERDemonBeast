@@ -1,0 +1,144 @@
+{
+  "kind": "static-read-only",
+  "runtime_tested": false,
+  "regulation": "F:\\GoldenAge\\_GoldenAge\\GA\\regulation.bin",
+  "regulation_sha256": "7F799909898539255E26097AC1373D295CC569D04148D6008E2031E02D9108F0",
+  "tables": [
+    {
+      "table": "NpcParam",
+      "row100000": false,
+      "row40700000": true,
+      "row100": true
+    },
+    {
+      "table": "NpcThinkParam",
+      "row100000": false,
+      "row40700000": true,
+      "row100": true
+    },
+    {
+      "table": "ChrModelParam",
+      "row100000": false,
+      "row40700000": false,
+      "row100": true
+    }
+  ],
+  "assets": [
+    {
+      "path": "F:\\GoldenAge\\_GoldenAge\\GA\\chr\\c0010_h.texbnd.dcx",
+      "bytes": 14180528,
+      "sha256": "0152C9993062F18EE2088AA5ABADB883313898664B776AEFA8A02240159FB11E",
+      "entries": 1,
+      "names": [
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\c0010_h.tpf"
+      ]
+    },
+    {
+      "path": "F:\\GoldenAge\\_GoldenAge\\GA\\chr\\c0010_l.texbnd.dcx",
+      "bytes": 952976,
+      "sha256": "F26D84B767A80EAC4782ADC1FCD7D74217AF386163524C17C8136D8533E9DDC6",
+      "entries": 1,
+      "names": [
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\c0010_l.tpf"
+      ]
+    },
+    {
+      "path": "F:\\GoldenAge\\_GoldenAge\\GA\\chr\\c0010.anibnd.dcx",
+      "bytes": 1171056,
+      "sha256": "F444201D09FA020500B083D87E3411A462C307061DD29E1E48813C87E76961F2",
+      "entries": 64,
+      "names": [
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\skeleton.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\tae\\c0010.tae",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\c0010.compendium",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_000000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_000020.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_002000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_002010.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_002100.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_002110.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003001.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003002.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003003.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003005.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003006.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003007.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003008.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003010.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003011.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003015.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003016.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003017.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003020.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003021.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003022.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003030.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003035.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_003036.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005001.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005002.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005003.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005100.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005101.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005102.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_005103.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006110.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006120.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006130.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006150.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006151.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006152.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006153.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006160.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006161.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006170.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_006180.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_007000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_007100.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_007400.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_007450.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_007451.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_007460.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_007461.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_008060.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_008700.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_009000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_009500.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_010000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_020000.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_020010.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_040100.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\hkx_compendium\\a000_040101.hkx"
+      ]
+    },
+    {
+      "path": "F:\\GoldenAge\\_GoldenAge\\GA\\chr\\c0010.behbnd.dcx",
+      "bytes": 202160,
+      "sha256": "829245817A1234DEA3594687A1C54001553DEDB062614BBDE6071C0A5F9BE268",
+      "entries": 4,
+      "names": [
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\c0010.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Characters\\c0010.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Behaviors\\c0010.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Behaviors\\c9997.hkx"
+      ]
+    },
+    {
+      "path": "F:\\GoldenAge\\_GoldenAge\\GA\\chr\\c0010.chrbnd.dcx",
+      "bytes": 1031376,
+      "sha256": "C5B22027F11B362C76B02C449E64CFABC76E381528F09C5C2FD259079525EB3B",
+      "entries": 4,
+      "names": [
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\c0010.flver",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\c0010.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\c0010_c.hkx",
+        "W:\\CL\\data\\Target\\INTERROOT_win64\\chr\\c0010\\c0010_c.clm2"
+      ]
+    }
+  ],
+  "action_c0010_exists": false,
+  "action_c9997_exists": true
+}

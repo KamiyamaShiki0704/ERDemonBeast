@@ -58,3 +58,11 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, MANUAL_TEST.md]
 ## 后续人工反馈
 
 用户回复“1和2看起来没问题”，按路线中的控制闭环与首轮行为记录为人工初步通过。已读取 0.2.1 完整组合运行，两次恢复 0.116/0.219 秒并完成析构；见 research/control-baseline-and-next-stage.md 和 research/retirement-user-check-0.2.1.json。本构建的历史离线清单不回写，未录制的正式 Case 不补报自动 PASS。下一阶段准备真实 c0010 最小形态。
+
+## c0010 加载/控制测试部署
+
+用户已提供 GA 的 c0010 资源，并明确授权部署 DLL 到 F:/GoldenAge/_GoldenAge/dll/demon_beast、补齐参数。沿用 0.2.1 DLL，配置 chr_id=10、NpcParam/NpcThinkParam=100000、两个开关开启。现有 profile 已引用此 DLL，未修改 profile。
+
+仅向 GA/regulation.bin 的 NpcParam 和 NpcThinkParam 各新增 100000；ER 40700000 为测试基础，白名单适配 NR 物理字段并清除狼的常驻效果及掉落。不是完整战斗参数移植。写回读回验证两个表内原有 9919 行的原始数据和名字均一致，其他表的原始字节及 binder ID/flags 均一致。备份及部署哈希见 research/deployment-c0010.json；参数详情见 research/c0010-param-patch-report.json。
+
+已核对五个资源包容器能读回。GA/action/script/c0010.hks 未找到，c9997.hks 存在，动作兼容尚未证实。测试步骤见 C0010_TEST.md。附独立离线手动入口和带哈希保护的回滚脚本；代理未执行游戏启动。回滚脚本语法检查通过，临时文件执行测试被“游戏正在运行”守卫拒绝，未做真实回滚，不报告该执行测试已通过。安装前游戏未运行；部署后检测到用户游戏已启动，随后仅做只读核对和项目记录。

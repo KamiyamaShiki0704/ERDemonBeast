@@ -13,8 +13,8 @@ work_packet:
   current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备, 下一阶段源资产只读盘点, 后续多形态需求与兼容性规划]
-    out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或现用游戏配置]
-  current_task: 保留 0.2.1 控制基线，下一步真实 c0010 最小形态接入；用户已追加并确认后续按形态配置 SpEffect 自动/手动触发、独立时长（-1 无限）及两种动作模式，先做输入与招式映射。
+    out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
+  current_task: c0010 加载/控制测试已部署到用户指定 dll/demon_beast；两张参数表各新增 100000 专用测试行，原 9919 行逐字节保留。等待用户 F6/F7 反馈，角色脚本/完整战斗适配仍未完成。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -30,14 +30,15 @@ work_packet:
     - 2026-09-23 用户回复“1和2看起来没问题”，按刚才路线的控制闭环与首轮行为理解，记录人工初步通过；未据此补写六组正式 Case 的自动 PASS。
     - 2026-09-23 用户同意继续真实魔兽阶段，并要求该阶段完成后可按不同 SpEffect 切换不同 ID 形态、独立时长、-1 无限且手动解除、复用玩家 c0000 规则。
     - 2026-09-23 用户明确每个形态分别支持 SpEffect 自动和按键两种触发模式；两种动作模式都预留，先实现输入与招式映射。
+    - 2026-09-23 用户已把 c0010 放入 GA，要求将 DLL 部署到现有 F:/GoldenAge/_GoldenAge/dll/demon_beast，并授权补齐对应参数；测试游戏仍由用户执行。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
     - 已建立获批的原生采集；用户已反馈基础闭环和首轮行为未发现问题；0.2.1 两轮释放日志符合阈值，但不填补未录制的正式 Case。
-    - 0.2.1 仅存项目 dist，根配置 enabled/control_enabled 均 false；手动脚本在包内生成每轮配置/日志，原 GoldenAge profile 未修改。
+    - 项目根默认配置仍关闭；本次获授权的 c0010 部署配置启用，目标行均为 100000；原 GoldenAge profile 不改。
     - Summon 源码固定 01491edfa709545786d0fe795ab2fb2458dca4e1；共享三份 fixture 已与 EXE 验证。原项目只读。
     - 下轮先读 MANUAL_TEST.md 和 research/retirement-stall-0.2.1.md；原 Summon 文件不变，运行时使用 src/retirement.rs 适配副本。第二例 EXE+1F109C4 未归因，禁止把离线测试当作实机通过。
-  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast]
+  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin]
   human_gate:
     confirmed: true
     evidence: 当前任务用户消息“可以，继续任务”，对应 spec.md@0.1 全部首轮范围与六组 Probe。
@@ -51,16 +52,18 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: control-baseline-human-feedback-received
+    stage: c0010-test-deployed-awaiting-user
     automatic_result: PARTIAL
     offline_tests: 20 Rust + 10 Python + small-stack regression PASS; 3 Summon binary fixtures PASS
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
-    runtime_tested: true
-    runtime_evidence: docs/feat-er-demon-beast/research/retirement-user-check-0.2.1.json
-    runtime_scope: user full-stack run; two completed retirements; no formal Case IDs
-    final_acceptance: preliminary_human_pass_stages_1_2
-    artifact: dist/er-demon-beast-0.2.1/er_demon_beast.dll
+    runtime_tested: false
+    runtime_evidence: none-for-c0010; historical-wolf-evidence-in-retirement-user-check-0.2.1.json
+    runtime_scope: c0010 deployment only; no new gameplay result claimed
+    final_acceptance: pending_c0010_user_test
+    artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
+    deployment: docs/feat-er-demon-beast/research/deployment-c0010.json
+    parameter_evidence: docs/feat-er-demon-beast/research/c0010-param-patch-report.json
     artifact_sha256: D075B652731E399048CA140CC8E42BA7A82F0490499DEC3EF73B98EC8D96FB82

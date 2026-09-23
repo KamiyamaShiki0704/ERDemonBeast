@@ -1,0 +1,28 @@
+{
+  "kind": "c0010-test-deployment",
+  "installed_at": "2026-09-23T23:13:29.6239202+08:00",
+  "directory": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast",
+  "dll_version": "0.2.1",
+  "dll_source_revision": "0f98949737a3351ab394b84dee1e6c645323b505",
+  "dll_sha256": "D075B652731E399048CA140CC8E42BA7A82F0490499DEC3EF73B98EC8D96FB82",
+  "config_sha256": "7F8E9F4039BF357E761B82C2A5C454504D8FCFC70EA297A2CB7E8144C66BC624",
+  "regulation": "F:\\GoldenAge\\_GoldenAge\\GA\\regulation.bin",
+  "regulation_before_sha256": "7F799909898539255E26097AC1373D295CC569D04148D6008E2031E02D9108F0",
+  "regulation_after_sha256": "07444D99AEF7166A2AD9E8A505842134518CA62851BDEAAEE20E6F6149ABC4CD",
+  "regulation_backup": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\20260923-231244-626\\regulation.bin",
+  "backup_directory": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\20260923-231244-626",
+  "added_rows": [
+    "NpcParam:100000",
+    "NpcThinkParam:100000"
+  ],
+  "preserved_existing_rows": 9919,
+  "profile_modified": false,
+  "game_started": false,
+  "acceptance": "PENDING_USER",
+  "limitations": [
+    "dedicated load/control rows, ER donor combat/AI references",
+    "missing loose c0010.hks",
+    "NR behavior compatibility unverified",
+    "custom profiles and -1 duration not implemented"
+  ]
+}
