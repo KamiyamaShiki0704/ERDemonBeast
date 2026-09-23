@@ -85,3 +85,11 @@ Rust cdylib，运行时绑定固定采用 Summon 的 fsrs `02fa5681e27fd2ecd9da7
 action_trace 默认关闭，测试配置开启时在 Active 期间每个 FrameEnd 保留已有前后快照，并增加动作读回/输入允许掩码及有限物理键状态。只记录游戏前台的鼠标左右键、Shift/Ctrl/Space；不将物理键当作语义动作，不增加引擎写入。无 Case 时的活动采样不再限制为一秒，但仍不构成正式 Case 验收。普通状态及加载屏幕入口策略保持原规则。
 
 FrameEnd 的零动作可能已被此前行为更新消费，TAE 字段是请求队列标识，不能独立证明动画播放。audit_actions.py 只汇总观察值；缺帧和截断标记为不完整。收集器同时包含直接 DLL 加载与 manual-runs 两种日志。人工输入顺序见 ACTION_TEST.md；现场攻击根因和修复尚待此证据，未复制 NR 引擎专用 HKS 到 ER。
+
+## c0010 行为适配包 v1（2026-09-24 用户批准）
+
+0.2.2 实测已证实请求进入兽体。用户批准同步 Behbnd/HKS，并要求核对名称映射。将 c0010 Characters HKX 的第一项 luaFiles 从 c9997.hks 改为私有 d0010.hks，后者由当前 GA 通用 HKS 加本项目地面动作适配器构成；原版 c0010 仍按原引用顺序加载。
+
+适配器通过 ER ActionRequest / ActionCancelRequest 分别处理起手与动作取消，保留原版地面连段选择。既有 CMSG 负责动作结束返回待机。ER 编号与 NR 不同的 ULTRA/ROLLING 不直接照搬。对图引用的全量名称做差集追加，保留三个 name-ID 表既有 ID，并在写回后验证引用完备。所有五个安装目标与四个保护输入使用 SHA256 预检，安装先备份，回滚拒绝覆盖后续修改。
+
+脚本、实际结构证据和离线入口见 research/c0010-behavior-adapter-v1.md；具体人工输入见 BEHAVIOR_TEST.md。该资源候选不改变 DLL 控制、计时与退出生命周期，也不扩张完整伤害、跳跃或联机验收范围。

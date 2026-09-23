@@ -93,7 +93,7 @@ def collect(root):
         for path in logs.rglob("*"):
             if path.is_file() and path.suffix.lower() in (".log", ".json", ".jsonl", ".md", ".toml", ".me3", ".txt"):
                 archive.write(path, path.relative_to(root))
-        direct = [root / name for name in ("er-demon-beast.log", "capture-latest.json", "er-demon-beast.toml", "build-result.json")]
+        direct = [root / name for name in ("er-demon-beast.log", "capture-latest.json", "er-demon-beast.toml", "build-result.json", "behavior-build.json", "behavior-deployment.json")]
         direct.extend((root / "Saved/er-demon-beast").rglob("*"))
         for path in direct:
             if path.is_file() and path.suffix.lower() in (".log", ".json", ".jsonl", ".md", ".toml"):

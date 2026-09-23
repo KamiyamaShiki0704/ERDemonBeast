@@ -12,9 +12,9 @@ work_packet:
     design: docs/feat-er-demon-beast/design.md@1.3
   current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
   scope:
-    in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备, 下一阶段源资产只读盘点, 后续多形态需求与兼容性规划]
-    out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: 已读 0.2.2 人工测试，677 活动帧零丢帧，兽体收到 R1/R2/L1/SP_MOVE；两个周期正常恢复。用户已补入原版 c0010.hks 并询问原版转换规则，核对见 research/c0010-original-input-rules.md。尚待按原版状态规则适配 ER，共享 c9997 缺少 TDB 函数族；本轮未部署固定映射草案。
+    in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
+    out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
+  current_task: c0010 行为适配包 v1 已离线生成并通过真实 HKS 调用测试，Behbnd 仅改私有 d0010.hks 引用，原版 c0010 保留；三表追加 29/21/14 项。按 BEHAVIOR_TEST.md 准备人工验证地面攻击、连段与恢复，完整跳跃/伤害仍排除。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -33,6 +33,7 @@ work_packet:
     - 2026-09-23 用户已把 c0010 放入 GA，要求将 DLL 部署到现有 F:/GoldenAge/_GoldenAge/dll/demon_beast，并授权补齐对应参数；测试游戏仍由用户执行。
     - 2026-09-24 用户反馈 c0010 可变身/移动/转向，其他按键无效，确认测试设备为键鼠；原运行 1790178283214-25840 三轮正常析构。
     - 2026-09-24 用户完成 0.2.2 测试，并补入与 NR 原件哈希一致的 GA/action/script/c0010.hks；询问原版输入转换规则。不得继续按该文件缺失处理，不覆盖用户原件。
+    - 2026-09-24 用户明确允许继续同步修改 Behbnd 与 HKS，并提示核对 eventnameid/statenameid/variablenameid；本轮使用私有脚本引用并补齐实际缺项，保留用户原版 c0010.hks。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
@@ -40,7 +41,7 @@ work_packet:
     - 项目根默认配置仍关闭；本次获授权的 c0010 部署配置启用，目标行均为 100000；原 GoldenAge profile 不改。
     - Summon 源码固定 01491edfa709545786d0fe795ab2fb2458dca4e1；共享三份 fixture 已与 EXE 验证。原项目只读。
     - 下轮先读 MANUAL_TEST.md 和 research/retirement-stall-0.2.1.md；原 Summon 文件不变，运行时使用 src/retirement.rs 适配副本。第二例 EXE+1F109C4 未归因，禁止把离线测试当作实机通过。
-  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin]
+  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
   human_gate:
     confirmed: true
     evidence: 当前任务用户消息“可以，继续任务”，对应 spec.md@0.1 全部首轮范围与六组 Probe。

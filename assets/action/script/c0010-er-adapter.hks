@@ -1,0 +1,83 @@
+-- ERDB behavior adapter 1: appended to a private copy of GA c9997.hks.
+-- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
+-- Preserve NR ground attack choices; use ER input/cancel interfaces.
+-- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
+ERDB_BEHAVIOR_VERSION = 1
+local erdb_update = Update
+local erdb_ai_action = ExecAIAction
+local erdb_attack_common = AttackCommonFunction
+local erdb_held = {}
+local erdb_combo_reset = false
+local erdb_inputs = {0, 1, 2, 3, 5}
+local erdb_next = {
+    [3000]={3001,3005}, [3001]={3002,3005},
+    [3002]={3003,3005}, [3003]={3000,3005},
+    [3005]={3001,3007}, [3007]={3000,3005},
+    [3010]={3001,3007}, [3030]={3000,3005},
+    [6000]={3010,3005}
+}
+
+function Update()
+    -- Observe release while in any state, including closed cancel windows.
+    for _, input in ipairs(erdb_inputs) do
+        if env(ActionDuration, input) <= 0 then erdb_held[input] = false end
+    end
+    erdb_update()
+end
+
+local function erdb_dispatch(r1, r2, cancelling)
+    local request = ActionRequest
+    if cancelling then request = ActionCancelRequest end
+    -- NR ULTRA=17 collides with ER ROLLING=17. Do not copy that binding.
+    local routes = {{0,tonumber(r1)}, {1,tonumber(r2)}, {2,3030}, {3,3035}, {5,6000}}
+    for _, route in ipairs(routes) do
+        local input, animation = route[1], route[2]
+        if not erdb_held[input] and env(request, input) == TRUE then
+            if env(GetStamina) <= 0 then
+                if GetVariable("StaminaComboResetTest") == 1 then erdb_combo_reset = true end
+                act(ResetInputQueue)
+                return FALSE
+            end
+            if animation ~= nil and IsExistAnime(animation) == TRUE then
+                erdb_held[input] = true
+                erdb_combo_reset = false
+                act(ResetInputQueue)
+                if animation == 6000 then Fire("W_Step6000")
+                else Fire("W_Attack" .. animation) end
+                return TRUE
+            end
+        end
+    end
+    return FALSE
+end
+
+function ExecAIAction(style)
+    if erdb_dispatch(3000, 3005, false) == TRUE then return TRUE end
+    return erdb_ai_action(style)
+end
+
+function AttackCommonFunction(action_number, style, ignore_guard_block)
+    local next_moves = erdb_next[action_number]
+    if next_moves == nil then
+        return erdb_attack_common(action_number, style, ignore_guard_block)
+    end
+    CallActionState(action_number)
+    if ExecPassiveTransition(JUDGE_FALL_TYPE_DEFAULT, FALSE, ignore_guard_block, TRUE) == TRUE then
+        return TRUE
+    end
+    local r1, r2 = next_moves[1], next_moves[2]
+    if erdb_combo_reset then r1, r2 = 3000, 3005 end
+    if erdb_dispatch(r1, r2, true) == TRUE then return TRUE end
+    -- The graph's CMSG already has FireIdleEvent on animation end.
+    -- Preserve normal ER transitions; don't fabricate a timeout or force playback.
+    if ExecTransToDefaultFromBattle(TRUE, FALSE) == TRUE then return TRUE end
+    if ExecActiveTransition(TRUE, style, MOVE_TYPE_NONE, TRUE) == TRUE then return TRUE end
+    return FALSE
+end
+
+-- Original c0010.hks's Event20000 callback depends on this entry point.
+-- Keep that original file intact and satisfy its ground-action dependency.
+function AttackCommonFunction_TDB(r1, r2, l1, l2, b1, b2, guardcondition, use_atk_queue, comboCount, gen_hand)
+    if ExecPassiveTransition(JUDGE_FALL_TYPE_DEFAULT, FALSE, TRUE, TRUE) == TRUE then return TRUE end
+    return erdb_dispatch(r1, r2, true)
+end
