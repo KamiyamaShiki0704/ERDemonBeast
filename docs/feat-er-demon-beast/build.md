@@ -13,6 +13,8 @@ project_paths: [Cargo.toml, Cargo.lock, er-demon-beast.toml, MANUAL_TEST.md]
 
 当前自动结论：**PARTIAL**。0.2.2 为 c0010 键鼠动作诊断版，尚未修复攻击行为。21 Rust + 11 Python、fmt、Clippy、release 和小栈加载检查通过。用户确认 0.2.1 c0010 变身/移动/转向可用，但其他按键无效；详见 research/c0010-action-diagnosis.md 和 ACTION_TEST.md。没有启动或操作游戏。下面保留历史 0.2.1 构建与部署证据。
 
+0.2.2 已安装至 F:/GoldenAge/_GoldenAge/dll/demon_beast，841728 bytes，SHA256 `63D42284E9BE348E49521BAD750A5D14D7B49417E3D49C972024545A2A38B176`。来源提交 03a0a35，构建绑定见 research/build-result-0.2.2.json。替换前已确认 ER 未运行，旧文件备份至该目录 `_backups/action-trace-20260924-000718`，安装文件哈希逐一相等，配置 action_trace=true。GA regulation 哈希仍为 `07444D99AEF7166A2AD9E8A505842134518CA62851BDEAAEE20E6F6149ABC4CD`。已使用新收集器离线处理五份既有直接加载日志，成功生成 ZIP；没有将旧日志当作新 DLL 的实机验证。
+
 ## 固定输入和产物
 
 - Spec 1.0，Design 1.3；源码 revision `0f98949737a3351ab394b84dee1e6c645323b505`。

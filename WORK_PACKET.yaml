@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 798fa8d (0.2.2 diagnostic source changes bound by build manifest hashes)
+    revision: 03a0a35faa6e3cb4509efaa00565a77e7af862a9
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
