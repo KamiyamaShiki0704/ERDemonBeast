@@ -1,0 +1,31 @@
+{
+  "version": "0.2.1",
+  "source_revision": "0f98949737a3351ab394b84dee1e6c645323b505",
+  "spec": "spec.md@1.0",
+  "design": "design.md@1.3",
+  "summon_revision": "01491edfa709545786d0fe795ab2fb2458dca4e1",
+  "source_sha256": {
+    "Cargo.toml": "c5c88d8e4fc13a23e1e8c74b875149b996fffb439cb6e3870192aff97128a08e",
+    "Cargo.lock": "f433d5df658d0df21abac125c6f5285341f92c8088397b80014c10706fe1cd13",
+    "src/lib.rs": "6be57e2a55cbf6e7d81765d5f26f8fe7d48b9e8a38788a5fec36cc757f3af7b2",
+    "src/native.rs": "e287c3f216048427388b8ae1f7a1a4acd3d411aad432aa0eaf049542b109ffaa",
+    "src/session.rs": "05c7aadbd33b12ce9abceba70928243debc20dc120d2d8c26548c60ac317f45d",
+    "src/native/capture.rs": "75a43fb76d904129104713ba6a41cb771b2c6b1fea94b3a14763cc11dbb2f6b6",
+    "src/vendor/summon/provenance.json": "cb99ba0e85392e3a428e8df6530298dcbc23fb78b30991ca71dc6d489cd5a73e",
+    "src/retirement.rs": "e708934889cbc3a2a64040c487171d5414375568cb58be139258dcda8a313ab9",
+    "Scripts/delivery/feat-er-demon-beast/script/manual_test.py": "03ba014f368dd0c922e8dcac8fb967739450d365adda8949bb97ed07fcdeb8ea",
+    "Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py": "785f7e93b54c03df3ea304446e08a48e52a5acccebf327977311d204693088ac"
+  },
+  "dll_sha256": "d075b652731e399048ca140cc8e42ba7a82f0490499dec3ef73b98ec8d96fb82",
+  "dll_size": 834048,
+  "rust_tests": 20,
+  "python_tests": 10,
+  "small_stack_regression": "PASS",
+  "summon_fixture_checks": "3 PASS",
+  "runtime_tested": false,
+  "final_acceptance": "PENDING_HUMAN",
+  "default_enabled": false,
+  "default_control_enabled": false,
+  "retirement_adaptation": "src/retirement.rs",
+  "observed_stall_root_cause": "UNCONFIRMED: fixed reproducible read-span defect, added failure diagnostics"
+}

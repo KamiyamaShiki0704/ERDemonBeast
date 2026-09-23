@@ -3,21 +3,21 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 32b177e17ffa21bdbf2f199b095d556477c064ee
+    revision: 0f98949737a3351ab394b84dee1e6c645323b505
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
   authoritative_inputs:
     spec: docs/feat-er-demon-beast/spec.md@1.0
-    design: docs/feat-er-demon-beast/design.md@1.2
+    design: docs/feat-er-demon-beast/design.md@1.3
   current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 后续单机运行验证准备]
     out: [NR 魔兽资产移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或现用游戏配置]
-  current_task: 0.2.0 已复用 Summon 注册/安全释放源码并加固指针和调度；离线检查通过，手动测试包就绪，等待用户分阶段测试及反馈。
-  code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
+  current_task: 0.2.1 修复跨内存区域读取误判与已结束会话绑定残留；20+10 离线检查通过。用户 0.2.0 出现 37.115 秒清理等待，实际 None 原因未证实，等待新包 03/04 复测。
+  code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: []
-  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py]
+  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
   probe_cases: [PROBE-ERDB-001, PROBE-ERDB-002, PROBE-ERDB-003, PROBE-ERDB-004, PROBE-ERDB-005, PROBE-ERDB-006]
   human_decisions:
     - 2026-09-23 用户要求建立独立项目。
@@ -26,13 +26,14 @@ work_packet:
     - 2026-09-23 用户指定 F:/GoldenAge/_GoldenAge 为实机环境，并选择直接使用 ER0000.Shiki；已备份存档。
     - 2026-09-23 用户要求“先别测了……先自检一下是不是 dll 有问题”；实机暂停，仅离线自检，不自动恢复游戏测试。
     - 2026-09-23 用户允许复用 Summon 新版召唤/内存清理框架，要求继续自检修复，并明确后续游戏测试由用户执行。
+    - 2026-09-23 用户已测试 03/04，反馈基本可用，偶发 F7 后 c4070 残留且按键无响应；日志证实一轮 37.115 秒才析构。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
-    - 已建立获批的原生采集；之前仅加载采样，六组正式 Case 均 NOT_RUN。
-    - 0.2.0 仅存项目 dist，根配置 enabled/control_enabled 均 false；手动脚本在包内生成每轮配置/日志，原 GoldenAge profile 未修改。
+    - 已建立获批的原生采集；用户已做 0.2.0 基础控制测试；六组正式 Case 尚无最终通过结论。
+    - 0.2.1 仅存项目 dist，根配置 enabled/control_enabled 均 false；手动脚本在包内生成每轮配置/日志，原 GoldenAge profile 未修改。
     - Summon 源码固定 01491edfa709545786d0fe795ab2fb2458dca4e1；共享三份 fixture 已与 EXE 验证。原项目只读。
-    - 下轮先读 MANUAL_TEST.md 和 research/summon-integration-audit.md。第二例 EXE+1F109C4 未归因，禁止把离线测试当作实机通过。
+    - 下轮先读 MANUAL_TEST.md 和 research/retirement-stall-0.2.1.md；原 Summon 文件不变，运行时使用 src/retirement.rs 适配副本。第二例 EXE+1F109C4 未归因，禁止把离线测试当作实机通过。
   write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast]
   human_gate:
     confirmed: true
@@ -41,12 +42,12 @@ work_packet:
   latest_result:
     stage: manual-test-package-ready
     automatic_result: PARTIAL
-    offline_tests: 17 Rust + 8 Python + small-stack regression PASS; 3 Summon binary fixtures PASS
+    offline_tests: 20 Rust + 10 Python + small-stack regression PASS; 3 Summon binary fixtures PASS
     format: PASS
     clippy: PASS
     release_build: PASS
     target_static_check: PASS
     runtime_tested: false
     final_acceptance: pending
-    artifact: dist/er-demon-beast-0.2.0/er_demon_beast.dll
-    artifact_sha256: F3FC865F9FE0F29CD1114400F6E32B0A02B04C11D9567E591464A74EADC20F3F
+    artifact: dist/er-demon-beast-0.2.1/er_demon_beast.dll
+    artifact_sha256: D075B652731E399048CA140CC8E42BA7A82F0490499DEC3EF73B98EC8D96FB82
