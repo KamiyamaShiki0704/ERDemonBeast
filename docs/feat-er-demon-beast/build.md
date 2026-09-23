@@ -84,3 +84,11 @@ Manage-C0010V3.ps1 按固定白名单与前后哈希成套安装/恢复 DLL、PD
 ### v3 安装结果
 
 2026-09-24 01:59（本地）确认 ER 未运行后完成十文件事务安装；源码 188bdb20629c5d44befb094adfdf1f990c232c07，DLL SHA256 fcbff114cd3cd64b9dc6e9595a3c69c0e0bd6335db05e4e4e54a799dcfa47daa。安装后十个目标与全部 v2 备份逐项哈希核对通过，七项保护输入保持不变，原资产整体回滚记录也一致。事务记录 research/deployment-v3.json；精确构建与源码哈希 research/build-result-v3.json。备份 complete-v3-20260924-015939-004。未实际执行回退或游戏测试；回退脚本只做语法及完整备份/当前目标哈希核对，不报告实机恢复 PASS。
+
+## v3 进入人测失败与 v4 私有脚本修复
+
+v3 run 1790187506821-58692 四轮 enter_timeout、无 Active，用户确认无登场动画，故不能继续保留 v3 进入功能通过的表述。证据 entry-timeout-v3.json。v4 修正根 Update 过早发事件以及依赖晚建激活回调的假设，新增初始化顺序与实际节点完成红绿回归，未用延长超时或定时伪完成掩盖错误。
+
+2026-09-24 02:35 完全退出 ER 后安装 HKS v4（67ffb22b9a837cf9d92a7fd00c6ab5a6e55dc4737ff0247bab0751b6bb478ea3）及四份文档/版本元数据。DLL 0.3.0、PDB、配置、Behbnd、三张名字表、原始 c0010/c9997、anibnd 和参数内容保持原哈希。复用 v3 安装器的十文件事务，输出中的 v3 标签是旧脚本固定文案；准确包版本见 deployment-v4.json / behavior-build-v4.json。安装与备份核对通过，未启动游戏。
+
+父 deployment-v3.json 的 after 哈希已同步新包，before 和原始备份不变；Restore-C0010V3.cmd 仍可整套退回用户已验证动作可用的 DLL 0.2.2 + 行为 v2。此次失败 v3 资源单独备份在 complete-v3-20260924-023558-127，保留父记录原件。新版本仍待用户按 BEHAVIOR_TEST.md 的“先验证本次进入修复”复测；未宣称已确定唯一实机回调故障或实际登场已成功。

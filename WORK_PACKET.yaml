@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 188bdb20629c5d44befb094adfdf1f990c232c07 (v3 implementation; deployment evidence committed separately)
+    revision: b1317656bf6a9db9aea82d7664905b1b908c5514 (v4 HKS fix; native DLL remains 188bdb2 build)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
@@ -14,7 +14,7 @@ work_packet:
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: v3 四轮 F6 均约 3 秒 enter_timeout、无登场/无法操作；v4 私有 HKS 修正初始化时机与动画节点确认，已离线红绿验证，准备部署；DLL 0.3.0 与 Behbnd 不变，实机仍由用户执行。
+  current_task: v3 四轮 F6 均约 3 秒 enter_timeout、无登场/无法操作；v4 私有 HKS 修正初始化时机与动画节点确认，已离线红绿验证并部署；DLL 0.3.0 与 Behbnd 不变，实机仍由用户执行。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -59,7 +59,7 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-behavior-v4-candidate
+    stage: c0010-behavior-v4-installed-awaiting-human
     automatic_result: PARTIAL
     offline_tests: 进入初始化次序 v3 红测/v4 绿测；实际节点结束确认/错误节点拒绝/攻击等待/方向/连段/五动作九衔接/三种 chunk 名与 Lua 语法 PASS；DLL 未变沿用既有离线结果
     runtime_tested: false
@@ -71,3 +71,7 @@ work_packet:
     rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V3.cmd
     verification: docs/feat-er-demon-beast/research/verification-v4.json
     failure_packet: docs/feat-er-demon-beast/research/entry-timeout-v3.json
+    deployment: docs/feat-er-demon-beast/research/deployment-v4.json
+    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v4.json
+    build_result: docs/feat-er-demon-beast/research/build-result-v4.json
+    private_hks_sha256: 67ffb22b9a837cf9d92a7fd00c6ab5a6e55dc4737ff0247bab0751b6bb478ea3
