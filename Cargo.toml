@@ -1,0 +1,33 @@
+[package]
+name = "er-demon-beast"
+version = "0.4.1"
+edition = "2024"
+license = "MIT"
+description = "Configurable SpEffect-driven character transformations for Elden Ring"
+repository = "https://github.com/KamiyamaShiki0704/ERDemonBeast"
+publish = false
+
+[lib]
+name = "er_demon_beast"
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+native = ["dep:eldenring", "dep:fromsoftware-shared", "dep:windows", "dep:serde", "dep:serde_json", "dep:toml", "dep:sha2"]
+
+[dependencies]
+eldenring = { git = "https://github.com/KamiyamaShiki0704/fromsoftware-rs", rev = "02fa5681e27fd2ecd9da79d34aef9fae96805539", optional = true }
+fromsoftware-shared = { git = "https://github.com/KamiyamaShiki0704/fromsoftware-rs", rev = "02fa5681e27fd2ecd9da79d34aef9fae96805539", optional = true }
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", optional = true }
+toml = { version = "1.1.4", optional = true }
+windows = { version = "0.61", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_System_Threading", "Win32_System_Diagnostics_Debug", "Win32_System_Memory"], optional = true }
+sha2 = { version = "0.10", optional = true }
+
+[profile.release]
+debug = 2
+strip = "none"
+
+[[example]]
+name = "check_forms"
+required-features = ["native"]

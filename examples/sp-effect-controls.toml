@@ -1,0 +1,26 @@
+# NOT READY TO ENABLE: 12345/12346 are placeholders, not installed effect rows.
+# Replace them with real SpEffect IDs and connect a game action that applies each.
+# Then set enabled/control_enabled=true. Restart ER after editing.
+enabled = false
+control_enabled = false
+debug_hotkeys_enabled = false
+action_trace = true
+ownership_tag = 1987040701
+default_form = "demon_beast"
+
+[[forms]]
+key = "demon_beast"
+enabled = true
+chr_id = 10
+npc_param_id = 100000
+npc_think_param_id = 100000
+trigger = "automatic"
+sp_effect_id = 12345          # ENTER: must appear on the real player
+revert_sp_effect_id = 12346   # EXIT: on player OR this mod's owned beast
+priority = 0
+duration_seconds = -1        # no expiry; original finisher and exit effect still end it
+action_mode = "mapped"
+locked_four_way_movement = false
+camera_distance = 7.0
+camera_height = 2.6
+# Omitted inputs/actions/combos retain the tested c0010 mappings.

@@ -1,0 +1,74 @@
+# Restart the game after editing. Root template stays disabled.
+enabled = false
+control_enabled = false
+action_trace = false
+debug_hotkeys_enabled = false
+ownership_tag = 1987040701
+default_form = "demon_beast"
+
+[[forms]]
+key = "demon_beast"
+enabled = true
+chr_id = 10
+npc_param_id = 100000
+npc_think_param_id = 100000
+trigger = "manual"
+priority = 0
+# sp_effect_id = 12345  # optional selector; use an existing effect of your choice
+# revert_sp_effect_id = 12347  # placeholder only; set a real exit effect
+# Positive seconds or -1 (no timer); starts when entry finishes.
+duration_seconds = 15.0
+action_mode = "mapped"
+locked_four_way_movement = false
+camera_distance = 7.0
+camera_height = 2.6
+
+# ER semantic inputs: 0 light, 1 heavy, 2 guard, 3 skill, 5 dodge; -1 disables.
+[forms.inputs]
+light = 0
+heavy = 1
+guard = 2
+skill = 3
+dodge = 5
+
+# Supported c0010 animations only; 0 disables an action.
+[forms.actions]
+light = 3000
+heavy = 3005
+guard = 3030
+skill = 3035
+dodge = 6000
+
+# Omitted combos retain the v7 combo tree. Use combos=[] before [forms.inputs]
+# to disable light/heavy combo routes, or use [[forms.combos]] rows.
+
+# Disabled placeholders: replace effect IDs with your actual existing rows.
+[[forms]]
+key = "effect_short"
+enabled = false
+chr_id = 10
+npc_param_id = 100000
+npc_think_param_id = 100000
+trigger = "automatic"
+sp_effect_id = 12345
+revert_sp_effect_id = 12347
+priority = 10
+duration_seconds = 5.0
+action_mode = "mapped"
+camera_distance = 7.0
+camera_height = 2.6
+
+[[forms]]
+key = "effect_infinite"
+enabled = false
+chr_id = 10
+npc_param_id = 100000
+npc_think_param_id = 100000
+trigger = "manual"
+sp_effect_id = 12346
+revert_sp_effect_id = 12347
+priority = 20
+duration_seconds = -1
+action_mode = "mapped"
+camera_distance = 7.0
+camera_height = 2.6
