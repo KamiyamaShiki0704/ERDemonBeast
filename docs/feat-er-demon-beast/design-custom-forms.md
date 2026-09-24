@@ -1,6 +1,6 @@
 # 多形态配置设计候选（未发布）
 
-依据 spec-custom-forms.md@0.1 中已确认的部分；无限时长与战技解除仍待选择，候选不安装。
+依据已确认的 spec-custom-forms.md@1.0；无限时长只取消计时，保留原版战技完成通知和 F7 手动解除。
 
 - forms::Config/Form：严格 TOML、稳定 key、全局唯一 ownership_tag、每个启用形态唯一 priority。原单形态配置明确要求迁移，不静默丢弃字段。默认 c0010，正数秒到期或 None 表示无计时。
 - forms::Selector：维护已观察效果集合及最多一个待切换索引。只有 Normal 可产生 enter；Active 请求另一形态转为 graceful revert，Finishing/Restoring/Fault 禁止重复进入，F7 清待切换目标。效果读取失败保留上次已见集合，不能当作消失而意外重装自动触发。目标失败后清队列，不重复重试。

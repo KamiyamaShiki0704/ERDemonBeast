@@ -50,7 +50,7 @@ impl Capture {
         );
         let meta = json!({"schema":1,"run":run,"exe_sha256":EXE_HASH,
             "dll_sha256":dll_hash,"version":env!("CARGO_PKG_VERSION"),
-            "config":config,"spec":"spec-custom-forms.md@0.1","sample_period_s":0.05,
+            "config":config,"spec":"spec-custom-forms.md@1.0","sample_period_s":0.05,
             "active_action_trace":config.action_trace,"sampling_stage":"FrameEnd",
             "report_path":dir.join("report.md"),"frames_path":dir.join("frames.jsonl"),
             "build_manifest":fs::read_to_string(root.join("build-result.json")).ok()});

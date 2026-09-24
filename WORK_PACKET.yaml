@@ -10,13 +10,13 @@ work_packet:
   authoritative_inputs:
     installed_spec: docs/feat-er-demon-beast/spec.md@1.2
     installed_design: docs/feat-er-demon-beast/design.md@1.5
-    candidate_spec: docs/feat-er-demon-beast/spec-custom-forms.md@0.1
+    candidate_spec: docs/feat-er-demon-beast/spec-custom-forms.md@1.0
     candidate_design: docs/feat-er-demon-beast/design-custom-forms.md
   current_spec_ids: [CF-001, CF-002, CF-003, CF-004, CF-005, CF-006, CF-007]
   scope:
     in: [多个形态的配置与选择, 本体SpEffect自动或按键触发, 每形态时长与镜头及四向选项, 已适配输入和连段映射, 离线验证与人工测试交付]
-    out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡, 未获确认的无限战技语义]
-  current_task: 0.4.0/HKS v8 已完成隔离候选与自动检查；用户已确认触发/切换/Probe规则，尚未回答 -1 时战技是否解除。禁止安装 release_ready=false 候选；游戏目录保持 v7。
+    out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡]
+  current_task: 用户已确认 -1 只取消计时、战技仍原版解除，Spec已基线化1.0。完成0.4.0/HKSv8交付；另报告F6/F7有些奇怪，已异步询问具体症状，未擅自改动热键语义。
   code_paths: [src/forms.rs, src/session.rs, src/native.rs, src/native/effect_scan.rs, src/native/behavior_bridge.rs, assets/action/script/c0010-er-adapter.hks]
   asset_paths: [er-demon-beast.toml, examples/custom-forms.toml]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/Manage-CustomForms.ps1, Scripts/delivery/feat-er-demon-beast/script/test_c0010_v5.lua, examples/check_forms.rs]
@@ -31,27 +31,28 @@ work_packet:
     - v6 可见退场、v7 连按翻滚回归均获用户确认；证据见 research/outro-human-check-v6.json 与 roll-human-check-v7.json。
     - 当前用户“可以，按照这个来”授权开始形态配置阶段。
     - 用户回复“按这组规则实现”，确认 priority 决胜、持续效果解除后不重进、效果消失再出现重装、切换先清旧、F7取消待切换、效果消失不解除，以及3秒/0.25秒/60秒等Probe规则。
+    - 用户回复“按照1处理”，确认 -1 只取消到期计时，战技仍按原版解除，F7也可解除。
   human_gate:
-    confirmed: false
-    confirmed_scope: 新增触发/优先级/切换/Probe第一组规则已确认，安装版历史Spec已确认。
-    pending: [第二个异步问题仍未回答：duration=-1 时是仅取消计时并保留战技解除，还是连战技也不解除只能手动解除。]
-    reason: 该决定影响用户先前“无限只有手动解除”的需求，不能用默认选中或经过时间视为回答。
+    confirmed: true
+    confirmed_scope: 触发/优先级/切换/Probe与无限时长战技规则均已确认。
+    pending: []
+    reason: 新报告F6/F7使用异常的具体表现待补充，不据此假设用户希望单键切换。
   constraints:
     - ER WW2.7.1 App1.17.1；EXE SHA256 1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891。
     - 不启动/操作游戏；仅离线文件/EXE、已有日志、进程是否存在检查。
     - 已安装 DLL0.3.1 SHA256 50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119，私有HKS v7 SHA256 68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459。
-    - 候选需等待第二个问题答案后调整规格/实现/验证并基线化，然后才可安装；不得因候选已编译就称其正式完成。
+    - Spec1.0已确认；游戏退出后可安装完整配对包，安装前后检查目标与受保护文件哈希；实机效果仍待人验收。
     - 保持 Summon 源码及兄弟项目只读；清理由既有退休队列确认后才换形态。
   write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
   latest_result:
-    stage: custom-forms-offline-candidate-awaiting-one-semantic-decision
+    stage: custom-forms-confirmed-preparing-delivery
     automatic_result: PARTIAL
-    offline_tests: 32 Rust、17 Python、真实HKS默认/映射/禁用/连段/非法协议、Clippy/fmt/release、64KiB DLL线程加载 PASS。
+    offline_tests: 原32 Rust加无限战技专用回归1项；17 Python、真实HKS默认/映射/禁用/连段/非法协议，均PASS。最终构建需重检小栈加载。
     runtime_tested: false
     installed_changed: false
     runtime_scope: SpEffect实际读取/自动触发/切换与映射都待人测；本轮不虚报旧六组Probe或新CF组通过。
     candidate_version: DLL0.4.0 + HKSv8
-    candidate_semantic_limit: -1当前底层仅无到期计时；战技仍沿用旧完成逻辑，最终政策未定，不交付该假设。
+    candidate_semantic_limit: -1仅无到期计时；战技仍原版解除。按键异常未有明确复现，不声称已修复。
     configuration_guide: docs/feat-er-demon-beast/FORMS_CONFIG.md
     installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V7.cmd
     candidate_package: dist/custom-forms-0.4-candidate

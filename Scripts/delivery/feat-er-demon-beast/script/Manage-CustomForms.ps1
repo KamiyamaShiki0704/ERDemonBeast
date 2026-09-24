@@ -43,7 +43,7 @@ if($Mode -eq 'Restore') {
 }
 if(-not $Package -or (Test-Path -LiteralPath $Record)) {throw 'Fresh transaction record and package required'}
 $manifest=Get-Content -LiteralPath (Join-Path $Package 'upgrade-manifest.json') -Raw | ConvertFrom-Json
-if($manifest.release_ready -ne $true) {throw 'Candidate is not released: infinite-duration/finisher behavior still requires a user decision.'}
+if($manifest.release_ready -ne $true) {throw 'Package is not ready for installation; inspect its verification and requirement records.'}
 $expected=@($assetNames | ForEach-Object {'ga/'+$_})+@($dllNames | ForEach-Object {'dll/'+$_})
 if((($manifest.files | ForEach-Object {$_.scope+'/'+$_.relative} | Sort-Object) -join ',') -cne (($expected | Sort-Object) -join ',')) {throw 'Transaction file set mismatch'}
 foreach($file in $manifest.files) {
@@ -54,7 +54,7 @@ foreach($item in $manifest.protected_inputs.PSObject.Properties) {
     if($item.Name -cnotin @('action/script/c9997.hks','action/script/c0010.hks','chr/c0010.anibnd.dcx','regulation.bin','action/eventnameid.txt','action/statenameid.txt','action/variablenameid.txt')) {throw 'Unknown protected input'}
     if((Hash (Join-Path $gaRoot $item.Name)) -ne $item.Value) {throw "Protected input changed: $($item.Name)"}
 }
-$backup=Join-Path $dllRoot ('_backups/complete-v3-'+(Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
+$backup=Join-Path $dllRoot ('_backups/complete-forms-'+(Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
 foreach($file in $manifest.files) {
     $destination=Join-Path $backup ($file.scope+'/'+$file.relative)
     New-Item -ItemType Directory -Force -Path (Split-Path $destination) | Out-Null

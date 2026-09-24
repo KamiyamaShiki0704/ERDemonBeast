@@ -112,6 +112,8 @@ struct Game {
     finishing: bool,
     cleanup_blocked: bool,
     fail_second: bool,
+    completed: bool,
+    finish_calls: usize,
     begins: Vec<usize>,
 }
 impl Backend for Game {
@@ -131,7 +133,11 @@ impl Backend for Game {
         Ok(())
     }
     fn finish(&mut self) -> Result<bool, String> {
+        self.finish_calls += 1;
         Ok(!self.finishing)
+    }
+    fn completed(&mut self) -> Result<bool, String> {
+        Ok(self.completed)
     }
     fn restore(&mut self) -> Result<bool, String> {
         if self.cleanup_blocked {
@@ -281,4 +287,35 @@ fn custom_timer_starts_after_ready_and_cannot_mutate_active() {
     assert!(matches!(s.phase(), Phase::Active { .. }));
     s.tick(Duration::from_secs(7), Input::default(), &mut g);
     assert_eq!(s.phase(), Phase::Normal);
+}
+
+#[test]
+fn infinite_duration_retains_animation_owned_revert_without_second_outro() {
+    let mut s = Session::default();
+    let mut g = Game::default();
+    s.configure_duration(None).unwrap();
+    s.tick(
+        Duration::ZERO,
+        Input {
+            enter: true,
+            revert: false,
+        },
+        &mut g,
+    );
+    s.tick(Duration::from_millis(1), Input::default(), &mut g);
+    s.tick(Duration::from_secs(60), Input::default(), &mut g);
+    assert!(matches!(s.phase(), Phase::Active { .. }));
+    assert!(g.owned);
+    g.completed = true;
+    g.cleanup_blocked = true;
+    s.tick(Duration::from_millis(60001), Input::default(), &mut g);
+    assert!(matches!(s.phase(), Phase::Restoring { .. }));
+    assert_eq!(
+        g.finish_calls, 0,
+        "finisher must not request a second outro"
+    );
+    g.cleanup_blocked = false;
+    s.tick(Duration::from_millis(60002), Input::default(), &mut g);
+    assert_eq!(s.phase(), Phase::Normal);
+    assert!(!g.owned);
 }
