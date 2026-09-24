@@ -16,7 +16,7 @@ work_packet:
   scope:
     in: [多个形态的配置与选择, 本体SpEffect自动或按键触发, 每形态时长与镜头及四向选项, 已适配输入和连段映射, 离线验证与人工测试交付]
     out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡]
-  current_task: 用户澄清需要游戏动作/动画施加SpEffect控制变身，手柄可用；已确认双效果进入/解除，ID可配置且暂未确定。0.4.1代码与离线检查已完成，准备包；检测到ER运行中，安装需退出。当前安装仍0.4.0。
+  current_task: 0.4.1配对包已完成；40 Rust/16 Python/构建/小栈PASS，1项安装回归被ER进程保护拦截。已异步请求退出；退出后只重跑该项、放行包并安装。当前仍0.4.0，未替换游戏目录。真实效果ID及施加动作待用户接线。
   code_paths: [src/forms.rs, src/session.rs, src/native.rs, src/native/effect_scan.rs, src/native/behavior_bridge.rs, assets/action/script/c0010-er-adapter.hks]
   asset_paths: [er-demon-beast.toml, examples/custom-forms.toml]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/Manage-CustomForms.ps1, Scripts/delivery/feat-er-demon-beast/script/test_c0010_v5.lua, examples/check_forms.rs]
@@ -45,17 +45,20 @@ work_packet:
     - 保持 Summon 源码及兄弟项目只读；清理由既有退休队列确认后才换形态。
   write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
   latest_result:
-    stage: effect-controls-0.4.1-package-preparation
-    automatic_result: PASS_OFFLINE_RUNTIME_PENDING
-    offline_tests: 原32 Rust加无限战技专用回归1项；17 Python、真实HKS默认/映射/禁用/连段/非法协议，均PASS。最终release和64KiB小栈加载复检PASS。
+    stage: effect-controls-0.4.1-awaiting-game-exit
+    automatic_result: PARTIAL_ENVIRONMENT_BLOCKED
+    offline_tests: 40 Rust PASS；Python16 PASS、1安装回归因ER运行被保护拒绝；Clippy/fmt/release/64KiB加载/配置校验PASS。HKS及Behbnd相同，沿用已有证据。
     runtime_tested: false
-    installed_changed: true
+    installed_changed: false
     runtime_scope: SpEffect实际读取/自动触发/切换与映射都待人测；本轮不虚报旧六组Probe或新CF组通过。
     candidate_version: DLL0.4.1 + unchanged HKSv8
+    candidate_revision: f0188aea9b12b58aba9d1075923460d8a2a0375e
+    candidate_dll_sha256: db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a
     candidate_semantic_limit: 效果检测与配置能力已实现；实际ID和游戏施加动作尚未接线，不能宣称手柄实机通过。当前测试配置保留显式调试键直到接线。
     configuration_guide: docs/feat-er-demon-beast/FORMS_CONFIG.md
     installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-CustomForms04.cmd
     candidate_package: dist/effect-controls-0.4.1
     candidate_verification: docs/feat-er-demon-beast/research/verification-effects-0.4.1.json
+
 
 

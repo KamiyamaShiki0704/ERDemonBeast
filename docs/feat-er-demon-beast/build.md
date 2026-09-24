@@ -134,3 +134,15 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 - 11文件完整配对安装，部署后逐项SHA校验及7个受保护输入校验PASS。默认单形态c0010/15秒；未新增占位SpEffect参数或启用示例效果。Behbnd与已装v7图相同，原版HKS及anibnd保留。
 - 实际游戏未启动；SpEffect读取/切换/自定义映射与无限战技需人工验收。用户另称F6/F7“有些奇怪”，具体症状尚未补充；按键职责保持不变，未声称该问题已修复。当前日志末段只证明对应轮次完成恢复，不能代替新问题复现。
 - 部署/验证见 `research/deployment-forms-0.4.json`、`research/verification-forms-0.4.json`、`research/build-result-forms-0.4.json`。回退：游戏退出后执行 `F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-CustomForms04.cmd`，恢复安装前v7配对文件。
+
+## 2026-09-25：双SpEffect游戏控制0.4.1，等待退出游戏
+
+用户澄清F6/F7不是故障报告，而是正式操作需要接入游戏按键与动画，使手柄可用。用户确认双效果进入/解除、ID自定义；依据spec-effect-controls.md@1.0，source `f0188aea9b12b58aba9d1075923460d8a2a0375e`，KB `9511e3e8137fd2cda9fca74bb07a4b688fe89087`。
+
+实现每形态 `revert_sp_effect_id`、根 `debug_hotkeys_enabled` 默认false；automatic可作默认形态。进入只认本体，解除认本体/当前持有兽体，独立边沿去重、读失败不重装、解除优先并取消队列。兽体读限定生命周期和句柄身份，退休接管后禁止解析。HKS/Behbnd/原版动画/参数未修改。
+
+40项Rust PASS，Clippy/fmt/release/64KiB DLL加载PASS，两示例与迁移配置校验PASS。Python发现17项中16 PASS，1项临时目录安装回归被真实ER进程保护拒绝（`test_behavior_assets.BehaviorAssets.test_install_restore_and_later_edit_guard_with_disposable_files`）；未绕过保护。退出后只需重跑此项，再更新记录并安装。
+
+候选：`dist/effect-controls-0.4.1`，DLL SHA256 `db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a`。完整11文件包保留已安装0.4.0的before哈希；尚未写入游戏目录，release_ready=false因环境待退出。记录见 `research/verification-effects-0.4.1.json` 与 `research/build-result-effects-0.4.1.json`。
+
+真实效果ID和游戏施加动作未确定，未启用占位ID。部署迁移配置显式保留debug热键/manual/15秒用于过渡，正式效果模板默认关闭热键。设置真实ID并通过游戏动作施加后再切automatic/关闭debug；需人验收键鼠、手柄与两来源解除，不能仅凭离线测试宣称实机接线完成。
