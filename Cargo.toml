@@ -2,6 +2,9 @@
 name = "er-demon-beast"
 version = "0.4.1"
 edition = "2024"
+license = "MIT"
+description = "Configurable SpEffect-driven character transformations for Elden Ring"
+repository = "https://github.com/KamiyamaShiki0704/ERDemonBeast"
 publish = false
 
 [lib]

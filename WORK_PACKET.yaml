@@ -16,7 +16,7 @@ work_packet:
   scope:
     in: [多个形态的配置与选择, 本体SpEffect自动或按键触发, 每形态时长与镜头及四向选项, 已适配输入和连段映射, 离线验证与人工测试交付]
     out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡]
-  current_task: 用户再次退出后，0.4.1已配对安装；11目标和备份、7保护文件哈希PASS。真实SpEffect ID及施加动作尚未接线；待用户配置与人工游戏验收。调试热键在迁移配置中显式保留true，正式效果配置可关闭。
+  current_task: 0.4.1已安装；当前版本已按用户要求推送ERDemonBeast的main及v0.4.1，公开历史仅一个干净提交，不含Codex/工作包/研究与独立测试资料。真实效果ID与施加动作仍待配置及人测。后续发布从dist/github/ERDemonBeast更新，不得直接推送开发历史。
   code_paths: [src/forms.rs, src/session.rs, src/native.rs, src/native/effect_scan.rs, src/native/behavior_bridge.rs, assets/action/script/c0010-er-adapter.hks]
   asset_paths: [er-demon-beast.toml, examples/custom-forms.toml]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/Manage-CustomForms.ps1, Scripts/delivery/feat-er-demon-beast/script/test_c0010_v5.lua, examples/check_forms.rs]
@@ -59,3 +59,11 @@ work_packet:
     installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-EffectControls041.cmd
     candidate_package: dist/effect-controls-0.4.1
     candidate_verification: docs/feat-er-demon-beast/research/verification-effects-0.4.1.json
+  publication:
+    repository: https://github.com/KamiyamaShiki0704/ERDemonBeast
+    branch: main
+    tag: v0.4.1
+    commit: 79a21b5eeb8e4583580759c98647b58ba768fd8e
+    checkout: dist/github/ERDemonBeast
+    evidence: docs/feat-er-demon-beast/research/publication-0.4.1.json
+
