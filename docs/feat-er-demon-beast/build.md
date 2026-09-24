@@ -108,3 +108,7 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 ### v6 退场人工确认
 
 用户反馈“现在有变身结束动画了”。run 1790257785590-44536 的末轮从退场独占、与待机混合到退出退场后 done，Finishing 95.544 -> Restoring 96.610 -> Normal 96.674，记录原生析构完成且该轮未走超时恢复。证据 research/outro-human-check-v6.json。仅标记可见退场项人工 PASS；不把完整攻击等待、锁定移动、六组正式 Probe 或未来多形态配置补报通过。没有修改已安装文件。
+
+## v7 连按闪避输入卡住修复候选
+
+用户明确为兽体与动作输入卡住，游戏/镜头继续运行；两轮最终 behavior_finish_timeout。新增真实 HKS seam 重放重复 Step 未重新激活以及 Idle/Step 重叠两条路径，v6 均红、v7 均绿；20 轮重复请求/下一有效闪避与 F7 退场通过，原进入、动作、连段、退场、战技和配置回归及 Lua 语法通过。Failure Packet 为 research/roll-input-stall-v6.json。运行仍待人测，不把离线图回调重放当作唯一运行根因已证实。

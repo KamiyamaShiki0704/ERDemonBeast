@@ -34,6 +34,7 @@ function env(id,key)
     if id==ObtainedDT then return 1000/60 end
     if id==IsAnimEnd then return ended and TRUE or FALSE end
     if id==ActionRequest then return wait and pressed[key] and TRUE or FALSE end
+    if id==ActionCancelRequest then return pressed[key] and TRUE or FALSE end
     if id==ActionDuration then return pressed[key] and 10 or 0 end
     return 0
 end
@@ -44,7 +45,41 @@ tick(1);IdleDefault_onActivate();IdleDefault_onUpdate()
 ended=false;tick(1);ended=true;tick(1)
 assert(status()=='1-2-3\nready\n','entry/option parsing regression')
 ended=false;IdleDefault_onActivate()
-if mode=='outro_blend' then
+if mode=='roll_cycles' then
+    for cycle=1,20 do
+        pressed[5]=true;events={};IdleDefault_onUpdate()
+        assert(events[#events]=='W_Step6000','fresh roll rejected at cycle '..cycle)
+        Step6000_onActivate();node='Step6000_CMSG';pressed={};tick(45)
+        blended_nodes.IdleDefault_CMSG=true;IdleDefault_onActivate()
+        pressed[5]=true;events={};IdleDefault_onUpdate()
+        assert(#events==0,'already-active step redispatched during blend')
+        node='IdleDefault_CMSG';blended_nodes={};IdleDefault_onActivate()
+        -- The deferred input wasn't consumed or permanently marked held.
+        IdleDefault_onUpdate()
+        assert(events[#events]=='W_Step6000','valid roll blocked after blend ended')
+        Step6000_onActivate();node='Step6000_CMSG';pressed={};tick(45)
+        node='IdleDefault_CMSG';IdleDefault_onActivate();tick(1)
+    end
+    command('exit');tick(8);tick(1)
+    assert(status()=='1-2-3\nfinishing\n','F7 stuck after repeated rolls')
+    node='IdleDefault_CMSG';tick(1)
+    assert(status()=='1-2-3\ndone\n','outro failed after repeated rolls')
+elseif mode=='roll_blend' or mode=='roll_repeat' then
+    pressed[5]=true;IdleDefault_onUpdate();Step6000_onActivate()
+    node='Step6000_CMSG';pressed={};tick(45)
+    if mode=='roll_blend' then
+        -- Idle activates while Step is still blending out. A request for the
+        -- already active Step can be ignored without a second onActivate.
+        blended_nodes.IdleDefault_CMSG=true;IdleDefault_onActivate()
+    end
+    pressed[5]=true;events={}
+    if mode=='roll_blend' then IdleDefault_onUpdate() else Step6000_onUpdate() end
+    -- No synthetic activation: an ignored graph event must not freeze the
+    -- adapter in pending_action forever after the real step has ended.
+    node='IdleDefault_CMSG';blended_nodes={};IdleDefault_onActivate()
+    pressed={};tick(1);pressed[0]=true;events={};IdleDefault_onUpdate()
+    assert(events[#events]=='W_Attack3000','repeated roll left input permanently blocked after real step ended')
+elseif mode=='outro_blend' then
     -- Havok reports BOTH outgoing Idle and incoming Event during blending.
     -- This is the v5 runtime trace: outro:active and done on the same frame.
     blended_nodes.IdleDefault_CMSG=true

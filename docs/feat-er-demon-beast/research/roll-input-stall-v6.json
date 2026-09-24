@@ -1,0 +1,35 @@
+{
+  "classification": "ignored repeated step request can strand pending_action",
+  "version": "behavior v6 / DLL 0.3.1",
+  "human_statement": "连按翻滚键会导致卡住；兽体不动、按键无效，但游戏和镜头还在运行",
+  "expected": "repeated input cannot permanently block movement/actions; valid later action and exit remain possible",
+  "evidence": [
+    "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v6.log",
+    "F:/GoldenAge/_GoldenAge/dll/demon_beast/er-demon-beast.log"
+  ],
+  "key_lines": [
+    "frame=122 fired=6000",
+    "frame=127 input=5 cancel=true request=1",
+    "frame=153 input=5 cancel=true request=1",
+    "frame=165 input=5 cancel=false request=1",
+    "frame=165 fired=6000",
+    "t=452.690 Active -> Finishing",
+    "t=460.710 failure=behavior_finish_timeout; emergency recovery",
+    "t=461.086 Restoring -> Normal"
+  ],
+  "hypotheses": [
+    "repeat Step while active receives no fresh activation, pending state locks input",
+    "outgoing Step and incoming Idle blend permits an idle-entry redispatch",
+    "held/release tracking alone; less consistent with successive request pulses"
+  ],
+  "red_cases": [
+    "roll_blend",
+    "roll_repeat"
+  ],
+  "red_command": "lua test_c0010_v5.lua <installed-v6-private> <original-c0010.lua> tmp roll_blend",
+  "red_output": "repeated roll left input permanently blocked after real step ended",
+  "fix": "reject Step6000 dispatch while Step6000_CMSG active, before mutating held/queue/ownership; allow normal request after deactivation",
+  "green": "both exact HKS seam cases PASS; 20 rounds with deferred valid next roll and F7/outro PASS",
+  "limits": "engine activation/no-activation replayed in offline seam; exact runtime cause still requires user confirmation and new trace",
+  "v7_runtime": "NOT_RUN"
+}

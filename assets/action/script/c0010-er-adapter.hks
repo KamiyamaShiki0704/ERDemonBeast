@@ -1,8 +1,8 @@
--- ERDB behavior adapter 6: appended to a private copy of GA c9997.hks.
+-- ERDB behavior adapter 7: appended to a private copy of GA c9997.hks.
 -- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
 -- Preserve NR ground attack choices; use ER input/cancel interfaces.
 -- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
-ERDB_BEHAVIOR_VERSION = 6
+ERDB_BEHAVIOR_VERSION = 7
 local erdb_update = Update
 local erdb_ai_action = ExecAIAction
 local erdb_attack_common = AttackCommonFunction
@@ -58,13 +58,13 @@ local function erdb_trace(message)
     local library = rawget(_G, "io")
     if type(library) ~= "table" or type(library.open) ~= "function" then return end
     pcall(function()
-        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v6.log", "a")
+        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v7.log", "a")
         if not file then return end
-        pcall(function() file:write("[ERDB-v6] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
+        pcall(function() file:write("[ERDB-v7] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
         file:close()
     end)
 end
-erdb_trace("loaded version=6")
+erdb_trace("loaded version=7")
 local erdb_next = {
     [3000]={3001,3005}, [3001]={3002,3005},
     [3002]={3003,3005}, [3003]={3000,3005},
@@ -109,6 +109,15 @@ local function erdb_dispatch(r1, r2, cancelling)
                 return FALSE
             end
             if animation ~= nil and IsExistAnime(animation) == TRUE then
+                -- A Step->Step request can be ignored while its CMSG is still
+                -- active (including its outgoing blend). No new activation
+                -- means pending_action would otherwise block every input.
+                -- Leave the key/queue and ownership untouched for a later valid
+                -- request; attacks out of Step still use their own windows.
+                if animation==6000 and IsNodeActive("Step6000_CMSG")==TRUE then
+                    erdb_trace("input=5 deferred=step_still_active")
+                    return FALSE
+                end
                 erdb_held[input] = true
                 erdb_combo_reset = false
                 act(ResetInputQueue)

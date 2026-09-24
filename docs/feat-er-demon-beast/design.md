@@ -129,3 +129,7 @@ Native Backend 增加只读 completed 查询；Active 维护成功且当前 nonc
 ## v6 退场混合确认修正
 
 IsNodeActive 不是互斥的当前状态枚举；进入/退出混合期间旧 Idle 和 Event20010 可同时为 true。v5 在观察到 Event20010 后只检查 Idle 活动，导致同帧过早 done。v6 要求已观察 Event20010，当前 Event20010=false 且 IdleDefault 或 IdleBattle=true，才完成普通退场。没有增加定时阈值，战技通知逻辑和图资源不变。真实 HKS 回归补齐多活动节点；该测试不能替代实机动画验收。
+
+## v7 闪避重复请求保护
+
+Step6000 仍活动（含退出混合）时，重复 Fire 不保证重新激活；在 Fire 前写入 pending_action、却只在 onActivate 清除，会把输入永久挡住。v7 在设置 held、清理队列和修改动作所有权之前检查 Step6000_CMSG；活动时返回 FALSE，结束后正常请求仍可派发。攻击接闪避与闪避接攻击仍受现有窗口控制。仅处理重复 Step 的已复现路径，没有基于超时强清任意 pending，没有修改 Behbnd 自转移规则。实机是否完全消除用户现象待验证。
