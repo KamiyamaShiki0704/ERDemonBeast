@@ -3,20 +3,20 @@ work_packet:
   topic: FEAT-ER-demon-beast-custom-forms
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 3e89c330cece540054703f120318fc624ae7a5f7 (deployed 0.4.0 / HKS v8)
+    revision: f0188aea9b12b58aba9d1075923460d8a2a0375e (deployed 0.4.1 / HKS v8)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
   authoritative_inputs:
-    installed_spec: [docs/feat-er-demon-beast/spec.md@1.2, docs/feat-er-demon-beast/spec-custom-forms.md@1.0]
-    installed_design: [docs/feat-er-demon-beast/design.md@1.5, docs/feat-er-demon-beast/design-custom-forms.md]
+    installed_spec: [docs/feat-er-demon-beast/spec.md@1.2, docs/feat-er-demon-beast/spec-custom-forms.md@1.0, docs/feat-er-demon-beast/spec-effect-controls.md@1.0]
+    installed_design: [docs/feat-er-demon-beast/design.md@1.5, docs/feat-er-demon-beast/design-custom-forms.md, docs/feat-er-demon-beast/design-effect-controls.md]
     candidate_spec: docs/feat-er-demon-beast/spec-effect-controls.md@1.0
     candidate_design: docs/feat-er-demon-beast/design-effect-controls.md
   current_spec_ids: [CF-001, CF-002, CF-003, CF-004, CF-005, CF-006, CF-007]
   scope:
     in: [多个形态的配置与选择, 本体SpEffect自动或按键触发, 每形态时长与镜头及四向选项, 已适配输入和连段映射, 离线验证与人工测试交付]
     out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡]
-  current_task: 0.4.1配对包已完成；40 Rust/17 Python/构建/小栈PASS。用户退出后安装回归已补过，但正式安装前新ER进程15504出现，脚本在写入前拒绝。已再次请求保持退出；收到回复后只需确认进程并安装，不重复测试。当前仍0.4.0，未替换游戏目录。真实效果ID及施加动作待用户接线。
+  current_task: 用户再次退出后，0.4.1已配对安装；11目标和备份、7保护文件哈希PASS。真实SpEffect ID及施加动作尚未接线；待用户配置与人工游戏验收。调试热键在迁移配置中显式保留true，正式效果配置可关闭。
   code_paths: [src/forms.rs, src/session.rs, src/native.rs, src/native/effect_scan.rs, src/native/behavior_bridge.rs, assets/action/script/c0010-er-adapter.hks]
   asset_paths: [er-demon-beast.toml, examples/custom-forms.toml]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/Manage-CustomForms.ps1, Scripts/delivery/feat-er-demon-beast/script/test_c0010_v5.lua, examples/check_forms.rs]
@@ -40,26 +40,22 @@ work_packet:
   constraints:
     - ER WW2.7.1 App1.17.1；EXE SHA256 1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891。
     - 不启动/操作游戏；仅离线文件/EXE、已有日志、进程是否存在检查。
-    - 已安装 DLL0.4.0 SHA256 4cb20d35fff487c7ca28f130f4d5ee65b2604f7d9cb62b922c2c9f4cb964b1db，私有HKS v8 SHA256 cab5cffc0c9c4195c2c58b8cbad1553944f963ec85a1d24ba828a0227585e5d0。
+    - 已安装 DLL0.4.1 SHA256 db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a，私有HKS v8 SHA256 cab5cffc0c9c4195c2c58b8cbad1553944f963ec85a1d24ba828a0227585e5d0。
     - Spec1.0已确认；游戏退出后可安装完整配对包，安装前后检查目标与受保护文件哈希；实机效果仍待人验收。
     - 保持 Summon 源码及兄弟项目只读；清理由既有退休队列确认后才换形态。
   write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
   latest_result:
-    stage: effect-controls-0.4.1-awaiting-game-exit
-    automatic_result: PASS_OFFLINE_INSTALL_PENDING_EXIT
+    stage: effect-controls-0.4.1-installed-awaiting-input-wiring-and-human-test
+    automatic_result: PASS_OFFLINE_AND_INSTALL_RUNTIME_PENDING
     offline_tests: 40 Rust PASS；Python17 PASS，先前被保护拦截项已在用户退出后通过；Clippy/fmt/release/64KiB加载/配置校验PASS。HKS及Behbnd相同，沿用已有证据。
     runtime_tested: false
-    installed_changed: false
+    installed_changed: true
     runtime_scope: SpEffect实际读取/自动触发/切换与映射都待人测；本轮不虚报旧六组Probe或新CF组通过。
     candidate_version: DLL0.4.1 + unchanged HKSv8
     candidate_revision: f0188aea9b12b58aba9d1075923460d8a2a0375e
     candidate_dll_sha256: db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a
     candidate_semantic_limit: 效果检测与配置能力已实现；实际ID和游戏施加动作尚未接线，不能宣称手柄实机通过。当前测试配置保留显式调试键直到接线。
     configuration_guide: docs/feat-er-demon-beast/FORMS_CONFIG.md
-    installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-CustomForms04.cmd
+    installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-EffectControls041.cmd
     candidate_package: dist/effect-controls-0.4.1
     candidate_verification: docs/feat-er-demon-beast/research/verification-effects-0.4.1.json
-
-
-
-

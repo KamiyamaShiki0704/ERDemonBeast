@@ -11,7 +11,7 @@
   "config_cli": "PASS automatic example / multi-form example / migrated installed config",
   "runtime": "NOT_RUN",
   "release_ready": true,
-  "installed_changed": false,
+  "installed_changed": true,
   "dll_sha256": "db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a",
   "hks_sha256": "cab5cffc0c9c4195c2c58b8cbad1553944f963ec85a1d24ba828a0227585e5d0",
   "package": "D:\\_Ugit\\FSTool\\_Mod\\_Project\\er-demon-beast\\dist\\effect-controls-0.4.1",
@@ -26,5 +26,6 @@
   },
   "input_wiring": "Real effect IDs and game action application are not configured. No parameter or animation edit.",
   "unchanged_hks_evidence": "verification-forms-0.4-candidate.json; identical HKSv8/Behbnd",
-  "installation_status": "Not installed: installer caught a newly started ER PID 15504 after offline tests. No transaction record or target writes; awaiting exit again."
+  "installation_status": "Installed 0.4.1; 11 target and backup hashes, 7 protected input hashes PASS; no game launch",
+  "deployment": "deployment-effects-0.4.1.json"
 }
