@@ -1,0 +1,32 @@
+{
+  "behavior_version": 6,
+  "dll_version": "0.3.1",
+  "run": "1790257785590-44536",
+  "human_statement": "现在有变身结束动画了",
+  "human_result": "PASS: visible outro; only this reported item accepted",
+  "hks_evidence": [
+    "frame=138 lifecycle=finishing",
+    "frame=139 animation=outro:true:false",
+    "frame=164 animation=outro:true:true",
+    "frame=178 animation=outro:false:true",
+    "frame=178 lifecycle=done"
+  ],
+  "native_cycle": {
+    "finishing": 95.5438775,
+    "restoring": 96.6098752,
+    "normal": 96.674,
+    "destruction": "outcome=destroyed retirement=frame-end-drained",
+    "timeout_in_this_cycle": false
+  },
+  "additional_observation": "two tail skill cycles contain 3035 notification and done; not a substitute for user animation acceptance",
+  "sources": [
+    "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v6.log",
+    "F:/GoldenAge/_GoldenAge/dll/demon_beast/er-demon-beast.log"
+  ],
+  "pending": [
+    "normal attack with F7/expiry exact timing acceptance",
+    "original locked movement acceptance",
+    "full six formal Probe cases",
+    "custom multi-form stage not implemented"
+  ]
+}
