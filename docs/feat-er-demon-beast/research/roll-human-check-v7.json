@@ -1,0 +1,30 @@
+{
+  "behavior_version": 7,
+  "dll_version": "0.3.1",
+  "run": "1790258643664-15076",
+  "human_statement": "测试了一下没有问题",
+  "human_result": "PASS for this repeated-roll regression test batch; not a full formal Probe acceptance",
+  "hks_evidence": [
+    "frame=298 input=5 deferred=step_still_active",
+    "frame=309 fired=6000",
+    "frame=400 fired=6000",
+    "frame=438 fired=3010",
+    "frame=1059 lifecycle=finishing",
+    "frame=1113 lifecycle=done"
+  ],
+  "completed_native_cycle": {
+    "active": 48.5841592,
+    "finishing": 63.5955924,
+    "restoring": 65.4961183,
+    "normal": 65.584,
+    "destruction": "outcome=destroyed retirement=frame-end-drained",
+    "finish_timeout": false
+  },
+  "next_cycle": "Entered Active at t=90.858; no completion yet in inspected log; not counted as complete",
+  "sources": [
+    "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v7.log",
+    "F:/GoldenAge/_GoldenAge/dll/demon_beast/er-demon-beast.log"
+  ],
+  "scope_limit": "Observed valid rolls after deferred duplicate, roll-to-light attack, natural expiry and clean destruction in one complete run; individual test conditions not enumerated by user",
+  "next_stage": "per-form configuration planning/implementation; not implemented by this acceptance record"
+}

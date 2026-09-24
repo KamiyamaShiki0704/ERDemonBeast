@@ -14,7 +14,7 @@ work_packet:
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: v7 连按闪避修复候选已部署；Step 节点活动时拒绝重复派发，防止无激活回调造成 pending 卡死；保留已通过的退场修正，等用户连按与后续输入/F7 验收。
+  current_task: v7 连按翻滚本轮人工回归通过，保留 DLL 0.3.1 + HKS v7 为当前动作基线；后续进入已约定的分形态 SpEffect/时长/输入映射配置阶段，尚未实现。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -43,6 +43,7 @@ work_packet:
     - 2026-09-24 用户报告 v5 结束没有动画；实际日志显示退场 active 和 done 同帧。v6 修正混合状态重叠误判，实机仍由用户执行。
     - 2026-09-24 用户确认“现在有变身结束动画了”；v6 可见退场人工通过，日志末轮正常 done/析构，无该轮 timeout。仅接受本项，不外推全部正式 Case。
     - 2026-09-24 用户报告连按翻滚卡住，明确兽体不动/按键无效但游戏镜头继续运行；允许继续离线修复，并确认已退出游戏以安装 v7。
+    - 2026-09-24 用户回复“测试了一下没有问题”，确认 v7 本轮连按翻滚回归通过；日志证明重复请求被拦下后仍能闪避/接轻击，已完成一轮自然到期退场并析构，随后再次进入。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
@@ -64,13 +65,13 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-behavior-v7-installed-awaiting-human
+    stage: c0010-behavior-v7-roll-regression-human-confirmed
     automatic_result: PARTIAL
     offline_tests: 真实 HKS roll_repeat/roll_blend 两条卡死路径 v6 红/v7 绿；20 轮请求/下一次有效闪避/F7退场、进入/五动作/连段/退场混合/战技/配置及 Lua 语法 PASS
-    runtime_tested: false
-    runtime_evidence: v6 可见退场人工通过；后续连按翻滚两轮输入卡住并触发 8 秒超时；v7 NOT_RUN
+    runtime_tested: true
+    runtime_evidence: v7 run 1790258643664-15076 用户回归无问题；deferred 后继续 6000/3010，15 秒到期后正常退场及析构；见 research/roll-human-check-v7.json
     runtime_scope: 连按翻滚后移动/轻重击/F7及到期恢复、正常闪避接攻击；原版锁定移动另行确认
-    final_acceptance: v6_visible_outro_pass_by_human_v7_roll_fix_pending
+    final_acceptance: v6_visible_outro_and_v7_roll_regression_human_pass_full_formal_cases_not_claimed
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
     artifact_sha256: 50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119
     rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V7.cmd
