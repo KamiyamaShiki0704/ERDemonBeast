@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast-custom-forms
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: working-tree-custom-forms-candidate
+    revision: 1b4eed2bc5454b130f5e7347edb84c3a9c33cf37 (isolated candidate; installed v7 unchanged)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
@@ -54,3 +54,5 @@ work_packet:
     candidate_semantic_limit: -1当前底层仅无到期计时；战技仍沿用旧完成逻辑，最终政策未定，不交付该假设。
     configuration_guide: docs/feat-er-demon-beast/FORMS_CONFIG.md
     installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V7.cmd
+    candidate_package: dist/custom-forms-0.4-candidate
+    candidate_verification: docs/feat-er-demon-beast/research/verification-forms-0.4-candidate.json
