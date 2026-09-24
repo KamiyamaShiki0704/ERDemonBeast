@@ -102,3 +102,5 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 ## v6 私有 HKS 退场修正
 
 用户报告 v5 无退场演出；日志 outro:active 与 done 同帧，定位到混合期间旧 Idle 活动被误判为退场完成。outro-blend-v5.json 保留失败信号。新增多活动节点回归，v5 红、v6 绿；进入、动作、连段、普通解除、战技、移动配置回归与 Lua 语法检查通过。DLL 0.3.1 / Behbnd 不变，沿用 v5 的原生与图检查；本轮不重新声称已完成实机验证。
+
+已在游戏退出时完成 v6 十文件事务（实际差异仅 HKS 与四份版本/测试文档），十个安装目标、对应备份、七项保护输入均核对通过。私有 HKS SHA256 4f7260b9b8a2f431fff07590222dfcc5776d81000e463d9605761893ae7c2d7e；备份 F:\GoldenAge\_GoldenAge\dll\demon_beast\_backups\complete-v3-20260924-212537-383。Restore-C0010V6.cmd 退回 v5，DLL/PDB/配置/Behbnd 原哈希不变。回退仅做语法与备份哈希检查，未实际执行；游戏验收待用户。

@@ -1,0 +1,21 @@
+{
+  "behavior_revision": "ef1086ec11cf58d777647c1d70db4bd902516bfc",
+  "spec": "1.2",
+  "design": "1.5 + v6 addendum",
+  "red": "v5 outgoing Idle completed newly entered outro",
+  "green": "v6 outro_blend PASS; entering/exiting blends and no known return node reject completion",
+  "regressions": "entry, five actions/nine combo edges, combo, lifecycle, skill, skill_exit, original, fourway, Lua syntax PASS",
+  "native_and_graph": "UNCHANGED; reused v5 verification; no native rebuild",
+  "dll_sha256": "50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119",
+  "private_hks_sha256": "4f7260b9b8a2f431fff07590222dfcc5776d81000e463d9605761893ae7c2d7e",
+  "runtime": "NOT_RUN",
+  "final_acceptance": "PENDING_HUMAN",
+  "installation": {
+    "targets_verified": 10,
+    "backups_verified": 10,
+    "protected_inputs_verified": 7,
+    "backup": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\complete-v3-20260924-212537-383",
+    "rollback": "Restore-C0010V6.cmd -> behavior v5 / DLL 0.3.1",
+    "rollback_executed": false
+  }
+}
