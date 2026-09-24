@@ -45,7 +45,7 @@ const MANIP_OWNER: usize = 0xa8;
 static DIRECTORY: OnceLock<PathBuf> = OnceLock::new();
 static RUNTIME: OnceLock<Mutex<Runtime>> = OnceLock::new();
 
-use crate::forms::{Config, Form, Selector};
+use crate::forms::{Config, Effects, Form, Selector};
 
 type EffectIdentity = (usize, usize, FieldInsHandle);
 struct EffectSnapshot {
@@ -63,6 +63,9 @@ struct Runtime {
     selector: Selector,
     effect_ids: Option<std::collections::BTreeSet<i32>>,
     effect_identity: Option<EffectIdentity>,
+    beast_effect_ids: Option<std::collections::BTreeSet<i32>>,
+    beast_effect_identity: Option<EffectIdentity>,
+    beast_effect_error: Option<String>,
     next_effect_poll: Duration,
     effect_error: Option<String>,
 }
@@ -113,10 +116,11 @@ fn initialize() -> Result<(), String> {
             .map_err(|e| e.to_string())?,
     )?;
     log(format!(
-        "prototype {}; exe={hash}; ABI verified; enabled={} control_enabled={}",
+        "prototype {}; exe={hash}; ABI verified; enabled={} control_enabled={} debug_hotkeys_enabled={}",
         env!("CARGO_PKG_VERSION"),
         config.enabled,
-        config.control_enabled
+        config.control_enabled,
+        config.debug_hotkeys_enabled
     ));
     if !config.enabled {
         return Ok(());
@@ -140,6 +144,9 @@ fn initialize() -> Result<(), String> {
             selector: Selector::default(),
             effect_ids: None,
             effect_identity: None,
+            beast_effect_ids: None,
+            beast_effect_identity: None,
+            beast_effect_error: None,
             next_effect_poll: Duration::ZERO,
             effect_error: None,
         }))
@@ -148,7 +155,7 @@ fn initialize() -> Result<(), String> {
     // Game task owns this callback until process exit. Hot unloading unsupported.
     std::mem::forget(task);
     log(
-        "game task installed at FrameEnd; F6 enter / F7 restore; control requires control_enabled=true",
+        "game task installed at FrameEnd; configured SpEffects drive controls; optional debug F6/F7 require debug_hotkeys_enabled=true",
     );
     Ok(())
 }
@@ -241,10 +248,10 @@ fn update(data: &FD4TaskData) {
             GetAsyncKeyState(VK_F7.0 as i32) < 0,
         ]
     };
-    let mut input = Input {
-        enter: focused && pressed[0] && !runtime.keys[0],
-        revert: focused && pressed[1] && !runtime.keys[1],
-    };
+    let mut input = runtime
+        .backend
+        .config
+        .debug_input(focused, pressed, runtime.keys);
     runtime.keys = pressed;
     let before = runtime.session.phase();
     let now = runtime.epoch.elapsed();
@@ -268,8 +275,20 @@ fn update(data: &FD4TaskData) {
             "control input deferred: phase={before:?}; cleanup still owned; see retirement read_error"
         ));
     }
-    // Sample only the protected main-player identity, at 10 Hz (or a fresh
-    // manual request). Failed reads never mean that all effects disappeared.
+    // Enter effects belong to the protected player. Revert effects may also
+    // belong to our owned beast; never resolve it once cleanup owns retirement.
+    let scan_beast = matches!(
+        before,
+        crate::session::Phase::Entering { .. }
+            | crate::session::Phase::Active { .. }
+            | crate::session::Phase::Finishing { .. }
+    ) && runtime.backend.form().revert_sp_effect_id.is_some();
+    if !scan_beast {
+        runtime.beast_effect_ids = None;
+        runtime.beast_effect_identity = None;
+        runtime.selector.reset_beast_effects();
+    }
+    // Both sources are sampled at 10 Hz. Failed reads are unknown, not empty.
     if control_allowed && focused {
         if !runtime.backend.config.has_effect_routes() {
             runtime.effect_ids = Some(Default::default());
@@ -294,11 +313,32 @@ fn update(data: &FD4TaskData) {
                     }
                 }
             }
+            if scan_beast {
+                match runtime.backend.sample_beast_effects() {
+                    Ok(snapshot) => {
+                        let identity = snapshot.as_ref().map(|s| s.identity);
+                        if runtime.beast_effect_identity != identity {
+                            runtime.selector.reset_beast_effects();
+                        }
+                        runtime.beast_effect_identity = identity;
+                        runtime.beast_effect_ids = snapshot.map(|s| s.ids);
+                        runtime.beast_effect_error = None;
+                    }
+                    Err(error) => {
+                        runtime.beast_effect_ids = None;
+                        if runtime.beast_effect_error.as_ref() != Some(&error) {
+                            log(format!("owned beast effect sampling unavailable: {error}"));
+                            runtime.beast_effect_error = Some(error);
+                        }
+                    }
+                }
+            }
         }
         let Runtime {
             selector,
             backend,
             effect_ids,
+            beast_effect_ids,
             session,
             ..
         } = &mut *runtime;
@@ -307,8 +347,17 @@ fn update(data: &FD4TaskData) {
             backend.form_index,
             before,
             input,
-            effect_ids.as_ref(),
+            Effects {
+                player: effect_ids.as_ref(),
+                beast: beast_effect_ids.as_ref(),
+            },
         );
+        if intent.revert && !input.revert {
+            log(format!(
+                "form route requested exit or switch: form={} phase={before:?}",
+                backend.form().key
+            ));
+        }
         input = Input {
             enter: intent.enter.is_some(),
             revert: intent.revert,
@@ -605,6 +654,30 @@ impl NativeBackend {
         {
             return Err("main player identity changed".into());
         }
+        let ids = Self::read_effect_ids(id)?;
+        Ok(EffectSnapshot {
+            identity: (world_address, id.address, id.handle),
+            ids,
+        })
+    }
+    fn sample_beast_effects(&self) -> Result<Option<EffectSnapshot>, String> {
+        // The retirement queue may own a stale handle even before self.beast is
+        // cleared. This guard precedes every resolve of the beast for sampling.
+        if !matches!(self.retirement, Retirement::None) {
+            return Ok(None);
+        }
+        let Some(id) = self.beast else {
+            return Ok(None);
+        };
+        let world = self.world()?;
+        self.validate_session(world, true)?;
+        let ids = Self::read_effect_ids(id)?;
+        Ok(Some(EffectSnapshot {
+            identity: (self.world_address, id.address, id.handle),
+            ids,
+        }))
+    }
+    fn read_effect_ids(id: Identity) -> Result<std::collections::BTreeSet<i32>, String> {
         let manager = checked_object(
             pointer(id.address + offset_of!(ChrIns, special_effect))?,
             0x18,
@@ -620,13 +693,13 @@ impl NativeBackend {
                 usize::from_le_bytes(data[0x30..0x38].try_into().unwrap()),
             ))
         })?;
-        if pointer(manager + 8)? != head || pointer(manager + 0x10)? != id.address {
+        if pointer(id.address + offset_of!(ChrIns, special_effect))? != manager
+            || pointer(manager + 8)? != head
+            || pointer(manager + 0x10)? != id.address
+        {
             return Err("SpEffect list changed during read".into());
         }
-        Ok(EffectSnapshot {
-            identity: (world_address, id.address, id.handle),
-            ids,
-        })
+        Ok(ids)
     }
     fn finish_restore(&mut self) {
         debug_assert!(!self.pending && self.patches.is_empty() && self.beast.is_none());

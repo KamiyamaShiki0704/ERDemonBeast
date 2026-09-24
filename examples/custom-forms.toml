@@ -2,6 +2,7 @@
 enabled = false
 control_enabled = false
 action_trace = false
+debug_hotkeys_enabled = false
 ownership_tag = 1987040701
 default_form = "demon_beast"
 
@@ -14,6 +15,7 @@ npc_think_param_id = 100000
 trigger = "manual"
 priority = 0
 # sp_effect_id = 12345  # optional selector; use an existing effect of your choice
+# revert_sp_effect_id = 12347  # placeholder only; set a real exit effect
 # Positive seconds or -1 (no timer); starts when entry finishes.
 duration_seconds = 15.0
 action_mode = "mapped"
@@ -49,6 +51,7 @@ npc_param_id = 100000
 npc_think_param_id = 100000
 trigger = "automatic"
 sp_effect_id = 12345
+revert_sp_effect_id = 12347
 priority = 10
 duration_seconds = 5.0
 action_mode = "mapped"
@@ -63,6 +66,7 @@ npc_param_id = 100000
 npc_think_param_id = 100000
 trigger = "manual"
 sp_effect_id = 12346
+revert_sp_effect_id = 12347
 priority = 20
 duration_seconds = -1
 action_mode = "mapped"

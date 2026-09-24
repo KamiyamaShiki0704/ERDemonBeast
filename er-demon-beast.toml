@@ -2,6 +2,8 @@
 enabled = false
 control_enabled = false
 action_trace = false
+# Official effect controls need no physical keyboard key. Enable only for debugging.
+debug_hotkeys_enabled = false
 ownership_tag = 1987040701
 default_form = "demon_beast"
 
@@ -14,6 +16,9 @@ npc_think_param_id = 100000
 trigger = "manual"
 priority = 0
 # sp_effect_id = 12345  # optional selector; use an existing effect of your choice
+# revert_sp_effect_id = 12346  # existing exit effect on player OR owned beast
+# For game/controller controls: trigger="automatic", set both real effect IDs,
+# and arrange for your item/skill/animation to apply those effects.
 # Positive seconds or -1 (no timer); starts when entry finishes.
 duration_seconds = 15.0
 action_mode = "mapped"

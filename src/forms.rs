@@ -11,6 +11,8 @@ pub struct Config {
     pub control_enabled: bool,
     #[serde(default)]
     pub action_trace: bool,
+    #[serde(default)]
+    pub debug_hotkeys_enabled: bool,
     pub ownership_tag: i32,
     pub default_form: String,
     pub forms: Vec<Form>,
@@ -40,6 +42,7 @@ pub struct Form {
     pub trigger: Trigger,
     pub priority: i32,
     pub sp_effect_id: Option<i32>,
+    pub revert_sp_effect_id: Option<i32>,
     #[serde(default = "yes")]
     pub enabled: bool,
     pub duration_seconds: f64,
@@ -199,6 +202,12 @@ impl Form {
             ));
         }
         self.duration()?;
+        if self.revert_sp_effect_id.is_some_and(|id| id <= 0) {
+            return Err(format!(
+                "{}: revert_sp_effect_id must be positive",
+                self.key
+            ));
+        }
         if !self.camera_distance.is_finite()
             || !self.camera_height.is_finite()
             || !(0.0..=20.0).contains(&self.camera_distance)
@@ -266,7 +275,14 @@ impl Config {
     pub fn has_effect_routes(&self) -> bool {
         self.forms
             .iter()
-            .any(|f| f.enabled && f.sp_effect_id.is_some())
+            .any(|f| f.enabled && (f.sp_effect_id.is_some() || f.revert_sp_effect_id.is_some()))
+    }
+    pub fn debug_input(&self, focused: bool, pressed: [bool; 2], previous: [bool; 2]) -> Input {
+        let allowed = focused && self.debug_hotkeys_enabled;
+        Input {
+            enter: allowed && pressed[0] && !previous[0],
+            revert: allowed && pressed[1] && !previous[1],
+        }
     }
     pub fn validate(&self) -> Result<(), String> {
         if self.ownership_tag <= 0 || self.forms.is_empty() || self.forms.len() > 32 {
@@ -286,9 +302,24 @@ impl Config {
         if !self
             .forms
             .iter()
-            .any(|f| f.key == self.default_form && f.enabled && f.trigger == Trigger::Manual)
+            .any(|f| f.key == self.default_form && f.enabled)
         {
-            return Err("default_form must name an enabled manual form".into());
+            return Err("default_form must name an enabled form".into());
+        }
+        let enter_ids: BTreeSet<_> = self
+            .forms
+            .iter()
+            .filter(|f| f.enabled)
+            .filter_map(|f| f.sp_effect_id)
+            .collect();
+        if self
+            .forms
+            .iter()
+            .filter(|f| f.enabled)
+            .filter_map(|f| f.revert_sp_effect_id)
+            .any(|id| enter_ids.contains(&id))
+        {
+            return Err("revert_sp_effect_id must not match an enabled form's sp_effect_id".into());
         }
         Ok(())
     }
@@ -297,6 +328,7 @@ impl Config {
 #[derive(Default, Debug)]
 pub struct Selector {
     seen: BTreeSet<i32>,
+    seen_beast: BTreeSet<i32>,
     queued: Option<usize>,
 }
 #[derive(Default, Debug, PartialEq, Eq)]
@@ -304,22 +336,41 @@ pub struct Intent {
     pub enter: Option<usize>,
     pub revert: bool,
 }
+/// Unknown reads remain None. Player and owned beast have independent edges.
+#[derive(Clone, Copy, Default)]
+pub struct Effects<'a> {
+    pub player: Option<&'a BTreeSet<i32>>,
+    pub beast: Option<&'a BTreeSet<i32>>,
+}
+impl<'a> From<Option<&'a BTreeSet<i32>>> for Effects<'a> {
+    fn from(player: Option<&'a BTreeSet<i32>>) -> Self {
+        Self {
+            player,
+            beast: None,
+        }
+    }
+}
 impl Selector {
     pub fn cancel(&mut self) {
         self.queued = None;
     }
     pub fn reset_effects(&mut self) {
         self.seen.clear();
+        self.reset_beast_effects();
     }
-    pub fn route(
+    pub fn reset_beast_effects(&mut self) {
+        self.seen_beast.clear();
+    }
+    pub fn route<'a>(
         &mut self,
         c: &Config,
         current: usize,
         phase: Phase,
         input: Input,
-        effects: Option<&BTreeSet<i32>>,
+        effects: impl Into<Effects<'a>>,
     ) -> Intent {
-        let winner = effects.and_then(|ids| {
+        let effects = effects.into();
+        let winner = effects.player.and_then(|ids| {
             c.forms
                 .iter()
                 .enumerate()
@@ -331,10 +382,34 @@ impl Selector {
             c.forms[i].trigger == Trigger::Automatic
                 && !self.seen.contains(&c.forms[i].sp_effect_id.unwrap())
         });
-        if let Some(ids) = effects {
+        let exit_form = if phase == Phase::Normal {
+            self.queued.or(winner).unwrap_or(current)
+        } else {
+            current
+        };
+        // A queued switch still belongs to the outgoing form until its next
+        // entry begins, including the Normal frame after cleanup completes.
+        let exit_ids = [
+            c.forms[exit_form].revert_sp_effect_id,
+            self.queued
+                .and_then(|_| c.forms[current].revert_sp_effect_id),
+        ];
+        let effect_revert = exit_ids.into_iter().flatten().any(|id| {
+            effects
+                .player
+                .is_some_and(|ids| ids.contains(&id) && !self.seen.contains(&id))
+                || (phase != Phase::Normal
+                    && effects
+                        .beast
+                        .is_some_and(|ids| ids.contains(&id) && !self.seen_beast.contains(&id)))
+        });
+        if let Some(ids) = effects.player {
             self.seen = ids.clone();
         }
-        if input.revert {
+        if let Some(ids) = effects.beast {
+            self.seen_beast = ids.clone();
+        }
+        if input.revert || effect_revert {
             self.queued = None;
             return Intent {
                 enter: None,
@@ -349,7 +424,7 @@ impl Selector {
                 revert: false,
             };
         }
-        if effects.is_none() {
+        if effects.player.is_none() {
             return Intent::default();
         } // unknown != no effects
         let request = if input.enter {

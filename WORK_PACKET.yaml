@@ -10,17 +10,17 @@ work_packet:
   authoritative_inputs:
     installed_spec: [docs/feat-er-demon-beast/spec.md@1.2, docs/feat-er-demon-beast/spec-custom-forms.md@1.0]
     installed_design: [docs/feat-er-demon-beast/design.md@1.5, docs/feat-er-demon-beast/design-custom-forms.md]
-    candidate_spec: docs/feat-er-demon-beast/spec-custom-forms.md@1.0
-    candidate_design: docs/feat-er-demon-beast/design-custom-forms.md
+    candidate_spec: docs/feat-er-demon-beast/spec-effect-controls.md@1.0
+    candidate_design: docs/feat-er-demon-beast/design-effect-controls.md
   current_spec_ids: [CF-001, CF-002, CF-003, CF-004, CF-005, CF-006, CF-007]
   scope:
     in: [多个形态的配置与选择, 本体SpEffect自动或按键触发, 每形态时长与镜头及四向选项, 已适配输入和连段映射, 离线验证与人工测试交付]
     out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡]
-  current_task: 用户已确认 -1 只取消计时、战技仍原版解除，Spec已基线化1.0。0.4.0/HKSv8已成套安装且11目标/7保护文件哈希通过，等待人工验收；另报告F6/F7有些奇怪，已异步询问具体症状，未擅自改动热键语义。
+  current_task: 用户澄清需要游戏动作/动画施加SpEffect控制变身，手柄可用；已确认双效果进入/解除，ID可配置且暂未确定。0.4.1代码与离线检查已完成，准备包；检测到ER运行中，安装需退出。当前安装仍0.4.0。
   code_paths: [src/forms.rs, src/session.rs, src/native.rs, src/native/effect_scan.rs, src/native/behavior_bridge.rs, assets/action/script/c0010-er-adapter.hks]
   asset_paths: [er-demon-beast.toml, examples/custom-forms.toml]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/Manage-CustomForms.ps1, Scripts/delivery/feat-er-demon-beast/script/test_c0010_v5.lua, examples/check_forms.rs]
-  probe_cases: [CF-P01, CF-P02, CF-P03, CF-P04, CF-P05, CF-P06]
+  probe_cases: [EC-P01, EC-P02, EC-P03, EC-P04, EC-P05, EC-P06]
   human_decisions:
     - 用户允许本项目用原生状态采集/日志/人工游戏验收替代FrameRecorderProbe；不启动游戏或读取活体进程内存，后续游戏操作由用户完成。
     - 测试环境 F:/GoldenAge/_GoldenAge，沿用 ER0000.Shiki；部署目录 dll/demon_beast，启动profile不变。
@@ -36,7 +36,7 @@ work_packet:
     confirmed: true
     confirmed_scope: 触发/优先级/切换/Probe与无限时长战技规则均已确认。
     pending: []
-    reason: 新报告F6/F7使用异常的具体表现待补充，不据此假设用户希望单键切换。
+    reason: 用户确认双SpEffect方案；ID为后续配置值，不猜测现有ID。新Spec-effect-controls1.0已确认。
   constraints:
     - ER WW2.7.1 App1.17.1；EXE SHA256 1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891。
     - 不启动/操作游戏；仅离线文件/EXE、已有日志、进程是否存在检查。
@@ -45,16 +45,17 @@ work_packet:
     - 保持 Summon 源码及兄弟项目只读；清理由既有退休队列确认后才换形态。
   write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
   latest_result:
-    stage: custom-forms-installed-awaiting-human-and-hotkey-symptom
+    stage: effect-controls-0.4.1-package-preparation
     automatic_result: PASS_OFFLINE_RUNTIME_PENDING
     offline_tests: 原32 Rust加无限战技专用回归1项；17 Python、真实HKS默认/映射/禁用/连段/非法协议，均PASS。最终release和64KiB小栈加载复检PASS。
     runtime_tested: false
     installed_changed: true
     runtime_scope: SpEffect实际读取/自动触发/切换与映射都待人测；本轮不虚报旧六组Probe或新CF组通过。
-    candidate_version: DLL0.4.0 + HKSv8
-    candidate_semantic_limit: -1仅无到期计时；战技仍原版解除。按键异常未有明确复现，不声称已修复。
+    candidate_version: DLL0.4.1 + unchanged HKSv8
+    candidate_semantic_limit: 效果检测与配置能力已实现；实际ID和游戏施加动作尚未接线，不能宣称手柄实机通过。当前测试配置保留显式调试键直到接线。
     configuration_guide: docs/feat-er-demon-beast/FORMS_CONFIG.md
     installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-CustomForms04.cmd
-    candidate_package: dist/custom-forms-0.4
-    candidate_verification: docs/feat-er-demon-beast/research/verification-forms-0.4.json
+    candidate_package: dist/effect-controls-0.4.1
+    candidate_verification: docs/feat-er-demon-beast/research/verification-effects-0.4.1.json
+
 
