@@ -22,16 +22,16 @@
   "dll_size": 1068544,
   "hks_sha256": "cab5cffc0c9c4195c2c58b8cbad1553944f963ec85a1d24ba828a0227585e5d0",
   "rust_tests": 40,
-  "python_tests": 16,
+  "python_tests": 17,
   "clippy": "PASS",
   "fmt": "PASS",
   "release_build": "PASS",
   "small_stack_regression": "PASS",
   "hks_regression": "PASS: Rust wire -> actual HKS mapping/disabled/combo/invalid and all v7 baseline seams",
   "runtime_tested": false,
-  "release_ready": false,
-  "pending_requirement": "No requirement pending. ER exit required for installation and one guarded installer regression.",
+  "release_ready": true,
+  "pending_requirement": null,
   "installed_changed": false,
   "hotkey_report": "Clarified as official controller-compatible effect entry requirement. Dual configurable effects implemented; actual IDs/action wiring pending. Migrated test config explicitly retains debug keys.",
-  "python_blocked": "1 of 17 blocked by ER process guard; no bypass"
+  "python_blocked": null
 }

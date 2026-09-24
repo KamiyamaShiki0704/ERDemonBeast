@@ -146,3 +146,5 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 候选：`dist/effect-controls-0.4.1`，DLL SHA256 `db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a`。完整11文件包保留已安装0.4.0的before哈希；尚未写入游戏目录，release_ready=false因环境待退出。记录见 `research/verification-effects-0.4.1.json` 与 `research/build-result-effects-0.4.1.json`。
 
 真实效果ID和游戏施加动作未确定，未启用占位ID。部署迁移配置显式保留debug热键/manual/15秒用于过渡，正式效果模板默认关闭热键。设置真实ID并通过游戏动作施加后再切automatic/关闭debug；需人验收键鼠、手柄与两来源解除，不能仅凭离线测试宣称实机接线完成。
+
+用户回复已退出后，之前被拦截的安装回归单项已PASS，合计Python17 PASS。随后正式安装时出现新ER进程15504，安装脚本在任何写入前拒绝；无deployment-effects-0.4.1.json，仍安装0.4.0。配对包已release_ready=true，等待再次退出后直接安装，无需重复离线测试。
