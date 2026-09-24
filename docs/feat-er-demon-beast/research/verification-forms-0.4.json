@@ -1,0 +1,35 @@
+{
+  "source_revision": "3e89c330cece540054703f120318fc624ae7a5f7",
+  "native_tests": 33,
+  "python_tests": 17,
+  "hks_tests": [
+    "retained entry/combo/lifecycle",
+    "roll_blend/roll_repeat/roll_cycles20",
+    "outro/outro_blend/skill/skill_exit",
+    "original/fourway",
+    "Rust-generated protocol: mapped_light/mapped_heavy/mapped_disable/mapped_combo/mapped_invalid"
+  ],
+  "clippy": "PASS",
+  "fmt": "PASS",
+  "release": "PASS",
+  "dll_thread_64k": "PASS",
+  "config_cli": "PASS default + 3-form disabled-placeholder example",
+  "installed_changed": true,
+  "release_ready": true,
+  "runtime": "NOT_RUN",
+  "pending": null,
+  "dll_sha256": "4cb20d35fff487c7ca28f130f4d5ee65b2604f7d9cb62b922c2c9f4cb964b1db",
+  "hks_sha256": "cab5cffc0c9c4195c2c58b8cbad1553944f963ec85a1d24ba828a0227585e5d0",
+  "candidate": "D:\\_Ugit\\FSTool\\_Mod\\_Project\\er-demon-beast\\dist\\custom-forms-0.4",
+  "protected_inputs": {
+    "action/script/c9997.hks": "d6194e7507a446c2d4b1e0aa4e85e6e657cb28e2be342943139174c106ad6319",
+    "action/script/c0010.hks": "ba4d2c96119b8a9986009192c2b4e08b4a45bfb7da9a601f5a8075eefb5c0a1f",
+    "chr/c0010.anibnd.dcx": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2",
+    "regulation.bin": "07444d99aef7166a2ad9e8a505842134518ca62851bdeaaee20e6f6149abc4cd",
+    "action/eventnameid.txt": "1ba9b780d99ebc9fa070ea180efdd3be16dd5ce58b80b91662bc32158b4c7c99",
+    "action/statenameid.txt": "be131a06f600e875dce8e64e296ff6c2756442e195c811bd697987df19f1f49f",
+    "action/variablenameid.txt": "2a84a383d82d1eb4b8c6484f9ecd6d69b131360ee3609727c2bf486574b1216f"
+  },
+  "current_run": "cargo test --offline --features native --test forms: 6 PASS (5 existing + 1 infinite-finisher); clippy all-targets, release, 64KiB DLL PASS. Unchanged tests inherit previous candidate evidence.",
+  "deployment": "research/deployment-forms-0.4.json; all 11 target hashes and 7 protected hashes PASS; no game launch"
+}

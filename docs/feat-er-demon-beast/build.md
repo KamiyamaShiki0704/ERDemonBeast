@@ -126,3 +126,11 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 完成严格形态表、每形态身份/时长/镜头/四向选项、主玩家 SpEffect 只读采样、自动/手动选择与单目标切换队列、可配置五语义输入/起手/连段映射。默认 c0010；mapped 仅现有 c0010 适配器，native 可选其他 ID 的原生控制但无自定义动作适配，direct_c0000 明确拒绝。无新增参数行、无资源包改写。无限仅取消计时的底层能力已测试，最终战技规则未定，不作为完成交付。
 
 32 Rust、17 Python、真实 HKS 默认回归与 Rust 实际协议映射/禁用/连段/非法文本检查、Clippy/fmt/release、小栈加载通过；没有实机自动测试。配置参考 FORMS_CONFIG.md，设计与边界 design-custom-forms.md。完整结果与候选哈希待绑定 research/verification-forms-0.4-candidate.json。候选安装器拒绝 release_ready=false，防止待定语义误装。
+
+## 2026-09-24：多形态 0.4.0 / HKS v8 安装待验收
+
+- 用户明确选择方案1：`duration_seconds=-1`只取消计时，战技仍按原版解除，F7可手动解除。Spec-custom-forms基线化1.0，source revision `3e89c330cece540054703f120318fc624ae7a5f7`，KB revision `9511e3e8137fd2cda9fca74bb07a4b688fe89087`。
+- 新增无限时长下战技完成回归，验证60秒后仍Active、收到完成通知进入清理、不重复请求退场。`cargo test --offline --features native --test forms` 6 PASS；此前其他27项Rust、17项Python与HKS回归沿用未改源码证据，总计33项Rust。Clippy all-targets、release、64KiB DLL小栈加载复检PASS。
+- 11文件完整配对安装，部署后逐项SHA校验及7个受保护输入校验PASS。默认单形态c0010/15秒；未新增占位SpEffect参数或启用示例效果。Behbnd与已装v7图相同，原版HKS及anibnd保留。
+- 实际游戏未启动；SpEffect读取/切换/自定义映射与无限战技需人工验收。用户另称F6/F7“有些奇怪”，具体症状尚未补充；按键职责保持不变，未声称该问题已修复。当前日志末段只证明对应轮次完成恢复，不能代替新问题复现。
+- 部署/验证见 `research/deployment-forms-0.4.json`、`research/verification-forms-0.4.json`、`research/build-result-forms-0.4.json`。回退：游戏退出后执行 `F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-CustomForms04.cmd`，恢复安装前v7配对文件。

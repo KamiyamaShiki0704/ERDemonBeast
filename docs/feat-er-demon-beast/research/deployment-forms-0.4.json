@@ -1,0 +1,81 @@
+{
+  "status": "installed",
+  "backup": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\complete-forms-20260924-231553-181",
+  "files": [
+    {
+      "scope": "ga",
+      "relative": "action/script/d0010.hks",
+      "before": "68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459",
+      "after": "cab5cffc0c9c4195c2c58b8cbad1553944f963ec85a1d24ba828a0227585e5d0"
+    },
+    {
+      "scope": "ga",
+      "relative": "chr/c0010.behbnd.dcx",
+      "before": "efbe843fea420b5c58467f3a01710e0b7c98d141237adc577307b77cf2336eab",
+      "after": "efbe843fea420b5c58467f3a01710e0b7c98d141237adc577307b77cf2336eab"
+    },
+    {
+      "scope": "dll",
+      "relative": "behavior-build.json",
+      "before": "952199ef291759c020388714d73677abb6544b25b2fd75941aeb2f06fc42be6d",
+      "after": "e65e815dc2f3657c9f066e2ec068f14c421c7a1a767edd34650ee325e60ad85d"
+    },
+    {
+      "scope": "dll",
+      "relative": "behavior-deployment.json",
+      "before": "5d46b1974733b03e7d25cce9325d953cee4cf461dcc664f2ccf976a3f474198e",
+      "after": "7d04907e215db68d2f5209c0fe51b8b909bc309f662b01dabf6a05bf46641d28"
+    },
+    {
+      "scope": "dll",
+      "relative": "BEHAVIOR_TEST.md",
+      "before": "14d74221e0fec4709c0c4bf50243e71ec1b93c5a15508e2f0be64014fc51e8f4",
+      "after": "bc3a8a1d09a0d7c54afe19bbc9b85e9e6540bd87aed7c307336d57d916f5946b"
+    },
+    {
+      "scope": "dll",
+      "relative": "build-result.json",
+      "before": "0db7f6f305ae10093fa7870987ae52cc0a69e0d69722f58613e1c7e126665e2a",
+      "after": "3821648c8a1b1d6b05edc27b74dc5e42907b8f253ca14a8345c0a116370dcd21"
+    },
+    {
+      "scope": "dll",
+      "relative": "er-demon-beast.toml",
+      "before": "afc259742f59f95dbfecb0195c7f8f1a433fd2475630ea2bf2ea940742f64356",
+      "after": "bf61ceb73629de618d652b21ccfdcac0bdc4e8ec8ba7c0304e477b5c34fe0545"
+    },
+    {
+      "scope": "dll",
+      "relative": "er_demon_beast.dll",
+      "before": "50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119",
+      "after": "4cb20d35fff487c7ca28f130f4d5ee65b2604f7d9cb62b922c2c9f4cb964b1db"
+    },
+    {
+      "scope": "dll",
+      "relative": "er_demon_beast.pdb",
+      "before": "a5945d74c8558cd3e3f2f5c05cff50d015630e1d6dcc558e2dc3d566d9309bd0",
+      "after": "97e4947f04ed4fb603b5e10224f7534d7cd44d54d96d9e9f49918d3bf8242849"
+    },
+    {
+      "scope": "dll",
+      "relative": "manual_test.py",
+      "before": "0bbd553df89c142758f91568a415cc307425416dd4f5be5917c9ced487f8fd52",
+      "after": "242be7b5d199145299430b58081b96d8094caf4cde5c5058bca94b06921e2f0e"
+    },
+    {
+      "scope": "dll",
+      "relative": "probe.py",
+      "before": "147bc28c682bef3b967168c4450f25e25a7bdaa29571ae85662ebc3a905d28a9",
+      "after": "147bc28c682bef3b967168c4450f25e25a7bdaa29571ae85662ebc3a905d28a9"
+    }
+  ],
+  "protected_inputs": {
+    "action/script/c9997.hks": "d6194e7507a446c2d4b1e0aa4e85e6e657cb28e2be342943139174c106ad6319",
+    "action/script/c0010.hks": "ba4d2c96119b8a9986009192c2b4e08b4a45bfb7da9a601f5a8075eefb5c0a1f",
+    "chr/c0010.anibnd.dcx": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2",
+    "regulation.bin": "07444d99aef7166a2ad9e8a505842134518ca62851bdeaaee20e6f6149abc4cd",
+    "action/eventnameid.txt": "1ba9b780d99ebc9fa070ea180efdd3be16dd5ce58b80b91662bc32158b4c7c99",
+    "action/statenameid.txt": "be131a06f600e875dce8e64e296ff6c2756442e195c811bd697987df19f1f49f",
+    "action/variablenameid.txt": "2a84a383d82d1eb4b8c6484f9ecd6d69b131360ee3609727c2bf486574b1216f"
+  }
+}
