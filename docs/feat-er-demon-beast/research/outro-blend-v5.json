@@ -1,0 +1,19 @@
+{
+  "classification": "premature outro acknowledgement during overlapping Havok state blend",
+  "version": "behavior v5 / DLL 0.3.1",
+  "expected": "outro animation before normal restore",
+  "actual": "outro active and done logged in same frame; last normal finish 289.342 -> restore 289.402",
+  "evidence": "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v5.log",
+  "key_lines": [
+    "frame=108 lifecycle=finishing",
+    "frame=109 animation=outro:active",
+    "frame=109 notification=20010:1011 graph transition observed",
+    "frame=109 lifecycle=done"
+  ],
+  "inference": "outgoing Idle remains active during entry blend; v5 completion predicate accepted overlapping states",
+  "red_command": "lua test_c0010_v5.lua <v5-private> <original-c0010.lua> tmp outro_blend",
+  "red_output": "outgoing Idle completed newly entered outro",
+  "fix": "require observed outro activity followed by outro inactive AND idle active",
+  "validation": "same real HKS seam red on v5, green on v6; incoming blend, inactive gap and long active state covered",
+  "runtime_v6": "NOT_RUN"
+}

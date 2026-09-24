@@ -98,3 +98,7 @@ v3 run 1790187506821-58692 四轮 enter_timeout、无 Active，用户确认无�
 Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场仍触发 8 秒超时；记录 exit-notification-v4.json。实现原版/四向配置、两处原版 1011 到 Behbnd clip trigger 的转换、HKS 实际节点完成确认及 Native 主动完成接收。详见 research/c0010-behavior-adapter-v5.md。自动检查只证明离线契约；新图事件的 ER 投递及实际演出仍待人工。
 
 2026-09-24 03:01 确认游戏退出后完成十文件事务部署，源码 c14f05031dcc3d5d4f7775164e2a23f9c80a2533。DLL SHA256 50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119。十个目标、十个对应备份、七个保护输入核对通过；备份 F:\GoldenAge\_GoldenAge\dll\demon_beast\_backups\complete-v3-20260924-030148-254。新增 Restore-C0010V5.cmd 以完整退回 v4/DLL 0.3.0；旧 deployment-v3.json 不改，当前 v5 会被旧回退的哈希守卫拒绝，先恢复 v4 后其 v2 回退才重新适用。新回退未实际执行；脚本语法与备份哈希检查通过不代表游戏恢复验收。未启动游戏。
+
+## v6 私有 HKS 退场修正
+
+用户报告 v5 无退场演出；日志 outro:active 与 done 同帧，定位到混合期间旧 Idle 活动被误判为退场完成。outro-blend-v5.json 保留失败信号。新增多活动节点回归，v5 红、v6 绿；进入、动作、连段、普通解除、战技、移动配置回归与 Lua 语法检查通过。DLL 0.3.1 / Behbnd 不变，沿用 v5 的原生与图检查；本轮不重新声称已完成实机验证。

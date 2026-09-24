@@ -2,6 +2,7 @@
 -- Does not simulate Havok playback; graph trigger times are checked separately.
 local common, original, dir, mode = arg[1], arg[2], arg[3], arg[4]
 local node, ended, wait = nil, false, false
+local blended_nodes = {}
 local pressed, vars, events, calls = {}, {}, {}, {}
 local missing = {[2001]=true,[2002]=true,[2003]=true}
 ERDB_TRACE_PATH=false;ERDB_BRIDGE_DIR=dir
@@ -18,7 +19,7 @@ function act(id, key, value)
     if id==SetHavokVariable then vars[key]=value end
 end
 function hkbGetVariable(name) return vars[name] or 0 end
-function hkbIsNodeActive(name) return name==node end
+function hkbIsNodeActive(name) return name==node or blended_nodes[name]==true end
 function hkbFireEvent(name)
     events[#events+1]=name
     if name=='W_Event20000' then node='Event20000_CMSG' end
@@ -43,7 +44,23 @@ tick(1);IdleDefault_onActivate();IdleDefault_onUpdate()
 ended=false;tick(1);ended=true;tick(1)
 assert(status()=='1-2-3\nready\n','entry/option parsing regression')
 ended=false;IdleDefault_onActivate()
-if mode=='outro' then
+if mode=='outro_blend' then
+    -- Havok reports BOTH outgoing Idle and incoming Event during blending.
+    -- This is the v5 runtime trace: outro:active and done on the same frame.
+    blended_nodes.IdleDefault_CMSG=true
+    command('exit');tick(8)
+    assert(status()=='1-2-3\nfinishing\n','outgoing Idle completed newly entered outro')
+    tick(60)
+    assert(status()=='1-2-3\nfinishing\n','elapsed frames completed active outro')
+    blended_nodes.IdleDefault_CMSG=nil;tick(1)
+    -- At the end, incoming Idle can also overlap the outgoing Event.
+    blended_nodes.IdleBattle_CMSG=true;tick(1)
+    assert(status()=='1-2-3\nfinishing\n','incoming Idle completed still-active outro')
+    node=nil;blended_nodes={};tick(1)
+    assert(status()=='1-2-3\nfinishing\n','no known return node acknowledged completion')
+    node='IdleBattle_CMSG';tick(1)
+    assert(status()=='1-2-3\ndone\n','completed outro transition never acknowledged')
+elseif mode=='outro' then
     command('exit');tick(8);assert(status()=='1-2-3\nfinishing\n')
     tick(1);node='Attack3000_CMSG';tick(1)
     assert(status()=='1-2-3\nfinishing\n','foreign node acknowledged outro')

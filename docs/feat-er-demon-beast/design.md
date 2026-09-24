@@ -125,3 +125,7 @@ locked_four_way_movement=false 为当前 c0010 默认；私有 HKS 调用已核�
 HKS 在观察实际退场节点后，等待时间轴事件转入 Idle，确认 done；战技在观察实际 Attack3035 后转入 Event20010，直接确认 done，不再播放完整第二次退场。退场不能凭 slot 1 或累计 DeltaTime 确认。进入仍沿用 v4 已经人测通过的节点与 slot 结束规则。原本 NR 1011 的引擎实现不作为 ER 调用。
 
 Native Backend 增加只读 completed 查询；Active 维护成功且当前 nonce done 后进入既有恢复/清理路径。F7/到期仍走 finish，战技中结束请求等待同一通知。故障恢复继续保留 8 秒保护，通知实际是否在 ER 投递属于人工项，不能由 HKX roundtrip 或 Lua 模拟回调代替。
+
+## v6 退场混合确认修正
+
+IsNodeActive 不是互斥的当前状态枚举；进入/退出混合期间旧 Idle 和 Event20010 可同时为 true。v5 在观察到 Event20010 后只检查 Idle 活动，导致同帧过早 done。v6 要求已观察 Event20010，当前 Event20010=false 且 IdleDefault 或 IdleBattle=true，才完成普通退场。没有增加定时阈值，战技通知逻辑和图资源不变。真实 HKS 回归补齐多活动节点；该测试不能替代实机动画验收。

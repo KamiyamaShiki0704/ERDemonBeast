@@ -1,8 +1,8 @@
--- ERDB behavior adapter 5: appended to a private copy of GA c9997.hks.
+-- ERDB behavior adapter 6: appended to a private copy of GA c9997.hks.
 -- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
 -- Preserve NR ground attack choices; use ER input/cancel interfaces.
 -- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
-ERDB_BEHAVIOR_VERSION = 5
+ERDB_BEHAVIOR_VERSION = 6
 local erdb_update = Update
 local erdb_ai_action = ExecAIAction
 local erdb_attack_common = AttackCommonFunction
@@ -58,13 +58,13 @@ local function erdb_trace(message)
     local library = rawget(_G, "io")
     if type(library) ~= "table" or type(library.open) ~= "function" then return end
     pcall(function()
-        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v5.log", "a")
+        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v6.log", "a")
         if not file then return end
-        pcall(function() file:write("[ERDB-v5] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
+        pcall(function() file:write("[ERDB-v6] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
         file:close()
     end)
 end
-erdb_trace("loaded version=5")
+erdb_trace("loaded version=6")
 local erdb_next = {
     [3000]={3001,3005}, [3001]={3002,3005},
     [3002]={3003,3005}, [3003]={3000,3005},
@@ -265,12 +265,20 @@ erdb_observe_lifecycle = function()
         end
     else erdb_skill_seen=false end
     if phase=="outro" then
-        if IsNodeActive("Event20010_CMSG")==TRUE and erdb_life.running~="outro" then
+        local outro_active=IsNodeActive("Event20010_CMSG")==TRUE
+        local idle_active=IsNodeActive("IdleDefault_CMSG")==TRUE or IsNodeActive("IdleBattle_CMSG")==TRUE
+        local signal="outro:"..tostring(outro_active)..":"..tostring(idle_active)
+        if erdb_life.signal~=signal then
+            erdb_life.signal=signal;erdb_trace("animation="..signal)
+        end
+        if outro_active and erdb_life.running~="outro" then
             erdb_life.running="outro";erdb_trace("animation=outro:active")
         end
         -- Only the converted outro clip trigger fires Idle. No IsAnimEnd slot
         -- dependency here: the original NR clip reverts before its final frame.
-        if erdb_life.running=="outro" and (IsNodeActive("IdleDefault_CMSG")==TRUE or IsNodeActive("IdleBattle_CMSG")==TRUE) then
+        -- IsNodeActive includes BOTH ends of a blend. Idle alone cannot prove
+        -- completion: it can still be the outgoing state at the first frame.
+        if erdb_life.running=="outro" and not outro_active and idle_active then
             erdb_trace("notification=20010:1011 graph transition observed")
             erdb_life.phase="done";erdb_status("done")
         end
