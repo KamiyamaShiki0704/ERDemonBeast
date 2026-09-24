@@ -1,0 +1,21 @@
+{
+  "behavior_revision": "69099865cdda3403b94268c3ecd57619a06caea5",
+  "spec": "1.2",
+  "design": "1.5 + v7 addendum",
+  "red": "v6 roll_blend and roll_repeat both block subsequent light attack after real step ends",
+  "green": "both cases PASS; 20 cycles preserve next valid roll and F7/outro",
+  "regressions": "entry, five actions/nine combo edges, combo, lifecycle, outro overlap, skill, skill_exit, original, fourway, Lua syntax PASS",
+  "native_and_graph": "UNCHANGED; reused v5 verification; no native rebuild",
+  "dll_sha256": "50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119",
+  "private_hks_sha256": "68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459",
+  "runtime": "NOT_RUN",
+  "final_acceptance": "PENDING_HUMAN",
+  "installation": {
+    "targets_verified": 10,
+    "backups_verified": 10,
+    "protected_inputs_verified": 7,
+    "backup": "F:\\GoldenAge\\_GoldenAge\\dll\\demon_beast\\_backups\\complete-v3-20260924-220224-452",
+    "rollback": "Restore-C0010V7.cmd -> behavior v6 / DLL 0.3.1",
+    "rollback_executed": false
+  }
+}

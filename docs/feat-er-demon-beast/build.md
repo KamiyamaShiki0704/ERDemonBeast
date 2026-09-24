@@ -112,3 +112,5 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 ## v7 连按闪避输入卡住修复候选
 
 用户明确为兽体与动作输入卡住，游戏/镜头继续运行；两轮最终 behavior_finish_timeout。新增真实 HKS seam 重放重复 Step 未重新激活以及 Idle/Step 重叠两条路径，v6 均红、v7 均绿；20 轮重复请求/下一有效闪避与 F7 退场通过，原进入、动作、连段、退场、战技和配置回归及 Lua 语法通过。Failure Packet 为 research/roll-input-stall-v6.json。运行仍待人测，不把离线图回调重放当作唯一运行根因已证实。
+
+用户确认退出游戏，安装器亦检查进程不存在后完成 v7 十文件事务。十个安装目标、十个对应备份、七个保护输入核对通过。HKS SHA256 68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459；备份 F:\GoldenAge\_GoldenAge\dll\demon_beast\_backups\complete-v3-20260924-220224-452。新增 Restore-C0010V7.cmd，恢复到退场已确认的 v6；DLL/PDB/配置/Behbnd 未变，原生与图验证沿用既有证据。回退只检查语法/备份哈希未实际执行，未启动游戏。

@@ -1,0 +1,591 @@
+{
+  "version": 7,
+  "graph_contract": {
+    "Attack3000": {
+      "animation": "3000",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3001": {
+      "animation": "3001",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3002": {
+      "animation": "3002",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3003": {
+      "animation": "3003",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3005": {
+      "animation": "3005",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3007": {
+      "animation": "3007",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3010": {
+      "animation": "3010",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3030": {
+      "animation": "3030",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Attack3035": {
+      "animation": "3035",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    },
+    "Step6000": {
+      "animation": "6000",
+      "script": "true",
+      "tae": "true",
+      "end": "2"
+    }
+  },
+  "original_lua_files": [
+    "c9997.hks",
+    "modifier.hks",
+    "c0010.hks",
+    "c0010.hks"
+  ],
+  "name_tables": {
+    "event": {
+      "before": 2944,
+      "after": 2944,
+      "required": 1394,
+      "additions": []
+    },
+    "state": {
+      "before": 2411,
+      "after": 2411,
+      "required": 1031,
+      "additions": []
+    },
+    "variable": {
+      "before": 681,
+      "after": 681,
+      "required": 215,
+      "additions": []
+    }
+  },
+  "files": [
+    {
+      "relative": "action/eventnameid.txt",
+      "before": "1ba9b780d99ebc9fa070ea180efdd3be16dd5ce58b80b91662bc32158b4c7c99",
+      "after": "1ba9b780d99ebc9fa070ea180efdd3be16dd5ce58b80b91662bc32158b4c7c99"
+    },
+    {
+      "relative": "action/statenameid.txt",
+      "before": "be131a06f600e875dce8e64e296ff6c2756442e195c811bd697987df19f1f49f",
+      "after": "be131a06f600e875dce8e64e296ff6c2756442e195c811bd697987df19f1f49f"
+    },
+    {
+      "relative": "action/variablenameid.txt",
+      "before": "2a84a383d82d1eb4b8c6484f9ecd6d69b131360ee3609727c2bf486574b1216f",
+      "after": "2a84a383d82d1eb4b8c6484f9ecd6d69b131360ee3609727c2bf486574b1216f"
+    },
+    {
+      "relative": "action/script/d0010.hks",
+      "before": "4f7260b9b8a2f431fff07590222dfcc5776d81000e463d9605761893ae7c2d7e",
+      "after": "68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459"
+    },
+    {
+      "before": "efbe843fea420b5c58467f3a01710e0b7c98d141237adc577307b77cf2336eab",
+      "after": "efbe843fea420b5c58467f3a01710e0b7c98d141237adc577307b77cf2336eab",
+      "relative": "chr/c0010.behbnd.dcx"
+    }
+  ],
+  "character_patch": {
+    "offset": 1758,
+    "length_preserved": true,
+    "changed_bytes": [
+      1758,
+      1759,
+      1760,
+      1761,
+      1762
+    ]
+  },
+  "protected_inputs": {
+    "action/script/c9997.hks": "d6194e7507a446c2d4b1e0aa4e85e6e657cb28e2be342943139174c106ad6319",
+    "action/script/c0010.hks": "ba4d2c96119b8a9986009192c2b4e08b4a45bfb7da9a601f5a8075eefb5c0a1f",
+    "chr/c0010.anibnd.dcx": "f444201d09fa020500b083d87e3411a462c307061dd29e1e48813c87e76961f2",
+    "regulation.bin": "07444d99aef7166a2ad9e8a505842134518ca62851bdeaaee20e6f6149abc4cd"
+  },
+  "adapter_sha256": "a0a8e97476a6ce5a48ad0027c7303346558ecd96d424e9f1ff77b3e22836c937",
+  "scope": "HKS-only: prevent repeat Step from stranding input ownership while graph node remains active",
+  "binder_entries": [
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\c0010.hkx",
+      "flags": "Flag1",
+      "hash": "4385fd3379eef7bd7c1babcadc9c968c0019d5de1251583bf35c2a55ca7a8e4a",
+      "id": 7000300
+    },
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Characters\\c0010.hkx",
+      "flags": "Flag1",
+      "hash": "64ff7cb2550aef21965a16d8294387b30d831465a27d11e5086df76002c7b5af",
+      "id": 7000400
+    },
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Behaviors\\c0010.hkx",
+      "flags": "Flag1",
+      "hash": "2af317c4b5c7572670ab0498b560646b9c785c77b7224d12f4f8a4010af5126f",
+      "id": 7000500
+    },
+    {
+      "name": "W:\\CL\\data\\Target\\INTERROOT_win64\\action\\c0010\\Export\\Behaviors\\c9997.hkx",
+      "flags": "Flag1",
+      "hash": "4bd532f23b54fe523282244b2c35617c0c3e95c6ebfca98012719a3fd04a9ba1",
+      "id": 7000501
+    }
+  ],
+  "roundtrip": "PASS: full graph bijection/alias preservation; other three binder entries byte-identical",
+  "verified_tae_ids": [
+    3000,
+    3001,
+    3002,
+    3003,
+    3005,
+    3007,
+    3010,
+    3030,
+    3035,
+    6000
+  ],
+  "source_revision": "69099865cdda3403b94268c3ecd57619a06caea5",
+  "spec": "spec.md@1.0; c0010 behavior extension explicitly approved 2026-09-24",
+  "previous_script_sha256": "7e5655dd81f0377da6903b86c8d28fc581d9dbc92efd2b0fe810838dd1b6f3b8",
+  "runtime_tested": false,
+  "source_sha256": {
+    "assets/action/script/c0010-er-adapter.hks": "784679c60cb11598db08b75860ce3d2c2f0b2ac592a7764a16d1757a484a02de",
+    "Scripts/delivery/feat-er-demon-beast/script/behavior_assets.py": "22e83c9673c40d530638216807b7dfcdd0fd35c01f158c0393f671913ad06afe",
+    "Scripts/delivery/feat-er-demon-beast/script/test_c0010_adapter.lua": "1b96d29f40021fed09a191384da98e7de69da1eff6ba741af6a166052e48574d",
+    "Scripts/delivery/feat-er-demon-beast/script/audit_hks_wait.py": "c3530e3948cae01ec2b132060522c666ce60b79cb16b1564fb0b625a063d84b1"
+  },
+  "validation": {
+    "hks_syntax": "PASS",
+    "bare_chunk_harness": "PASS",
+    "windows_chunk_harness": "PASS",
+    "python_asset_tests": 4,
+    "static_input_dispatch": "hks-wait-static-2.7.1.json",
+    "dll_changed": false,
+    "gameplay": "PENDING_HUMAN"
+  },
+  "v1_checks_not_rerun": {
+    "hkx_roundtrip": "PASS",
+    "name_id_preservation": "PASS",
+    "python_tests": 14,
+    "runtime": "PENDING_HUMAN",
+    "hks_actual_script_harness": "PASS",
+    "installer_and_rollback_fixture": "PASS"
+  },
+  "graph_patch": [
+    "retained v3 Event20000/Event20010 enableTae=false",
+    "12 clip triggers pointers + 2 shared arrays: 20010@17/30 -> W_Idle; 3035@110/30 -> W_Event20010"
+  ],
+  "tae_windows": [
+    {
+      "id": 3000,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 0.6666667
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 0.8
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 1.5
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 1.5
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 1.5
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 1.5
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 1.8333334
+        }
+      ]
+    },
+    {
+      "id": 3001,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 0.6333333
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 0.8333333
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 1.9333333
+        }
+      ]
+    },
+    {
+      "id": 3002,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 0.8333333
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 1.1333333
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 1.6666666
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 1.9333333
+        }
+      ]
+    },
+    {
+      "id": 3003,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 1.0
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 1.6
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 1.8333334
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 1.8333334
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 1.8333334
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 1.8333334
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 1.9
+        }
+      ]
+    },
+    {
+      "id": 3005,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 1.3
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 2.0333333
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 1.6
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 2.1
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 2.1
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 2.0333333
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 2.1333334
+        }
+      ]
+    },
+    {
+      "id": 3007,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 1.9333333
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 2.3666666
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 2.3666666
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 2.3666666
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 2.3666666
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 2.3666666
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 2.3666666
+        }
+      ]
+    },
+    {
+      "id": 3010,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 0.76666665
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 1.1666666
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 1.2666667
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 1.7666667
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 1.7666667
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 1.7666667
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 2.1
+        }
+      ]
+    },
+    {
+      "id": 3030,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 0.8333333
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 1.2666667
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 1.2666667
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 1.2666667
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 1.2666667
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 1.2666667
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 1.5666667
+        }
+      ]
+    },
+    {
+      "id": 3035,
+      "windows": []
+    },
+    {
+      "id": 6000,
+      "windows": [
+        {
+          "end": 100.0,
+          "flag": 87,
+          "start": 0.16666667
+        },
+        {
+          "end": 100.0,
+          "flag": 115,
+          "start": 0.4
+        },
+        {
+          "end": 100.0,
+          "flag": 116,
+          "start": 0.4
+        },
+        {
+          "end": 100.0,
+          "flag": 16,
+          "start": 0.4
+        },
+        {
+          "end": 100.0,
+          "flag": 103,
+          "start": 0.4
+        },
+        {
+          "end": 100.0,
+          "flag": 26,
+          "start": 0.7
+        },
+        {
+          "end": 100.0,
+          "flag": 11,
+          "start": 0.7
+        }
+      ]
+    }
+  ],
+  "runtime": "NOT_RUN; v6 visible outro passed by user but repeated rolls blocked inputs",
+  "graph_patch_applied_in_version": 5,
+  "revert_notifications": [
+    {
+      "event": 1011,
+      "start": 0.56666666,
+      "animation": 20010,
+      "end": 0.6666667,
+      "revert_type": 0
+    },
+    {
+      "event": 1011,
+      "start": 3.6666667,
+      "animation": 3035,
+      "end": 3.7666667,
+      "revert_type": 0
+    }
+  ]
+}

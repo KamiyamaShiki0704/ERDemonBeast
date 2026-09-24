@@ -3,7 +3,7 @@ work_packet:
   topic: FEAT-ER-demon-beast
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: ef1086ec11cf58d777647c1d70db4bd902516bfc (HKS v6; native DLL remains c14f050 0.3.1)
+    revision: 69099865cdda3403b94268c3ecd57619a06caea5 (HKS v7; native DLL remains c14f050 0.3.1)
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
@@ -14,7 +14,7 @@ work_packet:
   scope:
     in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
     out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: v6 可见退场已由用户确认，并有正常恢复/析构日志；保留当前版本为退场修复基线，其他完整验收项与多形态配置阶段仍未完成。
+  current_task: v7 连按闪避修复候选已部署；Step 节点活动时拒绝重复派发，防止无激活回调造成 pending 卡死；保留已通过的退场修正，等用户连按与后续输入/F7 验收。
   code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
   asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
   automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
@@ -42,6 +42,7 @@ work_packet:
     - 2026-09-24 用户要求锁定四向移动配置，关闭时明确选择“用原版逻辑”；本轮默认 false，后续多形态分别保存。
     - 2026-09-24 用户报告 v5 结束没有动画；实际日志显示退场 active 和 done 同帧。v6 修正混合状态重叠误判，实机仍由用户执行。
     - 2026-09-24 用户确认“现在有变身结束动画了”；v6 可见退场人工通过，日志末轮正常 done/析构，无该轮 timeout。仅接受本项，不外推全部正式 Case。
+    - 2026-09-24 用户报告连按翻滚卡住，明确兽体不动/按键无效但游戏镜头继续运行；允许继续离线修复，并确认已退出游戏以安装 v7。
   constraints:
     - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
     - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
@@ -63,20 +64,20 @@ work_packet:
     ordering: real-c0010-minimal-form then custom-forms
     implemented: false
   latest_result:
-    stage: c0010-behavior-v6-outro-human-confirmed
+    stage: c0010-behavior-v7-installed-awaiting-human
     automatic_result: PARTIAL
-    offline_tests: 真实 HKS 多节点同时活动的退场回归 v5 红/v6 绿；进入、五动作、连段、生命周期、战技/F7、移动选项及 Lua 语法 PASS；原生与图未改，沿用 v5 检查
-    runtime_tested: true
-    runtime_evidence: v6 run 1790257785590-44536；用户确认可见退场，末轮 Finishing 95.544 -> Restoring 96.610 -> Normal 96.674，已析构；见 research/outro-human-check-v6.json
-    runtime_scope: 站立 F7 可见短退场、普通攻击后 F7/到期等待、重复恢复；战技保持自身通知处直接解除
-    final_acceptance: visible_outro_pass_by_human_other_cases_pending
+    offline_tests: 真实 HKS roll_repeat/roll_blend 两条卡死路径 v6 红/v7 绿；20 轮请求/下一次有效闪避/F7退场、进入/五动作/连段/退场混合/战技/配置及 Lua 语法 PASS
+    runtime_tested: false
+    runtime_evidence: v6 可见退场人工通过；后续连按翻滚两轮输入卡住并触发 8 秒超时；v7 NOT_RUN
+    runtime_scope: 连按翻滚后移动/轻重击/F7及到期恢复、正常闪避接攻击；原版锁定移动另行确认
+    final_acceptance: v6_visible_outro_pass_by_human_v7_roll_fix_pending
     artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
     artifact_sha256: 50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119
-    rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V6.cmd
-    rollback_target: behavior v5 + DLL 0.3.1；旧 v5/v3 回退必须先按版本顺序恢复，避免哈希守卫拒绝
-    verification: docs/feat-er-demon-beast/research/verification-v6.json
-    failure_packet: docs/feat-er-demon-beast/research/outro-blend-v5.json
-    deployment: docs/feat-er-demon-beast/research/deployment-v6.json
-    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v6.json
-    build_result: docs/feat-er-demon-beast/research/build-result-v6.json
-    private_hks_sha256: 4f7260b9b8a2f431fff07590222dfcc5776d81000e463d9605761893ae7c2d7e
+    rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V7.cmd
+    rollback_target: behavior v6 + DLL 0.3.1；旧回退须按版本顺序恢复
+    verification: docs/feat-er-demon-beast/research/verification-v7.json
+    failure_packet: docs/feat-er-demon-beast/research/roll-input-stall-v6.json
+    deployment: docs/feat-er-demon-beast/research/deployment-v7.json
+    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v7.json
+    build_result: docs/feat-er-demon-beast/research/build-result-v7.json
+    private_hks_sha256: 68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459
