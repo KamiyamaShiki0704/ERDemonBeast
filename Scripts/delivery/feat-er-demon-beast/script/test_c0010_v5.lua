@@ -40,12 +40,34 @@ function env(id,key)
 end
 dofile(common);dofile(original);dofile(original)
 local function tick(n) for _=1,n do wait=false;Update() end end
-command('enter',mode=='fourway' and 'fourway\n' or '')
+if arg[5] then
+    local f=assert(io.open(arg[5],'r'));local wire=f:read('*a');f:close()
+    if mode=='mapped_invalid' then wire=wire..'execute:os.exit()\n' end
+    f=assert(io.open(dir..'/behavior-command.txt','w'));f:write(wire);f:close()
+else command('enter',mode=='fourway' and 'fourway\n' or '') end
+os.remove(dir..'/behavior-status.txt')
 tick(1);IdleDefault_onActivate();IdleDefault_onUpdate()
+if mode=='mapped_invalid' then
+    assert(#events==0,'invalid config data executed/armed entry')
+    print('PASS rejected invalid mapping protocol');return
+end
 ended=false;tick(1);ended=true;tick(1)
 assert(status()=='1-2-3\nready\n','entry/option parsing regression')
 ended=false;IdleDefault_onActivate()
-if mode=='roll_cycles' then
+if mode=='mapped_light' or mode=='mapped_heavy' then
+    local key=mode=='mapped_light' and 1 or 0
+    pressed[key]=true;events={};IdleDefault_onUpdate()
+    assert(events[#events]==(key==1 and 'W_Attack3001' or 'W_Attack3005'),'configured input/entry mapping ignored')
+elseif mode=='mapped_disable' then
+    pressed[2]=true;pressed[5]=true;events={};IdleDefault_onUpdate()
+    assert(#events==0,'disabled action/input still fired')
+elseif mode=='mapped_combo' then
+    pressed[1]=true;IdleDefault_onUpdate();Attack3001_onActivate();node='Attack3001_CMSG'
+    pressed={};tick(1);pressed[1]=true;tick(40);events={};Attack3001_onUpdate()
+    assert(#events==0,'mapping bypassed current action cancel window')
+    tick(15);Attack3001_onUpdate()
+    assert(events[#events]=='W_Attack3002','configured combo did not execute')
+elseif mode=='roll_cycles' then
     for cycle=1,20 do
         pressed[5]=true;events={};IdleDefault_onUpdate()
         assert(events[#events]=='W_Step6000','fresh roll rejected at cycle '..cycle)

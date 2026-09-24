@@ -53,6 +53,7 @@ pub struct Session {
     phase: Phase,
     last_time: Duration,
     last_error: Option<String>,
+    active_duration: Option<Duration>,
 }
 
 impl Default for Session {
@@ -61,11 +62,20 @@ impl Default for Session {
             phase: Phase::Normal,
             last_time: Duration::ZERO,
             last_error: None,
+            active_duration: Some(ACTIVE_DURATION),
         }
     }
 }
 
 impl Session {
+    /// Freeze the selected form's duration before entry, never mid-action.
+    pub fn configure_duration(&mut self, duration: Option<Duration>) -> Result<(), String> {
+        if self.phase != Phase::Normal {
+            return Err("duration can only change before entry".into());
+        }
+        self.active_duration = duration;
+        Ok(())
+    }
     pub fn phase(&self) -> Phase {
         self.phase
     }
@@ -104,7 +114,11 @@ impl Session {
                 }
             }
             Phase::Active { since } => {
-                if input.revert || now.saturating_sub(since) >= ACTIVE_DURATION {
+                if input.revert
+                    || self
+                        .active_duration
+                        .is_some_and(|d| now.saturating_sub(since) >= d)
+                {
                     match backend.finish() {
                         Ok(true) => self.phase = Phase::Restoring { since: now },
                         Ok(false) => self.phase = Phase::Finishing { since: now },

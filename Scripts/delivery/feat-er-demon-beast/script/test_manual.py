@@ -59,5 +59,22 @@ class ManualPreparation(unittest.TestCase):
             self.assertEqual((ga/'Start_GoldenAge.me3').read_bytes(),profile)
             self.assertEqual((save/'ER0000.Shiki').read_bytes(),b'original-save')
 
+    def test_multiform_nested_config_survives_manual_launcher(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp); ga=root/'ga';ga.mkdir();(ga/'GA').mkdir()
+            (ga/'Start_GoldenAge.me3').write_text('profileVersion="v1"\npackages=[{id="GA",path="GA"}]\n')
+            (root/'er_demon_beast.dll').write_bytes(b'fixture')
+            (root/'build-result.json').write_text(json.dumps({'dll_sha256':hashlib.sha256(b'fixture').hexdigest()}))
+            config='enabled=false\ncontrol_enabled=false\ndefault_form="a"\n[[forms]]\nkey="a"\nnpc_param_id=100000\n[forms.inputs]\nlight=1\nheavy=0\n[[forms.combos]]\nfrom=3000\nlight=3001\nheavy=3005\n'
+            (root/'er-demon-beast.toml').write_text(config)
+            save=root/'saves/account';save.mkdir(parents=True);(save/'ER0000.Shiki').write_bytes(b'save')
+            for mode in ['control','missing']:
+                info=prepare(root,ga,mode,False,root/'saves')
+                parsed=tomllib.loads((Path(info['run'])/'er-demon-beast.toml').read_text())
+                self.assertEqual(parsed['forms'][0]['inputs'],{'light':1,'heavy':0})
+                self.assertEqual(parsed['forms'][0]['combos'][0]['light'],3001)
+                self.assertEqual(parsed['forms'][0]['npc_param_id'],2147483647 if mode=='missing' else 100000)
+                self.assertNotIn('npc_param_id',parsed)
+
 
 if __name__=='__main__': unittest.main()

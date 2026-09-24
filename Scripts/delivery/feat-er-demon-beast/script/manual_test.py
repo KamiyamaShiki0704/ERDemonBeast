@@ -50,7 +50,11 @@ def prepare(root, ga_root, mode, full_stack, save_root):
     config = tomllib.loads((root / "er-demon-beast.toml").read_text(encoding="utf-8-sig"))
     config.update(enabled=mode != "load", control_enabled=mode in ("control", "missing"))
     if mode == "missing":
-        config["npc_param_id"] = 2147483647
+        if "forms" in config:
+            selected = next(f for f in config["forms"] if f["key"] == config["default_form"])
+            selected["npc_param_id"] = 2147483647
+        else:
+            config["npc_param_id"] = 2147483647
     (run / "er-demon-beast.toml").write_text("\n".join(f"{k} = {toml_value(v)}" for k, v in config.items()) + "\n", encoding="utf-8")
     profile = make_profile(base, ga_root, run / "er_demon_beast.dll", full_stack)
     for entry in profile["natives"] + profile["packages"]:

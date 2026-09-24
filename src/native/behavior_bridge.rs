@@ -14,10 +14,10 @@ pub(super) struct BehaviorBridge {
     exiting: bool,
     cached: String,
     next_poll: Instant,
-    fourway: bool,
+    options: String,
 }
 impl BehaviorBridge {
-    pub(super) fn start(root: PathBuf, fourway: bool) -> Result<Self, String> {
+    pub(super) fn start(root: PathBuf, form: &crate::forms::Form) -> Result<Self, String> {
         fs::create_dir_all(&root).map_err(|e| e.to_string())?;
         let token = format!(
             "{}-{}-{}",
@@ -34,7 +34,7 @@ impl BehaviorBridge {
             exiting: false,
             cached: String::new(),
             next_poll: Instant::now(),
-            fourway,
+            options: form.bridge_options(),
         };
         result.command("enter")?;
         Ok(result)
@@ -42,12 +42,7 @@ impl BehaviorBridge {
     fn command(&self, command: &str) -> Result<(), String> {
         fs::write(
             self.root.join("behavior-command.txt"),
-            format!(
-                "{}\n{}\n{}\n",
-                self.token,
-                command,
-                if self.fourway { "fourway" } else { "original" }
-            ),
+            format!("{}\n{}\n{}", self.token, command, self.options),
         )
         .map_err(|e| format!("behavior command: {e}"))
     }
@@ -102,11 +97,14 @@ mod tests {
             std::process::id(),
             SERIAL.fetch_add(1, Ordering::Relaxed)
         ));
-        let mut b = BehaviorBridge::start(root.clone(), false).unwrap();
+        let c = crate::forms::Config::parse(include_str!("../../er-demon-beast.toml")).unwrap();
+        let mut b = BehaviorBridge::start(root.clone(), &c.forms[0]).unwrap();
         assert!(
             fs::read_to_string(root.join("behavior-command.txt"))
                 .unwrap()
-                .ends_with("enter\noriginal\n")
+                .contains(
+                    "enter\noriginal\nv2\ninputs:0,1,2,3,5\nactions:3000,3005,3030,3035,6000\n"
+                )
         );
         let status = root.join("behavior-status.txt");
         fs::write(&status, "old-token\ndone\n").unwrap();

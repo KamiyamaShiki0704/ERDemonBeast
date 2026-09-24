@@ -50,7 +50,7 @@ impl Capture {
         );
         let meta = json!({"schema":1,"run":run,"exe_sha256":EXE_HASH,
             "dll_sha256":dll_hash,"version":env!("CARGO_PKG_VERSION"),
-            "config":config,"spec":if config.behavior_lifecycle {"spec.md@1.1"} else {"spec.md@1.0"},"sample_period_s":0.05,
+            "config":config,"spec":"spec-custom-forms.md@0.1","sample_period_s":0.05,
             "active_action_trace":config.action_trace,"sampling_stage":"FrameEnd",
             "report_path":dir.join("report.md"),"frames_path":dir.join("frames.jsonl"),
             "build_manifest":fs::read_to_string(root.join("build-result.json")).ok()});
@@ -267,7 +267,7 @@ fn collect(backend: &NativeBackend) -> Result<Value, String> {
         pointer(dbg.debug_manipulator + MANIP_OWNER).ok()
     };
     Ok(
-        json!({"body":body,"beast":beast,"target":target,"owned_count":owned_count,
+        json!({"form_key":backend.form().key,"duration_seconds":backend.form().duration_seconds,"body":body,"beast":beast,"target":target,"owned_count":owned_count,
         "camera":camera,"manipulator":dbg.debug_manipulator,"manip_owner":owner,
         "linked":backend.linked,"pending_spawn":backend.pending,
         "patches":backend.patches.len(), "retirement_pending":crate::retirement::pending()}),

@@ -4,6 +4,7 @@ use crate::session::{Backend, Input, Session};
 mod behavior_bridge;
 mod camera_profile;
 mod capture;
+mod effect_scan;
 use eldenring::{
     cs::{
         CSTaskGroupIndex, CSTaskImp, ChrIns, FieldInsHandle, NpcParam, NpcThinkParam,
@@ -44,28 +45,12 @@ const MANIP_OWNER: usize = 0xa8;
 static DIRECTORY: OnceLock<PathBuf> = OnceLock::new();
 static RUNTIME: OnceLock<Mutex<Runtime>> = OnceLock::new();
 
-#[derive(Deserialize, serde::Serialize)]
-#[serde(deny_unknown_fields)]
-struct Config {
-    enabled: bool,
-    #[serde(default)]
-    control_enabled: bool,
-    /// Diagnostic only: record each active frame and a small set of mouse/key states.
-    #[serde(default)]
-    action_trace: bool,
-    #[serde(default)]
-    behavior_lifecycle: bool,
-    /// False preserves the form's original heading/movement behavior.
-    #[serde(default)]
-    locked_four_way_movement: bool,
-    #[serde(default)]
-    camera_distance: f32,
-    #[serde(default)]
-    camera_height: f32,
-    chr_id: i32,
-    npc_param_id: i32,
-    npc_think_param_id: i32,
-    ownership_tag: i32,
+use crate::forms::{Config, Form, Selector};
+
+type EffectIdentity = (usize, usize, FieldInsHandle);
+struct EffectSnapshot {
+    identity: EffectIdentity,
+    ids: std::collections::BTreeSet<i32>,
 }
 
 struct Runtime {
@@ -75,6 +60,11 @@ struct Runtime {
     keys: [bool; 2],
     last_error: Option<String>,
     capture: capture::Capture,
+    selector: Selector,
+    effect_ids: Option<std::collections::BTreeSet<i32>>,
+    effect_identity: Option<EffectIdentity>,
+    next_effect_poll: Duration,
+    effect_error: Option<String>,
 }
 
 pub(crate) fn log(message: impl std::fmt::Display) {
@@ -118,28 +108,10 @@ fn initialize() -> Result<(), String> {
         return Err(format!("unsupported executable SHA256={hash}"));
     }
     validate_abi()?;
-    let config: Config = toml::from_str(
+    let config = Config::parse(
         &fs::read_to_string(DIRECTORY.get().unwrap().join("er-demon-beast.toml"))
             .map_err(|e| e.to_string())?,
-    )
-    .map_err(|e| e.to_string())?;
-    if !(1..=9999).contains(&config.chr_id)
-        || config.npc_param_id <= 0
-        || config.npc_think_param_id <= 0
-        || config.ownership_tag <= 0
-    {
-        return Err("invalid beast configuration".into());
-    }
-    if config.behavior_lifecycle && config.chr_id != 10 {
-        return Err("behavior lifecycle currently supports only the private c0010 adapter".into());
-    }
-    if !config.camera_distance.is_finite()
-        || !config.camera_height.is_finite()
-        || !(0.0..=20.0).contains(&config.camera_distance)
-        || !(0.0..=10.0).contains(&config.camera_height)
-    {
-        return Err("invalid camera profile".into());
-    }
+    )?;
     log(format!(
         "prototype {}; exe={hash}; ABI verified; enabled={} control_enabled={}",
         env!("CARGO_PKG_VERSION"),
@@ -165,6 +137,11 @@ fn initialize() -> Result<(), String> {
             keys: [false; 2],
             last_error: None,
             capture,
+            selector: Selector::default(),
+            effect_ids: None,
+            effect_identity: None,
+            next_effect_poll: Duration::ZERO,
+            effect_error: None,
         }))
         .map_err(|_| "already initialized")?;
     let task = task_imp.run_recurring(update as fn(&FD4TaskData), CSTaskGroupIndex::FrameEnd);
@@ -180,6 +157,21 @@ fn validate_abi() -> Result<(), String> {
     use eldenring::cs::{CSChrDataModule, CSChrPhysicsModule, ChrCtrl, ChrInsModuleContainer};
     let checks = [
         ("ChrIns.size", size_of::<ChrIns>(), 0x580),
+        (
+            "SpEffect.owner",
+            offset_of!(eldenring::cs::SpecialEffect, owner),
+            0x10,
+        ),
+        (
+            "SpEffectEntry.id",
+            offset_of!(eldenring::cs::SpecialEffectEntry, param_id),
+            8,
+        ),
+        (
+            "SpEffectEntry.removal",
+            offset_of!(eldenring::cs::SpecialEffectEntry, removal_timer),
+            0x40,
+        ),
         ("ChrIns.ctrl", offset_of!(ChrIns, chr_ctrl), 0x58),
         ("ChrIns.modules", offset_of!(ChrIns, modules), 0x190),
         ("ChrIns.debug", offset_of!(ChrIns, debug_flags), 0x538),
@@ -276,6 +268,70 @@ fn update(data: &FD4TaskData) {
             "control input deferred: phase={before:?}; cleanup still owned; see retirement read_error"
         ));
     }
+    // Sample only the protected main-player identity, at 10 Hz (or a fresh
+    // manual request). Failed reads never mean that all effects disappeared.
+    if control_allowed && focused {
+        if !runtime.backend.config.has_effect_routes() {
+            runtime.effect_ids = Some(Default::default());
+        } else if now >= runtime.next_effect_poll || input.enter {
+            runtime.next_effect_poll = now + Duration::from_millis(100);
+            match runtime.backend.sample_effects() {
+                Ok(EffectSnapshot { identity, ids }) => {
+                    if runtime.effect_identity != Some(identity)
+                        && before == crate::session::Phase::Normal
+                    {
+                        runtime.selector.reset_effects();
+                    }
+                    runtime.effect_identity = Some(identity);
+                    runtime.effect_ids = Some(ids);
+                    runtime.effect_error = None;
+                }
+                Err(error) => {
+                    runtime.effect_ids = None;
+                    if runtime.effect_error.as_ref() != Some(&error) {
+                        log(format!("form effect sampling unavailable: {error}"));
+                        runtime.effect_error = Some(error);
+                    }
+                }
+            }
+        }
+        let Runtime {
+            selector,
+            backend,
+            effect_ids,
+            session,
+            ..
+        } = &mut *runtime;
+        let intent = selector.route(
+            &backend.config,
+            backend.form_index,
+            before,
+            input,
+            effect_ids.as_ref(),
+        );
+        input = Input {
+            enter: intent.enter.is_some(),
+            revert: intent.revert,
+        };
+        if let Some(index) = intent.enter {
+            let result = backend
+                .select_form(index)
+                .and_then(|()| session.configure_duration(backend.form().duration()?));
+            if let Err(error) = result {
+                log(format!("form selection rejected: {error}"));
+                return;
+            }
+            log(format!(
+                "selected form={} chr=c{:04} duration={}",
+                backend.form().key,
+                backend.form().chr_id,
+                backend.form().duration_seconds
+            ));
+        }
+    } else {
+        // No auto requests or queued switches while unfocused / observe-only.
+        input = Input::default();
+    }
     // Loading/title screens may expose a temporary player with partially
     // initialized modules. Idle callbacks have no reason to traverse actors.
     if !needs_engine_access(before, input, runtime.capture.is_recording()) {
@@ -287,6 +343,9 @@ fn update(data: &FD4TaskData) {
     } = &mut *runtime;
     session.tick(now, input, backend);
     let after = runtime.session.phase();
+    if runtime.session.last_error().is_some() {
+        runtime.selector.cancel();
+    }
     let post = capture::snapshot(&runtime.backend);
     let failure = runtime.session.last_error().map(str::to_owned);
     runtime
@@ -488,6 +547,7 @@ fn checked_object(address: usize, size: usize) -> Result<usize, String> {
 
 struct NativeBackend {
     config: Config,
+    form_index: usize,
     body: Option<Identity>,
     beast: Option<Identity>,
     world_address: usize,
@@ -512,6 +572,62 @@ enum Retirement {
     Quarantined(String),
 }
 impl NativeBackend {
+    fn form(&self) -> &Form {
+        &self.config.forms[self.form_index]
+    }
+    fn select_form(&mut self, index: usize) -> Result<(), String> {
+        if self.body.is_some()
+            || self.beast.is_some()
+            || self.pending
+            || !self.patches.is_empty()
+            || !matches!(self.retirement, Retirement::None)
+            || crate::retirement::pending()
+        {
+            return Err("old form still owns resources".into());
+        }
+        if !self.config.forms.get(index).is_some_and(|f| f.enabled) {
+            return Err("invalid form index".into());
+        }
+        self.form_index = index;
+        Ok(())
+    }
+    fn sample_effects(&self) -> Result<EffectSnapshot, String> {
+        let world = unsafe { WorldChrMan::instance() }.map_err(|e| e.to_string())?;
+        let world_address = world as *const _ as usize;
+        if self.world_address != 0 && self.world_address != world_address {
+            return Err("world changed".into());
+        }
+        let player = world.main_player.as_ref().ok_or("no local player")?;
+        let id = Identity::of(&player.chr_ins)?;
+        if self
+            .body
+            .is_some_and(|old| old.address != id.address || old.handle != id.handle)
+        {
+            return Err("main player identity changed".into());
+        }
+        let manager = checked_object(
+            pointer(id.address + offset_of!(ChrIns, special_effect))?,
+            0x18,
+        )?;
+        if pointer(manager + 0x10)? != id.address {
+            return Err("SpEffect owner mismatch".into());
+        }
+        let head = pointer(manager + 8)?;
+        let ids = effect_scan::collect(head, |address| {
+            let data = read(checked_object(address, 0x40)?, 0x40)?;
+            Ok((
+                i32::from_le_bytes(data[8..12].try_into().unwrap()),
+                usize::from_le_bytes(data[0x30..0x38].try_into().unwrap()),
+            ))
+        })?;
+        if pointer(manager + 8)? != head || pointer(manager + 0x10)? != id.address {
+            return Err("SpEffect list changed during read".into());
+        }
+        Ok(EffectSnapshot {
+            identity: (world_address, id.address, id.handle),
+            ids,
+        })
+    }
     fn finish_restore(&mut self) {
         debug_assert!(!self.pending && self.patches.is_empty() && self.beast.is_none());
         self.body = None;
@@ -527,8 +643,10 @@ impl NativeBackend {
         }
     }
     fn new(config: Config) -> Self {
+        let form_index = config.default_index();
         Self {
             config,
+            form_index,
             body: None,
             beast: None,
             world_address: 0,
@@ -607,8 +725,8 @@ impl NativeBackend {
         // last-created pointer together, then register through Summon's code.
         let init = &world.debug_chr_creator.init_data;
         if init.event_entity_id != self.config.ownership_tag
-            || init.npc_param_id != self.config.npc_param_id
-            || init.npc_think_param_id != self.config.npc_think_param_id
+            || init.npc_param_id != self.form().npc_param_id
+            || init.npc_think_param_id != self.form().npc_think_param_id
         {
             return Err(
                 "debug creator request overwritten; ownership uncertain; restart required".into(),
@@ -622,8 +740,8 @@ impl NativeBackend {
             .characters()
             .filter(|chr| {
                 !self.spawn_existing.contains(&chr.field_ins_handle)
-                    && chr.npc_id == self.config.chr_id
-                    && chr.npc_param_id == self.config.npc_param_id
+                    && chr.npc_id == self.form().chr_id
+                    && chr.npc_param_id == self.form().npc_param_id
             })
             .map(|chr| Identity::of(chr))
             .collect::<Result<Vec<_>, _>>()?;
@@ -804,10 +922,10 @@ impl Backend for NativeBackend {
         }
         let repository = unsafe { SoloParamRepository::instance() }.map_err(|e| e.to_string())?;
         if repository
-            .get::<NpcParam>(self.config.npc_param_id as u32)
+            .get::<NpcParam>(self.form().npc_param_id as u32)
             .is_none()
             || repository
-                .get::<NpcThinkParam>(self.config.npc_think_param_id as u32)
+                .get::<NpcThinkParam>(self.form().npc_think_param_id as u32)
                 .is_none()
         {
             return Err("missing configured NpcParam/NpcThinkParam".into());
@@ -833,13 +951,13 @@ impl Backend for NativeBackend {
             return Err("creator layout mismatch".into());
         }
         init.name.fill(0);
-        let name: Vec<_> = format!("c{:04}", self.config.chr_id)
+        let name: Vec<_> = format!("c{:04}", self.form().chr_id)
             .encode_utf16()
             .collect();
         init.name[..name.len()].copy_from_slice(&name);
         init.chara_init_param_id = -1;
-        init.npc_param_id = self.config.npc_param_id;
-        init.npc_think_param_id = self.config.npc_think_param_id;
+        init.npc_param_id = self.form().npc_param_id;
+        init.npc_think_param_id = self.form().npc_think_param_id;
         init.event_entity_id = self.config.ownership_tag;
         init.talk_id = 0;
         init.spawn_position = F32Vector4(position.0, position.1, position.2, 0.0);
@@ -850,12 +968,12 @@ impl Backend for NativeBackend {
             .collect();
         write(init_address + 0x10, &rotation)?;
         write(init_address + 0xc8, &[0])?;
-        if self.config.behavior_lifecycle {
+        if self.form().behavior_lifecycle() {
             // Shared with the private HKS, including when the DLL is copied into
             // a manual-runs directory. Only one owned c0010 is supported here.
             self.behavior = Some(behavior_bridge::BehaviorBridge::start(
                 PathBuf::from("F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast"),
-                self.config.locked_four_way_movement,
+                self.form(),
             )?);
         }
         self.pending = true;
@@ -895,8 +1013,8 @@ impl Backend for NativeBackend {
         }
         self.camera.apply(
             &camera_ids,
-            self.config.camera_distance,
-            self.config.camera_height,
+            self.form().camera_distance,
+            self.form().camera_height,
         )?;
         let beast = self.beast.ok_or("no beast")?.resolve(world)?;
         if beast.modules.as_ref().data.as_ref().hp <= 0 {

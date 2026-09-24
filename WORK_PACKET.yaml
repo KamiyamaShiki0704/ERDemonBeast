@@ -1,84 +1,56 @@
 work_packet:
-  goal: 在 ER 中还原执行者魔兽化，先证明独立兽体的控制与恢复闭环。
-  topic: FEAT-ER-demon-beast
+  goal: ER 独立兽体变身，在已验证 c0010 基线上实现分形态配置。
+  topic: FEAT-ER-demon-beast-custom-forms
   project:
     root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: 69099865cdda3403b94268c3ecd57619a06caea5 (HKS v7; native DLL remains c14f050 0.3.1)
+    revision: working-tree-custom-forms-candidate
   knowledge_base:
     root: D:/_Ugit/FSTool/_Mod
     revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
   authoritative_inputs:
-    spec: docs/feat-er-demon-beast/spec.md@1.2
-    design: docs/feat-er-demon-beast/design.md@1.5
-  current_spec_ids: [SPEC-ERDB-001, SPEC-ERDB-002, SPEC-ERDB-003, SPEC-ERDB-004, SPEC-ERDB-005, SPEC-ERDB-006]
+    installed_spec: docs/feat-er-demon-beast/spec.md@1.2
+    installed_design: docs/feat-er-demon-beast/design.md@1.5
+    candidate_spec: docs/feat-er-demon-beast/spec-custom-forms.md@0.1
+    candidate_design: docs/feat-er-demon-beast/design-custom-forms.md
+  current_spec_ids: [CF-001, CF-002, CF-003, CF-004, CF-005, CF-006, CF-007]
   scope:
-    in: [首轮原生控制候选, 离线验证, 隔离产物, 用户提供 c0010 的 Behbnd/HKS 地面动作适配, 配套 name-ID 表补齐, 后续多形态需求与兼容性规划]
-    out: [完整 NR 动作与引擎机制移植, 完整伤害结算, 联机, 传送切图, 修改兄弟项目或超出本轮授权的游戏配置]
-  current_task: v7 连按翻滚本轮人工回归通过，保留 DLL 0.3.1 + HKS v7 为当前动作基线；后续进入已约定的分形态 SpEffect/时长/输入映射配置阶段，尚未实现。
-  code_paths: [src/lib.rs, src/session.rs, src/native.rs, src/native/capture.rs, src/retirement.rs, src/vendor/summon/PROVENANCE.md, tests/lifecycle.rs]
-  asset_paths: [docs/feat-er-demon-beast/research/c0010-source-inventory.json]
-  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/check_target.py, Scripts/delivery/feat-er-demon-beast/script/probe.py, Scripts/delivery/feat-er-demon-beast/script/dll_thread_smoke.rs, Scripts/delivery/feat-er-demon-beast/script/audit_dump.py, Scripts/delivery/feat-er-demon-beast/script/Start-ManualTest.ps1, Scripts/delivery/feat-er-demon-beast/script/manual_test.py, Scripts/delivery/feat-er-demon-beast/script/audit_retirement.py]
-  probe_cases: [PROBE-ERDB-001, PROBE-ERDB-002, PROBE-ERDB-003, PROBE-ERDB-004, PROBE-ERDB-005, PROBE-ERDB-006]
+    in: [多个形态的配置与选择, 本体SpEffect自动或按键触发, 每形态时长与镜头及四向选项, 已适配输入和连段映射, 离线验证与人工测试交付]
+    out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡, 未获确认的无限战技语义]
+  current_task: 0.4.0/HKS v8 已完成隔离候选与自动检查；用户已确认触发/切换/Probe规则，尚未回答 -1 时战技是否解除。禁止安装 release_ready=false 候选；游戏目录保持 v7。
+  code_paths: [src/forms.rs, src/session.rs, src/native.rs, src/native/effect_scan.rs, src/native/behavior_bridge.rs, assets/action/script/c0010-er-adapter.hks]
+  asset_paths: [er-demon-beast.toml, examples/custom-forms.toml]
+  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/Manage-CustomForms.ps1, Scripts/delivery/feat-er-demon-beast/script/test_c0010_v5.lua, examples/check_forms.rs]
+  probe_cases: [CF-P01, CF-P02, CF-P03, CF-P04, CF-P05, CF-P06]
   human_decisions:
-    - 2026-09-23 用户要求建立独立项目。
-    - 2026-09-23 用户回复“可以，继续任务”，确认前轮 Spec/Probe 草案；已基线为 1.0。
-    - 2026-09-23 用户回复“允许”，批准本项目用 ER 原生状态采集、日志分析和人工验收替代 FrameRecorderProbe，六组 Probe 语义不变。
-    - 2026-09-23 用户指定 F:/GoldenAge/_GoldenAge 为实机环境，并选择直接使用 ER0000.Shiki；已备份存档。
-    - 2026-09-23 用户要求“先别测了……先自检一下是不是 dll 有问题”；实机暂停，仅离线自检，不自动恢复游戏测试。
-    - 2026-09-23 用户允许复用 Summon 新版召唤/内存清理框架，要求继续自检修复，并明确后续游戏测试由用户执行。
-    - 2026-09-23 用户已测试 03/04，反馈基本可用，偶发 F7 后 c4070 残留且按键无响应；日志证实一轮 37.115 秒才析构。
-    - 2026-09-23 用户回复“1和2看起来没问题”，按刚才路线的控制闭环与首轮行为理解，记录人工初步通过；未据此补写六组正式 Case 的自动 PASS。
-    - 2026-09-23 用户同意继续真实魔兽阶段，并要求该阶段完成后可按不同 SpEffect 切换不同 ID 形态、独立时长、-1 无限且手动解除、复用玩家 c0000 规则。
-    - 2026-09-23 用户明确每个形态分别支持 SpEffect 自动和按键两种触发模式；两种动作模式都预留，先实现输入与招式映射。
-    - 2026-09-23 用户已把 c0010 放入 GA，要求将 DLL 部署到现有 F:/GoldenAge/_GoldenAge/dll/demon_beast，并授权补齐对应参数；测试游戏仍由用户执行。
-    - 2026-09-24 用户反馈 c0010 可变身/移动/转向，其他按键无效，确认测试设备为键鼠；原运行 1790178283214-25840 三轮正常析构。
-    - 2026-09-24 用户完成 0.2.2 测试，并补入与 NR 原件哈希一致的 GA/action/script/c0010.hks；询问原版输入转换规则。不得继续按该文件缺失处理，不覆盖用户原件。
-    - 2026-09-24 用户明确允许继续同步修改 Behbnd 与 HKS，并提示核对 eventnameid/statenameid/variablenameid；本轮使用私有脚本引用并补齐实际缺项，保留用户原版 c0010.hks。
-    - 2026-09-24 用户实测行为 v1 移动和转向正常，攻击与闪避仍失败；随后确认已退出游戏以安装修复。
-    - 2026-09-24 用户确认 v2 闪避、轻击、重击、防御、战技可执行，报告锁定方向、到期截断、无过渡、连点抢断、镜头五项问题。
-    - 2026-09-24 用户明确 F7 与到期解除都等待动作结束；Spec 1.1 据此调整正常恢复计时起点。
-    - 2026-09-24 用户报告 v3 F6 后无法操作、几秒恢复，补充没有登场动画；运行 1790187506821-58692 四轮 enter_timeout，v3 进入人测失败。
-    - 2026-09-24 用户确认 v4 登场和其他动作正常，报告退场卡住、锁定非前方向不响应，指出战技原版自行解除。
-    - 2026-09-24 用户要求锁定四向移动配置，关闭时明确选择“用原版逻辑”；本轮默认 false，后续多形态分别保存。
-    - 2026-09-24 用户报告 v5 结束没有动画；实际日志显示退场 active 和 done 同帧。v6 修正混合状态重叠误判，实机仍由用户执行。
-    - 2026-09-24 用户确认“现在有变身结束动画了”；v6 可见退场人工通过，日志末轮正常 done/析构，无该轮 timeout。仅接受本项，不外推全部正式 Case。
-    - 2026-09-24 用户报告连按翻滚卡住，明确兽体不动/按键无效但游戏镜头继续运行；允许继续离线修复，并确认已退出游戏以安装 v7。
-    - 2026-09-24 用户回复“测试了一下没有问题”，确认 v7 本轮连按翻滚回归通过；日志证明重复请求被拦下后仍能闪避/接轻击，已完成一轮自然到期退场并析构，随后再次进入。
-  constraints:
-    - 目标 ER WW 2.7.1.0，EXE SHA256 1A3547101327F65D0C76DA2F9190AC0AA66871EA42BAE2AECC61E11A8B597891。
-    - EXE 路径 F:/SteamLibrary/steamapps/common/ELDEN RING/Game；代理不启动或操作游戏，提供方法由用户执行。
-    - 已建立获批的原生采集；用户已反馈基础闭环和首轮行为未发现问题；0.2.1 两轮释放日志符合阈值，但不填补未录制的正式 Case。
-    - 项目根默认配置仍关闭；本次获授权的 c0010 部署配置启用，目标行均为 100000；原 GoldenAge profile 不改。
-    - Summon 源码固定 01491edfa709545786d0fe795ab2fb2458dca4e1；共享三份 fixture 已与 EXE 验证。原项目只读。
-    - 下轮先读 MANUAL_TEST.md 和 research/retirement-stall-0.2.1.md；原 Summon 文件不变，运行时使用 src/retirement.rs 适配副本。第二例 EXE+1F109C4 未归因，禁止把离线测试当作实机通过。
-  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
+    - 用户允许本项目用原生状态采集/日志/人工游戏验收替代FrameRecorderProbe；不启动游戏或读取活体进程内存，后续游戏操作由用户完成。
+    - 测试环境 F:/GoldenAge/_GoldenAge，沿用 ER0000.Shiki；部署目录 dll/demon_beast，启动profile不变。
+    - 用户允许同步修改Behbnd与私有HKS、补齐参数及name-ID表；原版c0010.hks与共享c9997.hks保留，anibnd只读。
+    - 每形态支持 SpEffect 自动与匹配后按键两种模式；先实现输入映射，direct_c0000仅预留并拒绝运行。
+    - 正常F7与到期等动作/退场后恢复；战技3035带原版1011解除；当前有限时长版本保留其自动解除。
+    - 四向移动可配置，关闭时用户明确选择原版逻辑。
+    - v6 可见退场、v7 连按翻滚回归均获用户确认；证据见 research/outro-human-check-v6.json 与 roll-human-check-v7.json。
+    - 当前用户“可以，按照这个来”授权开始形态配置阶段。
+    - 用户回复“按这组规则实现”，确认 priority 决胜、持续效果解除后不重进、效果消失再出现重装、切换先清旧、F7取消待切换、效果消失不解除，以及3秒/0.25秒/60秒等Probe规则。
   human_gate:
-    confirmed: true
-    evidence: 当前任务用户消息“可以，继续任务”，对应 spec.md@0.1 全部首轮范围与六组 Probe。
-    pending: []
-  future_requirements:
-    source: docs/feat-er-demon-beast/requirements-custom-forms.md@0.1
-    planning: docs/feat-er-demon-beast/research/custom-forms-planning.md
-    trigger_modes: per-form automatic and manual
-    duration: per-form positive seconds or -1 without automatic expiry
-    action_modes: mapped-player-actions first; direct-c0000-script reserved and unproven
-    ordering: real-c0010-minimal-form then custom-forms
-    implemented: false
+    confirmed: false
+    confirmed_scope: 新增触发/优先级/切换/Probe第一组规则已确认，安装版历史Spec已确认。
+    pending: [第二个异步问题仍未回答：duration=-1 时是仅取消计时并保留战技解除，还是连战技也不解除只能手动解除。]
+    reason: 该决定影响用户先前“无限只有手动解除”的需求，不能用默认选中或经过时间视为回答。
+  constraints:
+    - ER WW2.7.1 App1.17.1；EXE SHA256 1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891。
+    - 不启动/操作游戏；仅离线文件/EXE、已有日志、进程是否存在检查。
+    - 已安装 DLL0.3.1 SHA256 50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119，私有HKS v7 SHA256 68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459。
+    - 候选需等待第二个问题答案后调整规格/实现/验证并基线化，然后才可安装；不得因候选已编译就称其正式完成。
+    - 保持 Summon 源码及兄弟项目只读；清理由既有退休队列确认后才换形态。
+  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
   latest_result:
-    stage: c0010-behavior-v7-roll-regression-human-confirmed
+    stage: custom-forms-offline-candidate-awaiting-one-semantic-decision
     automatic_result: PARTIAL
-    offline_tests: 真实 HKS roll_repeat/roll_blend 两条卡死路径 v6 红/v7 绿；20 轮请求/下一次有效闪避/F7退场、进入/五动作/连段/退场混合/战技/配置及 Lua 语法 PASS
-    runtime_tested: true
-    runtime_evidence: v7 run 1790258643664-15076 用户回归无问题；deferred 后继续 6000/3010，15 秒到期后正常退场及析构；见 research/roll-human-check-v7.json
-    runtime_scope: 连按翻滚后移动/轻重击/F7及到期恢复、正常闪避接攻击；原版锁定移动另行确认
-    final_acceptance: v6_visible_outro_and_v7_roll_regression_human_pass_full_formal_cases_not_claimed
-    artifact: F:/GoldenAge/_GoldenAge/dll/demon_beast/er_demon_beast.dll
-    artifact_sha256: 50f0a3287bebefc8c05893bb4d3960eb475deceeaada598e143c8ada101cd119
-    rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V7.cmd
-    rollback_target: behavior v6 + DLL 0.3.1；旧回退须按版本顺序恢复
-    verification: docs/feat-er-demon-beast/research/verification-v7.json
-    failure_packet: docs/feat-er-demon-beast/research/roll-input-stall-v6.json
-    deployment: docs/feat-er-demon-beast/research/deployment-v7.json
-    behavior_build: docs/feat-er-demon-beast/research/behavior-build-v7.json
-    build_result: docs/feat-er-demon-beast/research/build-result-v7.json
-    private_hks_sha256: 68f20aeb1238d70ddbfcccc534112f04f6fe173abd70683fdad629d10f7f8459
+    offline_tests: 32 Rust、17 Python、真实HKS默认/映射/禁用/连段/非法协议、Clippy/fmt/release、64KiB DLL线程加载 PASS。
+    runtime_tested: false
+    installed_changed: false
+    runtime_scope: SpEffect实际读取/自动触发/切换与映射都待人测；本轮不虚报旧六组Probe或新CF组通过。
+    candidate_version: DLL0.4.0 + HKSv8
+    candidate_semantic_limit: -1当前底层仅无到期计时；战技仍沿用旧完成逻辑，最终政策未定，不交付该假设。
+    configuration_guide: docs/feat-er-demon-beast/FORMS_CONFIG.md
+    installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-C0010V7.cmd

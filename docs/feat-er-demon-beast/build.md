@@ -118,3 +118,11 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 ### v7 连按翻滚人工回归通过
 
 用户反馈“测试了一下没有问题”。run 1790258643664-15076 已完成的一轮中，frame 298 拦下仍活动 Step 的重复请求，309/400 继续执行闪避、438 接轻击 3010；活动满 15 秒后正常退场，t=65.584 回到 Normal，原生析构完成且该轮无 finish_timeout。随后一次重新进入 Active，采样时尚未完成，不计第二轮完整恢复。记录 research/roll-human-check-v7.json。本轮反馈记为人工通过，不补报所有正式 Probe。保持已安装包不变。
+
+## 多形态 0.4.0 / HKS v8 隔离候选（未安装）
+
+用户同意形态配置阶段并确认 spec-custom-forms.md 中优先级、防重进、切换清理/F7取消与 Probe 规则；第二个问题“-1 是否仍允许战技自带解除”尚未回答。仅准备已确认部分的隔离实现；规格未基线化，安装 Gate 关闭，当前游戏目录仍为已人工验证的 DLL 0.3.1 / HKS v7。
+
+完成严格形态表、每形态身份/时长/镜头/四向选项、主玩家 SpEffect 只读采样、自动/手动选择与单目标切换队列、可配置五语义输入/起手/连段映射。默认 c0010；mapped 仅现有 c0010 适配器，native 可选其他 ID 的原生控制但无自定义动作适配，direct_c0000 明确拒绝。无新增参数行、无资源包改写。无限仅取消计时的底层能力已测试，最终战技规则未定，不作为完成交付。
+
+32 Rust、17 Python、真实 HKS 默认回归与 Rust 实际协议映射/禁用/连段/非法文本检查、Clippy/fmt/release、小栈加载通过；没有实机自动测试。配置参考 FORMS_CONFIG.md，设计与边界 design-custom-forms.md。完整结果与候选哈希待绑定 research/verification-forms-0.4-candidate.json。候选安装器拒绝 release_ready=false，防止待定语义误装。
