@@ -1,37 +1,27 @@
 # Third-party components
 
-## Summon
+## Independent runtime SDK
 
-Character lifecycle and retirement code derives from
-[ER_Summon](https://github.com/KamiyamaShiki0704/ER_Summon/tree/01491edfa709545786d0fe795ab2fb2458dca4e1),
-revision `01491edfa709545786d0fe795ab2fb2458dca4e1`.
+The runtime uses ShikiFSRS, independently implemented from the owned ER WW 1.17.1
+executable and original synthetic tests. Its Rust dependencies and exact versions
+are recorded in Cargo.lock. The old runtime binding and vendored lifecycle sources
+and signatures have been removed from this candidate.
 
-Copyright (c) 2025 Vincent Swarte. Licensed under MIT; the original notice is
-included at [src/vendor/summon/LICENSE-MIT](src/vendor/summon/LICENSE-MIT).
-The vendored character lifecycle code and `src/retirement.rs` retain this
-attribution. Native instruction signatures are required by the runtime's
-version checks. Source information is documented in
-[src/vendor/summon/PROVENANCE.md](src/vendor/summon/PROVENANCE.md).
-
-## Runtime bindings
-
-[fromsoftware-rs](https://github.com/KamiyamaShiki0704/fromsoftware-rs/tree/02fa5681e27fd2ecd9da79d34aef9fae96805539)
-provides the Elden Ring bindings. Its revision is pinned in `Cargo.toml` and
-`Cargo.lock`; the upstream project is licensed under MIT OR Apache-2.0.
+The serialized creation and retirement adapters reuse the independently rewritten
+ER_Summon consumer adapters, maintained by KamiyamaShiki0704. No upstream fsrs
+implementation is included in these adapters.
 
 ## Interface reference
 
-[er_enemy_control](https://github.com/AlpinDale/er_enemy_control/tree/8056f10c0864e3e10d6c20cc85827676fac36ab4)
-(Apache-2.0) was used as a reference for debug control interface semantics.
-ER Demon Beast implements its own form selection, state machine and recovery
-logic.
+The original project documented er_enemy_control (Apache-2.0), revision
+8056f10c0864e3e10d6c20cc85827676fac36ab4, as a reference for debug control interface
+semantics. This historical attribution does not supply the SDK's field layouts or
+native function evidence. The project's own form selection, state machine, HKS
+bridge and recovery policy are retained.
 
 ## Other dependencies and assets
 
-Additional Rust dependencies and their exact versions are listed in `Cargo.lock`.
-They retain their respective licenses. This repository does not distribute their
-source archives or compiled third-party libraries.
-
-The MIT license for this project does not grant rights to Elden Ring or
-Nightreign models, animations, original scripts or other game assets. Those
-assets are not included in this repository.
+Additional Rust dependencies and exact versions are listed in Cargo.lock and
+retain their respective licenses. This repository does not distribute their source
+archives or compiled third-party libraries. Its MIT license does not grant rights
+to game models, animations, scripts or assets; those assets are not included.

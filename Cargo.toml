@@ -13,11 +13,11 @@ crate-type = ["rlib", "cdylib"]
 
 [features]
 default = []
-native = ["dep:eldenring", "dep:fromsoftware-shared", "dep:windows", "dep:serde", "dep:serde_json", "dep:toml", "dep:sha2"]
+native = ["dep:shikifsrs-elden-ring", "dep:shikifsrs-runtime", "dep:windows", "dep:serde", "dep:serde_json", "dep:toml", "dep:sha2"]
 
 [dependencies]
-eldenring = { git = "https://github.com/KamiyamaShiki0704/fromsoftware-rs", rev = "02fa5681e27fd2ecd9da79d34aef9fae96805539", optional = true }
-fromsoftware-shared = { git = "https://github.com/KamiyamaShiki0704/fromsoftware-rs", rev = "02fa5681e27fd2ecd9da79d34aef9fae96805539", optional = true }
+shikifsrs-elden-ring = { git = "https://github.com/KamiyamaShiki0704/ShikiFSRS.git", rev = "930f818431e72209b49d2e37265a1f8150fa5390", optional = true }
+shikifsrs-runtime = { git = "https://github.com/KamiyamaShiki0704/ShikiFSRS.git", rev = "930f818431e72209b49d2e37265a1f8150fa5390", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "1.1.4", optional = true }
@@ -31,3 +31,5 @@ strip = "none"
 [[example]]
 name = "check_forms"
 required-features = ["native"]
+
+[workspace]

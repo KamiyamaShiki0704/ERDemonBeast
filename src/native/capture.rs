@@ -200,38 +200,41 @@ fn phase(phase: Phase) -> &'static str {
     }
 }
 
-fn actor(chr: &ChrIns) -> Result<Value, String> {
-    let identity = Identity::of(chr)?;
-    let action_address = checked_object(
-        pointer(
-            identity.modules + offset_of!(eldenring::cs::ChrInsModuleContainer, action_request),
-        )?,
-        size_of::<eldenring::cs::CSChrActionRequestModule>(),
-    )?;
-    if pointer(action_address + offset_of!(eldenring::cs::CSChrActionRequestModule, owner))?
-        != identity.address
-    {
-        return Err("action module owner mismatch".into());
+fn actor<M: shikifsrs_runtime::memory::AddressSpace>(
+    objects: &shikifsrs_elden_ring::objects::GameObjectCatalog<'_, '_, M>,
+    identity: shikifsrs_elden_ring::character_sets::CharacterIdentity,
+) -> shikifsrs_runtime::Result<Value> {
+    use shikifsrs_elden_ring::character_flags::CharacterFlagByte as F;
+    use shikifsrs_runtime::Error;
+    let absent = || Error::NativeOperationRejected("capture component absent");
+    let vitals = objects.character_vitals(identity)?.ok_or_else(absent)?;
+    let spatial = objects.character_spatial(identity)?.ok_or_else(absent)?;
+    let flags = objects.character_flags(identity)?.ok_or_else(absent)?;
+    let opacity = objects.character_opacity(identity)?.ok_or_else(absent)?;
+    let policy = objects.controller_policy(identity)?.ok_or_else(absent)?;
+    let action = objects
+        .character_actions(identity)?
+        .ok_or_else(absent)?
+        .words;
+    let channels = objects
+        .character_control_channels(identity)?
+        .ok_or_else(absent)?;
+    if objects.character_identity(identity.address, identity.epoch)? != Some(identity) {
+        return Err(Error::NativeOperationRejected("capture character changed"));
     }
-    let modules = chr.modules.as_ref();
-    let pos = modules.physics.as_ref().position;
-    let action = modules.action_request.as_ref();
+    let factors = opacity.factors();
     Ok(
-        json!({"handle":chr.field_ins_handle.to_string(),"address":chr as *const _ as usize,
-        "hp":modules.data.as_ref().hp,"position":[pos.0,pos.1,pos.2],
-        "render":chr.chr_flags1c5.enable_render(),"alpha":chr.base_transparency,
-        "tint_alpha":chr.tint_alpha_multiplier,"debug_flags":chr.debug_flags.0,
-        "disable_hit":chr.chr_ctrl.as_ref().flags.disable_hit(),
-        "actions":action.action_requests.0,"new_actions":action.new_action_presses.0,
-        "readback_new_actions":action.readback_new_presses.0,
-        "readback_npc_action":action.readback_npc_action_id,
-        "disabled_actions":action.disabled_action_inputs.0,
-        "possible_inputs":action.possible_action_inputs.0,
-        "possible_cancels":action.possible_action_cancels.0,
-        "movement_flags":action.movement_request_flags.0,
-        "tae_cancels":action.tae_cancels.0,
-        "npc_action":action.npc_action_id,"tae":action.action_request_queue.current_tae_id,
-        "override":pointer(chr.chr_ctrl.as_ref() as *const _ as usize + CTRL_OVERRIDE).ok()}),
+        json!({"handle":format!("{:016x}",identity.native_identifier),"address":identity.address,
+        "hp":vitals.hp.current,"position":spatial.finite_position()?,
+        "render":flags.model_enable_requested(),"alpha":factors[0],"tint_alpha":factors[2],
+        "debug_flags":u16::from(flags.value(F::DebugLow)) | (u16::from(flags.value(F::DebugHigh))<<8),
+        "disable_hit":policy.low_byte & 2 != 0,
+        "actions":action.action_requests,"new_actions":action.new_action_presses,
+        "readback_new_actions":action.readback_new_presses,"readback_npc_action":action.readback_identifier,
+        "disabled_actions":action.disabled_action_inputs,"possible_inputs":action.possible_action_inputs,
+        "possible_cancels":action.possible_action_cancels,"movement_flags":action.movement_request_flags,
+        "tae_cancels":action.tae_cancel_flags,"npc_action":action.requested_identifier,"tae":action.queue_selector,
+        "override":channels.override_input.map(|v|v.object.address)}),
     )
 }
 
@@ -243,35 +246,32 @@ pub(super) fn snapshot(backend: &NativeBackend) -> Value {
 }
 
 fn collect(backend: &NativeBackend) -> Result<Value, String> {
-    let world = backend.world()?;
-    let player = world.main_player.as_ref().ok_or("no local player")?;
-    let target = player.locked_on_enemy;
-    let body = actor(&player.chr_ins)?;
-    let target = world.chr_ins_by_handle(&target).map(actor).transpose()?;
-    let beast = backend
-        .beast
-        .map(|id| id.resolve(world).and_then(|chr| actor(chr)))
-        .transpose()?;
-    let owned_count = world
-        .debug_chr_set
-        .characters()
-        .filter(|chr| chr.event_entity_id == backend.config.ownership_tag as u32)
-        .count();
-    let dbg = unsafe { WorldChrManDbg::instance() }.map_err(|e| e.to_string())?;
-    let camera = dbg
-        .cam_override_chr_ins
-        .map_or(0, |ptr| ptr.as_ptr() as usize);
-    let owner = if dbg.debug_manipulator == 0 {
-        None
-    } else {
-        pointer(dbg.debug_manipulator + MANIP_OWNER).ok()
-    };
-    Ok(
-        json!({"form_key":backend.form().key,"duration_seconds":backend.form().duration_seconds,"body":body,"beast":beast,"target":target,"owned_count":owned_count,
-        "camera":camera,"manipulator":dbg.debug_manipulator,"manip_owner":owner,
-        "linked":backend.linked,"pending_spawn":backend.pending,
-        "patches":backend.patches.len(), "retirement_pending":crate::retirement::pending()}),
-    )
+    backend.objects.observe(|objects,epoch| {
+        use shikifsrs_runtime::Error;
+        let player=objects.primary_player_identity(epoch)?.ok_or(Error::NativeOperationRejected("no local player"))?;
+        let body=actor(objects,player)?;
+        let target=match objects.primary_player_target(epoch)? {
+            Some(target)=>backend::resolve_handle(objects,target.handle,epoch)?.map(|id|actor(objects,id)).transpose()?,
+            None=>None,
+        };
+        let beast=backend.beast.map(|id|actor(objects,id)).transpose()?;
+        let mut owned_count=0;
+        if let Some(set)=objects.world_creation_set(65536)? {
+            for entry in set.set.characters {
+                let id=objects.character_identity(entry.character.address,epoch)?.ok_or(Error::NativeOperationRejected("capture member disappeared"))?;
+                if objects.character_event_id(id)?.is_some_and(|id|id.stored_id==backend.config.ownership_tag as u32) {owned_count+=1;}
+            }
+        }
+        let debug=objects.debug_world_links(epoch)?.ok_or(Error::NativeOperationRejected("no debug links"))?;
+        Ok(json!({"form_key":backend.form().key,"duration_seconds":backend.form().duration_seconds,
+            "body":body,"beast":beast,"target":target,"owned_count":owned_count,
+            "camera":debug.character_override.map_or(0,|id|id.address),
+            "manipulator":debug.input.map_or(0,|input|input.object.address),
+            "manip_owner":debug.input.map(|input|input.native_character_address),
+            "linked":backend.linked,"pending_spawn":backend.pending,
+            "patches":backend.policy_pending(),"retirement_pending":backend.retirement_pending(),
+            "diagnostic_semantics":"raw action/request fields; experimental native integration; not completed gameplay predicates"}))
+    }).map_err(|e|e.to_string())
 }
 
 #[cfg(test)]
