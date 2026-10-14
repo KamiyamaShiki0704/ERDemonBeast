@@ -16,8 +16,8 @@ default = []
 native = ["dep:shikifsrs-elden-ring", "dep:shikifsrs-runtime", "dep:windows", "dep:serde", "dep:serde_json", "dep:toml", "dep:sha2"]
 
 [dependencies]
-shikifsrs-elden-ring = { git = "https://github.com/KamiyamaShiki0704/ShikiFSRS.git", rev = "930f818431e72209b49d2e37265a1f8150fa5390", optional = true }
-shikifsrs-runtime = { git = "https://github.com/KamiyamaShiki0704/ShikiFSRS.git", rev = "930f818431e72209b49d2e37265a1f8150fa5390", optional = true }
+shikifsrs-elden-ring = { git = "https://github.com/KamiyamaShiki0704/ShikiFSRS.git", rev = "fb9f4524da1fb648e0a696f2d47aa08d3acf35cc", optional = true }
+shikifsrs-runtime = { git = "https://github.com/KamiyamaShiki0704/ShikiFSRS.git", rev = "fb9f4524da1fb648e0a696f2d47aa08d3acf35cc", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "1.1.4", optional = true }
