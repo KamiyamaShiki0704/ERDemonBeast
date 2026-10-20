@@ -117,8 +117,11 @@ fn scan_vector(
     stride: usize,
     pointer: usize,
 ) -> Result<usize, String> {
-    let header = read_words(world + offset + 8, 3)
-        .ok_or_else(|| format!("vector+{offset:#x}:header-unreadable"))?;
+    let header = read_words(
+        world + eldenring::cs::world_chr_man_field_offset(offset) + 8,
+        3,
+    )
+    .ok_or_else(|| format!("vector+{offset:#x}:header-unreadable"))?;
     let (first, last, end) = (header[0], header[1], header[2]);
     let invalid = || {
         format!(
@@ -141,7 +144,13 @@ fn scan_vector(
             .filter(|value| **value == pointer)
             .count()
     };
-    if read_words(world + offset + 8, 3).as_ref() != Some(&header) {
+    if read_words(
+        world + eldenring::cs::world_chr_man_field_offset(offset) + 8,
+        3,
+    )
+    .as_ref()
+        != Some(&header)
+    {
         return Err(format!("vector+{offset:#x}:header-changed"));
     }
     Ok(count)
@@ -153,7 +162,8 @@ fn references(world: usize, pointer: usize) -> Result<usize, String> {
         count += scan_vector(world, offset, stride, pointer)?;
     }
     // WorldChrMan_PostPhysics also traverses this (character,next) chain.
-    let mut node = word(world + 0x1e6a8).ok_or("chain+0x1e6a8:head-unreadable")?;
+    let mut node = word(world + eldenring::cs::world_chr_man_field_offset(0x1e6a8))
+        .ok_or("chain+0x1e6a8:head-unreadable")?;
     let head = node;
     let mut visited = 0;
     while node != 0 {
@@ -167,7 +177,7 @@ fn references(world: usize, pointer: usize) -> Result<usize, String> {
         node = values[1];
         visited += 1;
     }
-    if word(world + 0x1e6a8) != Some(head) {
+    if word(world + eldenring::cs::world_chr_man_field_offset(0x1e6a8)) != Some(head) {
         return Err("chain+0x1e6a8:head-changed".into());
     }
     Ok(count)

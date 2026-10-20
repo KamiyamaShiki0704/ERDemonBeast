@@ -1,8 +1,10 @@
+> 2026-10-21 compatibility build: ER App 1.17.2 / EXE 2.7.2.0. The candidate in `dist/er-1.17.2/` passed automated checks and is installed in the main `_GoldenAge` Mod. In-game acceptance is pending. Current spec, hashes, rollback and evidence: [1.17.2 build record](../../Topics/Gameplay/bug-er-1-17-2-dll-compat/build.md). Earlier version/publication notes below retain their original scope.
+
 # ER Demon Beast
 
 为 **Elden Ring** 提供可配置的角色变身功能：保留玩家本体，生成并操控独立形态，在解除后恢复玩家控制。
 
-当前版本：**0.4.1**。当前动作适配器面向 **c0010**。
+当前版本：**0.4.2**。当前动作适配器面向 **c0010**。
 
 ## 功能
 
@@ -11,6 +13,7 @@
 - **独立时长**：从形态可操作时开始计时；`-1` 取消到期计时，仍保留解除效果和战技原有的自动解除。
 - **动作与连段映射**：配置轻击、重击、防御、战技、闪避及连段目标，沿用游戏语义输入与衔接窗口。
 - **完整退场流程**：常规解除等待当前动作和退场动画，切换形态时先清理旧实体，再生成新实体。
+- **共用生命**：形态继承玩家当前与最大生命，受伤和治疗同步，解除后保留剩余生命；归零时交回玩家正常死亡流程。
 - **镜头与移动配置**：每个形态可设置镜头距离、高度及锁定时的四向移动选项。
 - **可选调试热键**：F6 请求进入或选择形态，F7 请求解除；正式 SpEffect 入口不依赖这些热键。
 
@@ -38,9 +41,11 @@ target/x86_64-pc-windows-msvc/release/er_demon_beast.dll
 
 将 DLL 和 `er-demon-beast.toml` 放在同一目录，并在 Mod 加载器中加载该 DLL。仓库配置默认关闭 `enabled` 和 `control_enabled`，完成角色资源和参数配置后再启用。配置更改需要完全重启游戏。
 
-`assets/action/script/c0010-er-adapter.hks` 是追加到兼容公共脚本副本中的适配器，不是独立替换所有公共脚本的完整 HKS。c0010 的 Behbnd 应引用生成的私有 `d0010.hks`，并具备对应的进入、动作衔接和退场节点。
+将 `assets/action/script/c0010-er-adapter.hks` 作为 `action/script/d0010.hks` 安装。它只包含 c0010 适配逻辑；公共逻辑直接使用 Mod 中的 `c9997.hks`，无需复制或拼接公共脚本。
 
-当前版本的 DLL/HKS 行为通信使用固定共享目录。迁移安装位置时，应同步调整 `src/native.rs` 的桥接目录与 HKS 的 `ERDB_BRIDGE_DIR`，重新编译 DLL 并生成私有脚本。两端必须使用同一目录。
+c0010 的 Behbnd 必须具备对应的进入、动作衔接和退场节点，并按以下顺序配置 `luaFiles`：`c9997.hks`、`d0010.hks`、`modifier.hks`、`c0010.hks`、`c0010.hks`。保留原有两次 c0010 加载。更新公共脚本后会直接加载新版本；若公共函数接口发生变化，仍需同步适配。公共脚本不能依赖脚本来源名称一定包含目录；本地 GA 版本中未使用的 `script_dir` 初始化已移除。
+
+当前版本的 DLL/HKS 行为通信使用固定共享目录。迁移安装位置时，应同步调整 `src/native.rs` 的桥接目录与 HKS 的 `ERDB_BRIDGE_DIR`，重新编译 DLL 并更新 `d0010.hks`。两端必须使用同一目录。
 
 ## SpEffect 配置
 

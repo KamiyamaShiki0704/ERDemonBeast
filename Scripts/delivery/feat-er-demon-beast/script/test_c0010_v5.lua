@@ -54,7 +54,27 @@ end
 ended=false;tick(1);ended=true;tick(1)
 assert(status()=='1-2-3\nready\n','entry/option parsing regression')
 ended=false;IdleDefault_onActivate()
-if mode=='mapped_light' or mode=='mapped_heavy' then
+if mode=='damage_exit' then
+    DamageExtraLarge_onActivate();node='DamageExtraLarge_CMSG'
+    command('exit');tick(8)
+    assert(status()=='1-2-3\nready\n','exit interrupted a live damage reaction')
+    DamageExtraLarge_onUpdate();tick(120)
+    assert(status()=='1-2-3\nready\n','wall time forced a reaction exit')
+    node='IdleDefault_CMSG';IdleDefault_onActivate();tick(1)
+    assert(status()=='1-2-3\nfinishing\n','exit never resumed after damage returned to Idle')
+    tick(1);node='IdleDefault_CMSG';tick(1)
+    assert(status()=='1-2-3\ndone\n','outro failed after damage reaction')
+elseif mode=='damage_pending' then
+    pressed[0]=true;IdleDefault_onUpdate()
+    assert(events[#events]=='W_Attack3000','attack request was not queued')
+    -- Damage wins the graph transition before Attack3000_onActivate runs.
+    DamageExtraLarge_onActivate();node='DamageExtraLarge_CMSG'
+    pressed={};tick(1)
+    DamageExtraLarge_onUpdate()
+    node='IdleDefault_CMSG';IdleDefault_onActivate();tick(1)
+    pressed[0]=true;events={};IdleDefault_onUpdate()
+    assert(events[#events]=='W_Attack3000','damage interruption retained pending attack; controls never recovered')
+elseif mode=='mapped_light' or mode=='mapped_heavy' then
     local key=mode=='mapped_light' and 1 or 0
     pressed[key]=true;events={};IdleDefault_onUpdate()
     assert(events[#events]==(key==1 and 'W_Attack3001' or 'W_Attack3005'),'configured input/entry mapping ignored')

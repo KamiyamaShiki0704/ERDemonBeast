@@ -1,0 +1,15 @@
+# 共用生命与受击修复设计
+
+依据 spec-shared-health.md@1.0；当前DLL0.4.1/HKSv8，战斗参数已安装。
+
+生命同步在已验证的FrameEnd任务中进行。仅针对本次持有的本体和兽体，每次读写前重验两套Identity、模块owner、句柄与world；使用已固定依赖的CSChrDataModule字段偏移。初次接管前把玩家hp/max_hp/max_uncapped_hp/base_hp写入兽体。随后以兽体相对上一同步点的增量合并到玩家当前hp，并夹到玩家当前最大生命；任一方归零则结果保持零。最大生命变化的已发生截断不重复扣除。玩家最大生命以玩家当前数据为准。
+
+HP不是可回滚Patch；解除前最后结算一次，拆除控制和本体保护，随后按已有退休队列清理。写入失败后停止进一步结算，避免重试重复扣血；恢复控制仍继续。生命周期在maintain发现共享生命零时立即走既有同帧恢复路径，死亡交由ER。离线可验证零HP与撤销保护，不把实机死亡动画/存档处理判为PASS。
+
+受击红灯复现：当前私有HKS的ExecDamage→ExecNewDamageDefault在轻击时无条件回退W_DamageMiddleFront，对应8040资源不存在；实际c0010受击区只有8060、8700及混合占位9000/9500。私有适配使用检查动画存在性的普通方向路由，不强行复用重受击当轻击。DamageCommon/受击激活清掉旧攻击和待激活状态；用受击标记阻止新输入及正常退场抢断，正常移动/待机或合法新攻击激活时释放。保留特殊受击原生处理。
+
+原版c0010.hks、共享c9997.hks、anibnd和本轮已装regulation保持不改。新增诊断字段只记录生命变化、受击接管与恢复，并限制数量；不读取活体内存进行Agent自动测试。
+
+行为图复核补充：W_DamageExtraLarge 实际进入 DamageExtraLarge 状态、CMSG8060/end2；GA公共脚本仅提供DamageSpecial，缺少这个真实状态的回调。私有脚本显式提供DamageExtraLarge激活/更新并接到受击通用逻辑。回归按图中真实状态名执行；旧候选仅包装DamageSpecial仍会红灯，未安装该候选。
+
+automation_scripts: 原有Lua回归、新test_c0010_damage.lua、原有配对安装器；Rust测试使用同一原生生命读写函数和进程内隔离字节内存，不构造无效CS对象。

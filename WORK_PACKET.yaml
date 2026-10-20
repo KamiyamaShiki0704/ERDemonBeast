@@ -1,69 +1,80 @@
 work_packet:
-  goal: ER 独立兽体变身，在已验证 c0010 基线上实现分形态配置。
-  topic: FEAT-ER-demon-beast-custom-forms
+  goal: Preserve existing behavior and support inspected WW1.17.2 with a verified
+    local DLL delivery.
+  topic: BUG-ER-DLL-1172
   project:
-    root: D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast
-    revision: f0188aea9b12b58aba9d1075923460d8a2a0375e (deployed 0.4.1 / HKS v8)
+    root: D:\_Ugit\FSTool\_Mod\_Project\er-demon-beast
+    revision: 9b734d5a9902beb1e975a34a2ca8784962cf4d49 + working tree
   knowledge_base:
-    root: D:/_Ugit/FSTool/_Mod
-    revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087
+    root: D:\_Ugit\FSTool\_Mod
+    revision: 9511e3e8137fd2cda9fca74bb07a4b688fe89087 + working tree
   authoritative_inputs:
-    installed_spec: [docs/feat-er-demon-beast/spec.md@1.2, docs/feat-er-demon-beast/spec-custom-forms.md@1.0, docs/feat-er-demon-beast/spec-effect-controls.md@1.0]
-    installed_design: [docs/feat-er-demon-beast/design.md@1.5, docs/feat-er-demon-beast/design-custom-forms.md, docs/feat-er-demon-beast/design-effect-controls.md]
-    candidate_spec: docs/feat-er-demon-beast/spec-effect-controls.md@1.0
-    candidate_design: docs/feat-er-demon-beast/design-effect-controls.md
-  current_spec_ids: [CF-001, CF-002, CF-003, CF-004, CF-005, CF-006, CF-007]
+    spec: ../../Topics/Gameplay/bug-er-1-17-2-dll-compat/spec.md@1.0
+    design: ../../Topics/Gameplay/bug-er-1-17-2-dll-compat/design.md@1.0
+    preserved_behavior_specs:
+    - docs/feat-er-demon-beast/spec.md@1.2
+    - docs/feat-er-demon-beast/spec-custom-forms.md@1.0
+    - docs/feat-er-demon-beast/spec-effect-controls.md@1.0
+    - docs/feat-er-demon-beast/spec-shared-health.md@1.0
+  current_spec_ids:
+  - SPEC-1172-001
+  - SPEC-1172-002
+  - SPEC-1172-003
+  - SPEC-1172-004
+  - SPEC-1172-005
+  - SPEC-1172-006
   scope:
-    in: [多个形态的配置与选择, 本体SpEffect自动或按键触发, 每形态时长与镜头及四向选项, 已适配输入和连段映射, 离线验证与人工测试交付]
-    out: [其他角色全部动作自动适配, 完整c0000脚本执行, 联机, 切图, 伤害平衡]
-  current_task: 0.4.1已安装；当前版本已按用户要求推送ERDemonBeast的main及v0.4.1，公开历史仅一个干净提交，不含Codex/工作包/研究与独立测试资料。真实效果ID与施加动作仍待配置及人测。后续发布从dist/github/ERDemonBeast更新，不得直接推送开发历史。
-  code_paths: [src/forms.rs, src/session.rs, src/native.rs, src/native/effect_scan.rs, src/native/behavior_bridge.rs, assets/action/script/c0010-er-adapter.hks]
-  asset_paths: [er-demon-beast.toml, examples/custom-forms.toml]
-  automation_scripts: [Scripts/delivery/feat-er-demon-beast/script/Manage-CustomForms.ps1, Scripts/delivery/feat-er-demon-beast/script/test_c0010_v5.lua, examples/check_forms.rs]
-  probe_cases: [EC-P01, EC-P02, EC-P03, EC-P04, EC-P05, EC-P06]
+    in:
+    - version/identity/code guards
+    - fsrs compatibility where applicable
+    - existing behavior regression
+    - verified main-Mod DLL installation
+    out:
+    - game EXE, save, regulation or HKS changes
+    - game launch/injection by agent
+    - Git push/publication
+    - ER-GoldenAge synchronization
+  current_task: INSTALLED_VERIFIED; automated checks PASS; game acceptance PENDING.
+  code_paths:
+  - src/native.rs
+  - src/native/capture.rs
+  - src/chr_lifecycle.rs
+  - src/retirement.rs
+  - Cargo.toml
+  - Cargo.lock
+  asset_paths: []
+  automation_scripts:
+  - ../fromsoftware-rs/Scripts/delivery/bug-er-1-17-2-dll-compat/script/Build-Consumers.ps1
+  probe_cases:
+  - P-1172-Identity
+  - P-1172-Negative
+  - P-1172-Dependencies
+  - P-1172-Build
+  - P-1172-Preservation
+  - P-1172-Human
   human_decisions:
-    - 用户允许本项目用原生状态采集/日志/人工游戏验收替代FrameRecorderProbe；不启动游戏或读取活体进程内存，后续游戏操作由用户完成。
-    - 测试环境 F:/GoldenAge/_GoldenAge，沿用 ER0000.Shiki；部署目录 dll/demon_beast，启动profile不变。
-    - 用户允许同步修改Behbnd与私有HKS、补齐参数及name-ID表；原版c0010.hks与共享c9997.hks保留，anibnd只读。
-    - 每形态支持 SpEffect 自动与匹配后按键两种模式；先实现输入映射，direct_c0000仅预留并拒绝运行。
-    - 正常F7与到期等动作/退场后恢复；战技3035带原版1011解除；当前有限时长版本保留其自动解除。
-    - 四向移动可配置，关闭时用户明确选择原版逻辑。
-    - v6 可见退场、v7 连按翻滚回归均获用户确认；证据见 research/outro-human-check-v6.json 与 roll-human-check-v7.json。
-    - 当前用户“可以，按照这个来”授权开始形态配置阶段。
-    - 用户回复“按这组规则实现”，确认 priority 决胜、持续效果解除后不重进、效果消失再出现重装、切换先清旧、F7取消待切换、效果消失不解除，以及3秒/0.25秒/60秒等Probe规则。
-    - 用户回复“按照1处理”，确认 -1 只取消到期计时，战技仍按原版解除，F7也可解除。
-  human_gate:
-    confirmed: true
-    confirmed_scope: 触发/优先级/切换/Probe与无限时长战技规则均已确认。
-    pending: []
-    reason: 用户确认双SpEffect方案；ID为后续配置值，不猜测现有ID。新Spec-effect-controls1.0已确认。
+  - 2026-10-20 confirmed shared Spec/Probe; compiled DLLs may directly replace current
+    Mod DLLs after backup.
+  - Human retains final game acceptance.
   constraints:
-    - ER WW2.7.1 App1.17.1；EXE SHA256 1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891。
-    - 不启动/操作游戏；仅离线文件/EXE、已有日志、进程是否存在检查。
-    - 已安装 DLL0.4.1 SHA256 db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a，私有HKS v8 SHA256 cab5cffc0c9c4195c2c58b8cbad1553944f963ec85a1d24ba828a0227585e5d0。
-    - Spec1.0已确认；游戏退出后可安装完整配对包，安装前后检查目标与受保护文件哈希；实机效果仍待人验收。
-    - 保持 Summon 源码及兄弟项目只读；清理由既有退休队列确认后才换形态。
-  write_scope: [D:/_Ugit/FSTool/_Mod/_Project/er-demon-beast, F:/GoldenAge/_GoldenAge/dll/demon_beast, F:/GoldenAge/_GoldenAge/GA/regulation.bin, F:/GoldenAge/_GoldenAge/GA/chr/c0010.behbnd.dcx, F:/GoldenAge/_GoldenAge/GA/action/script/d0010.hks, F:/GoldenAge/_GoldenAge/GA/action/eventnameid.txt, F:/GoldenAge/_GoldenAge/GA/action/statenameid.txt, F:/GoldenAge/_GoldenAge/GA/action/variablenameid.txt]
+  - Current game exact SHA256 F9118FEA2CFD8FA3901E8060BFADB1552CB2471771DED8A5B662C4E298FFB328;
+    no game executable copied/changed.
+  - Package version retained; binary hash changed. Installed config/assets remain
+    exact pre-deployment bytes.
+  - Pinned vendor/summon bytes unchanged; local lifecycle adapter is src/chr_lifecycle.rs.
+  - Preserve existing SpEffect/manual and hotkey configuration; this task enables
+    no new entry.
+  write_scope:
+  - D:\_Ugit\FSTool\_Mod\_Project\er-demon-beast
+  - F:\GoldenAge\_GoldenAge\dll\demon_beast\er_demon_beast.dll
   latest_result:
-    stage: effect-controls-0.4.1-installed-awaiting-input-wiring-and-human-test
-    automatic_result: PASS_OFFLINE_AND_INSTALL_RUNTIME_PENDING
-    offline_tests: 40 Rust PASS；Python17 PASS，先前被保护拦截项已在用户退出后通过；Clippy/fmt/release/64KiB加载/配置校验PASS。HKS及Behbnd相同，沿用已有证据。
+    automatic: PASS
+    human: PENDING
     runtime_tested: false
-    installed_changed: true
-    runtime_scope: SpEffect实际读取/自动触发/切换与映射都待人测；本轮不虚报旧六组Probe或新CF组通过。
-    candidate_version: DLL0.4.1 + unchanged HKSv8
-    candidate_revision: f0188aea9b12b58aba9d1075923460d8a2a0375e
-    candidate_dll_sha256: db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a
-    candidate_semantic_limit: 效果检测与配置能力已实现；实际ID和游戏施加动作尚未接线，不能宣称手柄实机通过。当前测试配置保留显式调试键直到接线。
-    configuration_guide: docs/feat-er-demon-beast/FORMS_CONFIG.md
-    installed_rollback: F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-EffectControls041.cmd
-    candidate_package: dist/effect-controls-0.4.1
-    candidate_verification: docs/feat-er-demon-beast/research/verification-effects-0.4.1.json
-  publication:
-    repository: https://github.com/KamiyamaShiki0704/ERDemonBeast
-    branch: main
-    tag: v0.4.1
-    commit: 79a21b5eeb8e4583580759c98647b58ba768fd8e
-    checkout: dist/github/ERDemonBeast
-    evidence: docs/feat-er-demon-beast/research/publication-0.4.1.json
-
+    installed_dll: F:\GoldenAge\_GoldenAge\dll\demon_beast\er_demon_beast.dll
+    sha256: BDDFBD79E887884B86501CF346D1B8650C399AFA59F317F80EA4A0E8911EF1C7
+    candidate: dist/er-1.17.2/
+    backup: D:\_Ugit\FSTool\_Mod\_Project\fromsoftware-rs\dist\er-1.17.2-rollback-20261020-235400\before\dll\demon_beast\er_demon_beast.dll
+    evidence: ../../Topics/Gameplay/bug-er-1-17-2-dll-compat/deployment.json
+  prior_human_baseline: research/shared-health-human-check-0.4.2.json; separate HKS
+    loading-combination acceptance remains a separate pending item.

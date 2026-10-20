@@ -13,3 +13,7 @@ The original Summon project is read-only. Its runtime success is reference evide
 ## Local adaptation in 0.2.1
 
 All copied source/fixture/license files under this vendor directory remain the original bytes. `src/lib.rs` now selects `src/retirement.rs`, derived from the pinned retirement source, with checked full-span process-memory copies, stable vector headers and rate-limited failure diagnostics. The two-quiet-observation gate and allocator/destructor protocol remain unchanged. See `docs/feat-er-demon-beast/research/retirement-stall-0.2.1.md`.
+
+## Local 1.17.2 adapter (2026-10-21)
+
+The pinned files here remain unchanged. The active local `src/chr_lifecycle.rs` adapter adds separate WW272 byte fixtures and uses fsrs versioned WorldChrMan tail access. `src/lib.rs` selects that adapter; local retirement keeps its checked reader and deferred ownership protocol. Current hashes and acceptance boundary are in the shared 1.17.2 build record.

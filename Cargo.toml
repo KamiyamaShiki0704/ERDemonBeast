@@ -1,6 +1,6 @@
 [package]
 name = "er-demon-beast"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2024"
 license = "MIT"
 description = "Configurable SpEffect-driven character transformations for Elden Ring"
@@ -16,8 +16,8 @@ default = []
 native = ["dep:eldenring", "dep:fromsoftware-shared", "dep:windows", "dep:serde", "dep:serde_json", "dep:toml", "dep:sha2"]
 
 [dependencies]
-eldenring = { git = "https://github.com/KamiyamaShiki0704/fromsoftware-rs", rev = "02fa5681e27fd2ecd9da79d34aef9fae96805539", optional = true }
-fromsoftware-shared = { git = "https://github.com/KamiyamaShiki0704/fromsoftware-rs", rev = "02fa5681e27fd2ecd9da79d34aef9fae96805539", optional = true }
+eldenring = { path = "../fromsoftware-rs/crates/eldenring", optional = true }
+fromsoftware-shared = { path = "../fromsoftware-rs/crates/shared", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "1.1.4", optional = true }

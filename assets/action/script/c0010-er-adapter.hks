@@ -1,14 +1,16 @@
--- ERDB behavior adapter 8: appended to a private copy of GA c9997.hks.
--- Bound only by c0010.behbnd's luaFiles entry (d0010.hks).
+-- ERDB behavior adapter 9: loaded after GA c9997.hks as a separate chunk.
+-- Bound only by c0010.behbnd's luaFiles entry (d0010.hks), before c0010.hks.
 -- Preserve NR ground attack choices; use ER input/cancel interfaces.
 -- Jump, ULTRA, full sprint semantics and damage/TAE conversion are not ported here.
-ERDB_BEHAVIOR_VERSION = 8
+ERDB_BEHAVIOR_VERSION = 9
 local erdb_update = Update
 local erdb_ai_action = ExecAIAction
 local erdb_attack_common = AttackCommonFunction
 local erdb_move = ExecMove
 local erdb_idle_common, erdb_move_common = IdleCommonFunction, MoveCommonFunction
+local erdb_damage_default, erdb_damage_common = ExecDamageDefault, DamageCommonFunction
 local erdb_action, erdb_action_time, erdb_pending_action = nil, 0, nil
+local erdb_reacting = false
 local erdb_action_running = false
 local erdb_life = {phase="none", poll=0, token=nil, fourway=false}
 local erdb_skill_seen = false
@@ -17,7 +19,7 @@ local function erdb_original_heading()
 end
 local erdb_lifecycle_tick, erdb_start_outro, erdb_start_intro, erdb_observe_lifecycle
 local function erdb_life_blocks_input()
-    return erdb_life.phase ~= "none" and erdb_life.phase ~= "active"
+    return erdb_reacting or (erdb_life.phase ~= "none" and erdb_life.phase ~= "active")
 end
 -- Earliest cancel windows in seconds, read from the installed c0010 TAE.
 -- Keys are ER R1/R2/L1/L2/SP_MOVE and 35=movement. These add a current-action
@@ -60,13 +62,13 @@ local function erdb_trace(message)
     local library = rawget(_G, "io")
     if type(library) ~= "table" or type(library.open) ~= "function" then return end
     pcall(function()
-        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v8.log", "a")
+        local file = library.open(trace_path or "F:/GoldenAge/_GoldenAge/dll/demon_beast/Saved/er-demon-beast/c0010-hks-v9.log", "a")
         if not file then return end
-        pcall(function() file:write("[ERDB-v8] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
+        pcall(function() file:write("[ERDB-v9] frame=" .. tostring(g_FrameCount) .. " " .. message .. "\n") end)
         file:close()
     end)
 end
-erdb_trace("loaded version=8")
+erdb_trace("loaded version=9")
 local erdb_next = {
     [3000]={3001,3005}, [3001]={3002,3005},
     [3002]={3003,3005}, [3003]={3000,3005},
@@ -192,6 +194,7 @@ for animation, _ in pairs(erdb_windows) do
     local previous = _G[name]
     _G[name] = function()
         if type(previous) == "function" then previous() end
+        erdb_reacting = false
         erdb_action, erdb_action_time, erdb_pending_action = id, 0, nil
         erdb_action_running = false
         act(ResetInputQueue)
@@ -203,8 +206,43 @@ for _, name in ipairs({"IdleDefault", "IdleBattle", "RunDefault", "RunBattle",
     local previous = _G[callback]
     _G[callback] = function()
         if type(previous) == "function" then previous() end
+        if erdb_reacting then erdb_trace("damage returned to "..name) end
+        erdb_reacting = false
         if erdb_pending_action == nil then erdb_action, erdb_action_time = nil, 0 end
     end
+end
+-- GA's new front reaction router unconditionally falls back to 8040. c0010
+-- has no ordinary 8000..805x clips. The legacy directional router checks the
+-- requested clip before every Fire. Missing reactions must not suppress HP loss
+-- or enter a graph state that can never produce an animation-end/cancel signal.
+function ExecNewDamageDefault(damage_level)
+    return erdb_damage_default(damage_level)
+end
+local function erdb_damage_takeover()
+    if not erdb_reacting then erdb_trace("damage takeover action="..tostring(erdb_action).." pending="..tostring(erdb_pending_action)) end
+    erdb_reacting=true
+    erdb_action,erdb_pending_action,erdb_action_time=nil,nil,0
+    erdb_action_running,erdb_skill_seen=false,false
+end
+for _,name in ipairs({"DamageExtraLarge","DamageSpecial","DamageMinimum","SABreak","DamageSmall","DamageSmallFront",
+    "NewDamageSmall","DamageMiddle","DamageMiddleFront","NewDamageMiddle","DamageLarge",
+    "DamageLargeFront","NewDamageLarge","DamageSpecialBlow","DamageLargeBlow","DamageSmallBlow",
+    "DamageFling","DamagePush","DamageUpper","DamageWeak","DamageSmallFire","DamageLargeFire",
+    "GuardDamageSmall","GuardDamageSmallLowStamina","GuardDamageMiddle","GuardDamageLarge","GuardDamageLargeLowStamina"}) do
+    local previous=_G[name.."_onActivate"]
+    _G[name.."_onActivate"]=function()
+        if type(previous)=="function" then previous() end
+        erdb_damage_takeover()
+    end
+end
+function DamageCommonFunction(style,is_weak,judge_fall_type)
+    erdb_damage_takeover()
+    return erdb_damage_common(style,is_weak,judge_fall_type)
+end
+-- NR's 8060 graph enters DamageExtraLarge, while GA c9997 only supplies
+-- DamageSpecial. Bind the actual state without changing the shared script.
+function DamageExtraLarge_onUpdate()
+    return DamageCommonFunction(STYLE_DEFAULT,FALSE,JUDGE_FALL_TYPE_DIRECTION)
 end
 function IdleCommonFunction(style, anim_id)
     erdb_original_heading()
@@ -360,7 +398,7 @@ end
 erdb_lifecycle_tick = function()
     if rawget(_G,"ERDB_BRIDGE_ENABLED") == false then return end
     erdb_observe_lifecycle()
-    if erdb_life.phase == "pending_exit" and erdb_action == nil then erdb_start_outro() end
+    if erdb_life.phase == "pending_exit" and erdb_action == nil and not erdb_reacting then erdb_start_outro() end
     erdb_life.poll = erdb_life.poll - math.max(0,GetDeltaTime())
     if erdb_life.poll > 0 then return end
     erdb_life.poll=0.1
@@ -385,7 +423,7 @@ erdb_lifecycle_tick = function()
         erdb_trace("entry armed; awaiting live state")
     elseif token==erdb_life.token and command=="exit" and erdb_life.phase=="active" then
         erdb_life.phase="pending_exit";act(ResetInputQueue)
-        if erdb_action==nil then erdb_start_outro() end
+        if erdb_action==nil and not erdb_reacting then erdb_start_outro() end
     end
 end
 

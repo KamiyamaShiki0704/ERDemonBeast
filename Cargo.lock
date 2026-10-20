@@ -114,7 +114,6 @@ dependencies = [
 [[package]]
 name = "eldenring"
 version = "0.14.0"
-source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=02fa5681e27fd2ecd9da79d34aef9fae96805539#02fa5681e27fd2ecd9da79d34aef9fae96805539"
 dependencies = [
  "bitfield",
  "bitflags",
@@ -124,6 +123,7 @@ dependencies = [
  "glam",
  "num_enum",
  "pelite",
+ "sha2",
  "thiserror",
  "vtable-rs",
  "windows",
@@ -152,7 +152,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "er-demon-beast"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "eldenring",
  "fromsoftware-shared",
@@ -179,7 +179,6 @@ dependencies = [
 [[package]]
 name = "fromsoftware-shared"
 version = "0.14.0"
-source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=02fa5681e27fd2ecd9da79d34aef9fae96805539#02fa5681e27fd2ecd9da79d34aef9fae96805539"
 dependencies = [
  "bitflags",
  "from-singleton",
@@ -195,7 +194,6 @@ dependencies = [
 [[package]]
 name = "fromsoftware-shared-macros"
 version = "0.14.0"
-source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=02fa5681e27fd2ecd9da79d34aef9fae96805539#02fa5681e27fd2ecd9da79d34aef9fae96805539"
 dependencies = [
  "inflections",
  "proc-macro2",
@@ -206,7 +204,6 @@ dependencies = [
 [[package]]
 name = "fromsoftware-shared-stl"
 version = "0.14.0"
-source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=02fa5681e27fd2ecd9da79d34aef9fae96805539#02fa5681e27fd2ecd9da79d34aef9fae96805539"
 
 [[package]]
 name = "fxhash"

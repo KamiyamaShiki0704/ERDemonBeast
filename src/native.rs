@@ -5,6 +5,7 @@ mod behavior_bridge;
 mod camera_profile;
 mod capture;
 mod effect_scan;
+mod health;
 use eldenring::{
     cs::{
         CSTaskGroupIndex, CSTaskImp, ChrIns, FieldInsHandle, NpcParam, NpcThinkParam,
@@ -40,6 +41,8 @@ use windows::Win32::{
 };
 
 const EXE_HASH: &str = "1a3547101327f65d0c76da2f9190ac0aa66871ea42bae2aecc61e11a8b597891";
+const EXE_HASH_1172: &str = "f9118fea2cfd8fa3901e8060bfadb1552cb2471771ded8a5b662c4e298ffb328";
+static SELECTED_EXE_HASH: OnceLock<String> = OnceLock::new();
 const CTRL_OVERRIDE: usize = 0x3b0;
 const MANIP_OWNER: usize = 0xa8;
 static DIRECTORY: OnceLock<PathBuf> = OnceLock::new();
@@ -107,9 +110,11 @@ fn initialize() -> Result<(), String> {
     let exe = std::env::current_exe().map_err(|e| e.to_string())?;
     let bytes = fs::read(&exe).map_err(|e| e.to_string())?;
     let hash = format!("{:x}", Sha256::digest(bytes));
-    if hash != EXE_HASH {
+    if hash != EXE_HASH && hash != EXE_HASH_1172 {
         return Err(format!("unsupported executable SHA256={hash}"));
     }
+    let _ = SELECTED_EXE_HASH.set(hash.clone());
+    eldenring::initialize_game_bindings()?;
     validate_abi()?;
     let config = Config::parse(
         &fs::read_to_string(DIRECTORY.get().unwrap().join("er-demon-beast.toml"))
@@ -204,6 +209,13 @@ fn validate_abi() -> Result<(), String> {
             0x68,
         ),
         ("Data.hp", offset_of!(CSChrDataModule, hp), 0x138),
+        ("Data.max_hp", offset_of!(CSChrDataModule, max_hp), 0x13c),
+        (
+            "Data.max_uncapped_hp",
+            offset_of!(CSChrDataModule, max_uncapped_hp),
+            0x140,
+        ),
+        ("Data.base_hp", offset_of!(CSChrDataModule, base_hp), 0x144),
         (
             "Physics.fade",
             offset_of!(CSChrPhysicsModule, fade_out_gravity_disabled),
@@ -610,6 +622,7 @@ struct NativeBackend {
     spawn_existing: std::collections::HashSet<FieldInsHandle>,
     behavior: Option<behavior_bridge::BehaviorBridge>,
     camera: camera_profile::CameraProfile,
+    health: Option<health::HealthLink>,
 }
 #[derive(Default)]
 enum Retirement {
@@ -709,6 +722,7 @@ impl NativeBackend {
         self.debug_manipulator = 0;
         self.body_patch_count = 0;
         self.linked = false;
+        self.health = None;
         self.spawn_existing.clear();
         self.retirement = Retirement::None;
         if let Some(bridge) = self.behavior.take() {
@@ -733,6 +747,7 @@ impl NativeBackend {
             spawn_existing: Default::default(),
             behavior: None,
             camera: Default::default(),
+            health: None,
         }
     }
     fn world(&self) -> Result<&'static mut WorldChrMan, String> {
@@ -796,7 +811,7 @@ impl NativeBackend {
         // The creator does not guarantee event-id registration (Summon fixes
         // this explicitly). Bind by our unchanged request, pre-spawn set and
         // last-created pointer together, then register through Summon's code.
-        let init = &world.debug_chr_creator.init_data;
+        let init = &world.debug_chr_creator().init_data;
         if init.event_entity_id != self.config.ownership_tag
             || init.npc_param_id != self.form().npc_param_id
             || init.npc_think_param_id != self.form().npc_think_param_id
@@ -805,7 +820,7 @@ impl NativeBackend {
                 "debug creator request overwritten; ownership uncertain; restart required".into(),
             );
         }
-        let Some(last_created) = world.debug_chr_creator.last_created_chr else {
+        let Some(last_created) = world.debug_chr_creator().last_created_chr else {
             return Ok(false);
         };
         let matches: Vec<_> = world
@@ -828,7 +843,7 @@ impl NativeBackend {
             self.beast = Some(*identity);
             self.pending = false;
             self.spawn_existing.clear();
-            world.debug_chr_creator.last_created_chr = None;
+            world.debug_chr_creator_mut().last_created_chr = None;
             let registered = crate::chr_lifecycle::register_event_entity_id(
                 world,
                 identity.handle,
@@ -901,6 +916,8 @@ impl NativeBackend {
         }
         self.body_patch_count = self.patches.len();
         let beast = beast_id.resolve(world)?;
+        // Seed HP before publishing control. Never add HP to rollback patches.
+        self.health = Some(health::HealthLink::seed(body_id.data, beast_id.data)?);
         activate(beast);
         self.add_patch(
             beast_id.address + offset_of!(ChrIns, team_type),
@@ -1005,8 +1022,8 @@ impl Backend for NativeBackend {
         }
         self.body = Some(body_id);
         self.world_address = world as *mut _ as usize;
-        if world.debug_chr_creator.spawn
-            || world.debug_chr_creator.last_created_chr.is_some()
+        if world.debug_chr_creator().spawn
+            || world.debug_chr_creator().last_created_chr.is_some()
             || world
                 .debug_chr_set
                 .characters()
@@ -1019,7 +1036,7 @@ impl Backend for NativeBackend {
             .characters()
             .map(|chr| chr.field_ins_handle)
             .collect();
-        let init = &mut world.debug_chr_creator.init_data;
+        let init = &mut world.debug_chr_creator_mut().init_data;
         if size_of_val(init) != 0x100 {
             return Err("creator layout mismatch".into());
         }
@@ -1050,7 +1067,7 @@ impl Backend for NativeBackend {
             )?);
         }
         self.pending = true;
-        world.debug_chr_creator.spawn = true;
+        world.debug_chr_creator_mut().spawn = true;
         Ok(())
     }
     fn poll_ready(&mut self) -> Result<bool, String> {
@@ -1072,6 +1089,14 @@ impl Backend for NativeBackend {
     fn maintain(&mut self) -> Result<(), String> {
         let world = self.world()?;
         self.validate_session(world, true)?;
+        if let Some(health) = &mut self.health
+            && health.sync(
+                self.body.ok_or("no health body")?.data,
+                self.beast.ok_or("no health beast")?.data,
+            )?
+        {
+            return Err("shared health depleted; restore player for native death".into());
+        }
         let mut camera_ids = vec![0, 1, 2];
         if let Some(player) = world.main_player.as_ref()
             && let Some(target) = world.chr_ins_by_handle(&player.locked_on_enemy)
@@ -1149,6 +1174,18 @@ impl Backend for NativeBackend {
             return Ok(false);
         }
         let beast_valid = self.beast.is_some_and(|beast| beast.resolve(world).is_ok());
+        if let Some(mut health) = self.health.take()
+            && beast_valid
+            && let Err(error) = health.sync(
+                self.body.ok_or("missing health body")?.data,
+                self.beast.ok_or("missing health beast")?.data,
+            )
+        {
+            // Never leave protection/input installed because HP cleanup failed.
+            log(format!(
+                "health final sync failed; control cleanup continues: {error}"
+            ));
+        }
         if self.linked && beast_valid {
             let beast = self
                 .beast

@@ -150,3 +150,51 @@ Spec 1.2 / Design 1.5。v4 登场获用户确认，四轮正常 Active 后退场
 用户回复已退出后，之前被拦截的安装回归单项已PASS，合计Python17 PASS。随后正式安装时出现新ER进程15504，安装脚本在任何写入前拒绝；无deployment-effects-0.4.1.json，仍安装0.4.0。配对包已release_ready=true，等待再次退出后直接安装，无需重复离线测试。
 
 用户再次回复“退出了”后，确认ER进程不存在，成功安装0.4.1完整配对包。11目标文件及其安装前备份逐项SHA256通过，7受保护输入未改；DLL SHA256 `db1e25d947f6b0e988a29b6b2e16c232ec3a51b40c1971178a9c7afe2404876a`。部署记录：`research/deployment-effects-0.4.1.json`。新回退入口 `F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-EffectControls041.cmd` 恢复0.4.0。未启动游戏；实际效果ID与游戏动作施加仍待配置，当前保留显式debug热键/manual/15秒的迁移测试配置。
+
+## 2026-09-25：基础参数恢复与 c0010 战斗参数安装
+
+用户覆盖旧 regulation 后，NpcParam100000 / NpcThinkParam100000 确实缺失，已从之前已验证的包恢复；该步仅增加两行，保持9919个原有行和192个其他表不变。原文件 `cf84b55a...`，修复后 `63d3e790...`；记录 `research/regulation-repair-deployment-20260925.json`。
+
+用户进一步要求移植其他 c0010 参数，并确认 spec-combat-params.md@1.0 的范围、验收与排除项，回复“按此范围移植并安装”。基于当前修复后文件增量新增 Behavior20、Atk20、Bullet12、SpEffect4，共56行；Npc100000只修改 behaviorVariationId40700→100及行名。保留当前 AI、阵营和生命设置，以及现有共用参数；NR 专有状态和分类按设计排除/转换。
+
+CP-P01 离线通过：91,243个原有行（除声明的Npc行）逐行字节/名称一致，189个其他参数表字节未变；70条攻击/子弹TAE通知、275处参数引用校验通过。候选加密读回、新效果中性值与ER专属默认值复核通过。隔离文件的安装/备份/回退、安装及回退的后续修改保护共6项通过。初次生成被默认值检查拦下，确认库遗漏XML内联默认值后修复；失败时未写游戏文件。
+
+已在无ER进程时安装至 `F:/GoldenAge/_GoldenAge/GA/regulation.bin`；SHA256 `9caba57e5965ccf0fd6e9c5a667a5bdfb6baa2102778b7a04396d03c36563e71`。6个已部署DLL/配置/行为动画文件哈希不变。备份与原子替换前原件位于 `dll/demon_beast/_backups/regulation-combat-20260925-195246-016-defd288e/`；该目录的 Restore-Regulation.cmd 仅在安装文件未被用户随后修改时允许恢复，恢复到“两行已补齐、尚未导入战斗参数”的版本。
+
+工程基准9b734d5，具体脚本哈希、KB revision、自动与部署记录见 `research/build-result-combat-params-20260925.json`。CP-P02/03/04 为人工待验收项；不启动游戏，不读取活体内存，不宣称命中、实际伤害、NR遗物触发或完整特效已通过。本轮不改公共README、不推送二进制或内部资料。
+
+## 2026-09-25：共用生命0.4.2 / 私有HKS v9已安装
+
+用户反馈生命未关联及受击Pose，确认共用玩家当前/最大生命、受伤/治疗同步、解除保留HP、归零正常死亡，并确认3次循环/0.25秒血条差异/死亡交回3秒等Probe，规格spec-shared-health.md@1.0。
+
+新增原生HealthLink，HP与控制恢复Patch分离，每帧按兽体增量合并玩家当前生命，处理同帧本体回血、最大生命截断、重复同步、致死零值及写失败停用。采样增加max_hp。HKS修复缺8040时仍分派W_DamageMiddleFront、真实DamageExtraLarge状态无回调、受击抢占pending_action后输入永久锁定三项。保留合法受击，正常解除等待受击回到可恢复状态；没有普通受击动画时不合成动画、不强制重受击替代。
+
+45 Rust、17 Python、Clippy/fmt/release、小栈DLL加载，以及真实HKS44方向/伤害组合和现有连段/映射/翻滚/登退场/战技回归通过。初次候选在核对真实图中状态名后仍触发红灯，修复后才打包安装。证据：research/shared-health-hit-diagnosis-20260925.md、build-result-health-0.4.2.json。
+
+无ER进程时配对安装11文件，逐项验证安装与备份、7受保护输入。DLL SHA256 e6af0a5a14f4637138329a42ca6ce99f4887c6ef1745cce77d23d0ad3f55883d，HKS 791dab7b275b65215ed657ce43af7b5b91961110304ebbd50dc88d23d0f2092c；当前regulation仍9caba57e...，Behbnd/anibnd/name-ID表不改。包dist/shared-health-0.4.2-r2，备份dll/demon_beast/_backups/complete-forms-20260925-201436-232；回退Restore-SharedHealth042.cmd。部署记录research/deployment-health-0.4.2.json。
+
+仅自动离线通过；实际血条时延、受击Pose消失和归零后ER死亡流程待用户测试，不把引擎运行未证明项记作PASS。安装测试说明位于dll/demon_beast/BEHAVIOR_TEST.md。未推送GitHub。
+
+### 0.4.2 / HKS v9 人工验收反馈
+
+用户随后回复“测试了，没问题”。据此将本轮共用生命与受击恢复记为整体人工验收通过；再次核对安装DLL/HKS/regulation哈希与上述交付一致，未修改游戏文件。证据为research/shared-health-human-check-0.4.2.json。用户未提供逐项记录或计时，不补报0.25秒/3秒精确测量、独立死亡Case或全部历史Probe通过。保留当前配对版本作为后续基线。
+
+
+## 2026-09-25：公共脚本与 c0010 适配器分离已安装
+
+用户“同意”实施加载结构重构，沿用现有Spec行为及Probe。Behbnd脚本顺序为c9997→d0010→modifier→c0010→c0010；d0010从488773字节缩为22412字节，执行正文与人工验收v9一致。公共c9997仅移除未使用的script_dir初始化；裸文件名红灯已复现，裸名/Windows路径/斜杠路径候选均通过。DLL仍0.4.2。
+
+完整字符图往返等价，除luaFiles外无结构差异，其他3个Binder条目逐字节一致。23次HKS回归（含44受击方向组合、20轮翻滚）、6项隔离目录安装/回退/后续编辑保护通过。测试工具初次解析PowerShell错误输出遇到GBK/UTF-8不匹配，显式UTF-8后六项通过。未重编译未改动的DLL。
+
+无ER进程时安装3个资产；安装值、3份原始备份、6项GA保护输入及DLL/配置哈希全部通过。当前regulation为f29154aa…，与旧health记录不同；保持本轮读取时的版本，未改参数或宣称重新验收。记录research/build-result-split-hks-1.json、verification-split-hks-1.json、deployment-split-hks-1.json。回退入口F:/GoldenAge/_GoldenAge/dll/demon_beast/Restore-SplitBehavior.cmd。
+
+新加载组合尚未实机确认，需人检查进入、攻击/闪避、受击/生命和退场。此前整体实机PASS仅对应旧组合。更新了正常功能README和加载维护说明，未推送GitHub。
+
+
+## 2026-09-25：部署目录清理与禁用调试热键
+
+按用户要求，将284个旧脚本、测试说明、日志、PDB和备份（285.34MiB）复制到dist/deployment-archives/demon-beast-20260925-220523，逐文件SHA256验证后从加载目录移除；删除前限定并检查绝对目录、拒绝重解析点与并发修改。保留DLL、配置和两份许可说明，重建空Saved/er-demon-beast供运行通信。全部归档最终再次核验通过。
+
+配置唯一语义变化是debug_hotkeys_enabled=true→false，已用check_forms验证实际安装配置通过；manual与SpEffect未配置状态保持，因此暂时没有已配置的主动变身入口。配置替换初次因跨卷备份路径失败，确认原配置完好后改用同卷原子替换，再归档替换前配置。DLL及保留许可哈希不变；未修改GA资产或启动游戏。
+
+记录research/deployment-cleanup-20260925.json；历史恢复脚本/记录包含原路径和旧配置哈希，不能在归档位置直接执行，恢复时必须核对。原split-hks-1人工待确认状态保持。

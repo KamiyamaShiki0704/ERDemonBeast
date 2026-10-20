@@ -48,7 +48,7 @@ impl Capture {
             "{:x}",
             Sha256::digest(fs::read(root.join("er_demon_beast.dll")).map_err(|e| e.to_string())?)
         );
-        let meta = json!({"schema":1,"run":run,"exe_sha256":EXE_HASH,
+        let meta = json!({"schema":1,"run":run,"exe_sha256":SELECTED_EXE_HASH.get().map(String::as_str).unwrap_or(EXE_HASH),
             "dll_sha256":dll_hash,"version":env!("CARGO_PKG_VERSION"),
             "config":config,"spec":"spec-custom-forms.md@1.0 + spec-effect-controls.md@1.0","sample_period_s":0.05,
             "active_action_trace":config.action_trace,"sampling_stage":"FrameEnd",
@@ -218,7 +218,7 @@ fn actor(chr: &ChrIns) -> Result<Value, String> {
     let action = modules.action_request.as_ref();
     Ok(
         json!({"handle":chr.field_ins_handle.to_string(),"address":chr as *const _ as usize,
-        "hp":modules.data.as_ref().hp,"position":[pos.0,pos.1,pos.2],
+        "hp":modules.data.as_ref().hp,"max_hp":modules.data.as_ref().max_hp,"position":[pos.0,pos.1,pos.2],
         "render":chr.chr_flags1c5.enable_render(),"alpha":chr.base_transparency,
         "tint_alpha":chr.tint_alpha_multiplier,"debug_flags":chr.debug_flags.0,
         "disable_hit":chr.chr_ctrl.as_ref().flags.disable_hit(),
