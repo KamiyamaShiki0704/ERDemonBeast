@@ -114,6 +114,7 @@ dependencies = [
 [[package]]
 name = "eldenring"
 version = "0.14.0"
+source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5#dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5"
 dependencies = [
  "bitfield",
  "bitflags",
@@ -179,6 +180,7 @@ dependencies = [
 [[package]]
 name = "fromsoftware-shared"
 version = "0.14.0"
+source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5#dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5"
 dependencies = [
  "bitflags",
  "from-singleton",
@@ -194,6 +196,7 @@ dependencies = [
 [[package]]
 name = "fromsoftware-shared-macros"
 version = "0.14.0"
+source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5#dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5"
 dependencies = [
  "inflections",
  "proc-macro2",
@@ -204,6 +207,7 @@ dependencies = [
 [[package]]
 name = "fromsoftware-shared-stl"
 version = "0.14.0"
+source = "git+https://github.com/KamiyamaShiki0704/fromsoftware-rs?rev=dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5#dd7b5a1d71169a3d3cbdfc619ecd72be169f17d5"
 
 [[package]]
 name = "fxhash"
