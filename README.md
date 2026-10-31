@@ -1,5 +1,3 @@
-> 2026-10-21 compatibility build: ER App 1.17.2 / EXE 2.7.2.0. The candidate in `dist/er-1.17.2/` passed automated checks and is installed in the main `_GoldenAge` Mod. In-game acceptance is pending. Current spec, hashes, rollback and evidence: [1.17.2 build record](../../Topics/Gameplay/bug-er-1-17-2-dll-compat/build.md). Earlier version/publication notes below retain their original scope.
-
 # ER Demon Beast
 
 为 **Elden Ring** 提供可配置的角色变身功能：保留玩家本体，生成并操控独立形态，在解除后恢复玩家控制。
